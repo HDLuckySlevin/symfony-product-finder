@@ -367,32 +367,4 @@ class Product
         $this->embeddings = $embeddings;
         return $this;
     }
-
-    /**
-     * Get all product data as a single text for embedding generation
-     * 
-     * Combines all relevant product information into a single text string
-     * that can be used for generating vector embeddings. This includes the
-     * product name, description, brand, category, specifications, and features.
-     * 
-     * @return string Combined product text data for embedding generation
-     */
-    public function getTextForEmbedding(): string
-    {
-        $text = $this->name . ' ' . $this->description . ' ' . $this->brand . ' ' . $this->category;
-
-        // Add specifications
-        if (!empty($this->specifications)) {
-            foreach ($this->specifications as $key => $value) {
-                $text .= ' ' . $key . ': ' . $value;
-            }
-        }
-
-        // Add features
-        if (!empty($this->features)) {
-            $text .= ' Features: ' . implode(', ', $this->features);
-        }
-
-        return $text;
-    }
 }

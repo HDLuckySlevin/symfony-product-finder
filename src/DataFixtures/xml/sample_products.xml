@@ -4,7 +4,7 @@
         <id>6</id>
         <name>Google Pixel 8 Pro</name>
         <sku>GOOPIX8P-128-BLU</sku>
-        <description>Das Google Pixel 8 Pro bietet ein 6,7-Zoll LTPO OLED-Display, den Google Tensor G3 Prozessor und eine vielseitige Triple-Kamera. Es überzeugt durch smarte Software und lange Update-Garantie.</description>
+        <description>Das Google Pixel 8 Pro bietet ein beeindruckendes 6,7-Zoll LTPO OLED-Display mit adaptiver Bildwiederholrate für flüssiges Scrollen und energieeffiziente Nutzung. Der leistungsstarke Google Tensor G3 Prozessor wurde speziell für KI-Anwendungen optimiert und sorgt für blitzschnelle Reaktionszeiten. Die vielseitige Triple-Kamera mit 50MP Hauptsensor, 48MP Ultraweitwinkel und 48MP Teleobjektiv liefert professionelle Fotos bei allen Lichtverhältnissen. Besonders beeindruckend sind die KI-gestützten Fotofunktionen wie Magic Eraser und Best Take. Mit der Garantie von 5 Jahren Softwareupdates bleibt das Gerät langfristig aktuell und sicher. Die robuste IP68-Zertifizierung schützt zuverlässig vor Wasser und Staub.</description>
         <brand>Google</brand>
         <category>Smartphones</category>
         <price>1099.00</price>
@@ -36,7 +36,7 @@
         <id>7</id>
         <name>Bose QuietComfort Ultra</name>
         <sku>BOSEQCULTRA-SIL</sku>
-        <description>Die Bose QuietComfort Ultra bieten erstklassige Geräuschunterdrückung, exzellenten Klang und hohen Tragekomfort für Musikliebhaber und Vielreisende.</description>
+        <description>Die Bose QuietComfort Ultra Kopfhörer repräsentieren die Spitze der Noise-Cancelling-Technologie und bieten eine erstklassige Geräuschunterdrückung, die selbst in den lautesten Umgebungen für Ruhe sorgt. Mit ihrer fortschrittlichen CustomTune-Technologie passen sie den Klang automatisch an Ihre Ohrform an und liefern ein audiophiles Klangerlebnis mit präzisen Höhen, ausgewogenen Mitten und tiefen, kraftvollen Bässen. Der hochwertige Memory-Schaum in den Ohrpolstern und das leichte Design ermöglichen stundenlangen Tragekomfort ohne Druckgefühl – ideal für lange Flüge oder Arbeitstage. Die Bluetooth 5.3-Verbindung garantiert stabile Konnektivität zu mehreren Geräten gleichzeitig, während die intuitive Touch-Steuerung eine mühelose Bedienung ermöglicht.</description>
         <brand>Bose</brand>
         <category>Kopfhörer</category>
         <price>429.00</price>
@@ -65,7 +65,7 @@
         <id>8</id>
         <name>Lenovo ThinkPad X1 Carbon Gen 11</name>
         <sku>LENX1C11-I5-16-512</sku>
-        <description>Das Lenovo ThinkPad X1 Carbon Gen 11 ist ein ultraleichtes Business-Notebook mit 14-Zoll WUXGA-Display, Intel Core i5 Prozessor, 16GB RAM und 512GB SSD.</description>
+        <description>Das Lenovo ThinkPad X1 Carbon Gen 11 ist ein Premium Business-Notebook, das Leistung und Mobilität perfekt vereint. Mit nur 1,12 kg Gewicht und einem schlanken Profil von 15 mm ist es ideal für Geschäftsreisende, die keine Kompromisse eingehen wollen. Das gestochen scharfe 14-Zoll WUXGA-Display mit 1920 x 1200 Pixeln bietet hervorragende Bildqualität für Präsentationen und Multitasking. Der Intel Core i5-1335U Prozessor der 13. Generation in Kombination mit 16GB LPDDR5-RAM sorgt für reibungslose Performance bei anspruchsvollen Business-Anwendungen. Die schnelle 512GB SSD ermöglicht kurze Ladezeiten und bietet ausreichend Speicherplatz für wichtige Dokumente. Die legendäre ThinkPad-Tastatur mit Trackpoint und das präzise Touchpad garantieren höchsten Bedienkomfort. Dank der umfangreichen Sicherheitsfunktionen wie Fingerabdruckleser und Privacy Guard schützen Sie Ihre sensiblen Unternehmensdaten zuverlässig.</description>
         <brand>Lenovo</brand>
         <category>Laptops</category>
         <price>1799.00</price>
@@ -97,7 +97,7 @@
         <id>9</id>
         <name>Philips Hue White and Color Ambiance Starter Kit</name>
         <sku>PHIHUEKIT-E27-4P</sku>
-        <description>Das Philips Hue Starter Kit enthält vier E27-Lampen und eine Bridge. Es ermöglicht smarte Lichtsteuerung mit Millionen Farben und Sprachsteuerung.</description>
+        <description>Das Philips Hue White and Color Ambiance Starter Kit ist der perfekte Einstieg in die Welt der intelligenten Beleuchtung. Es enthält vier hochwertige E27-LED-Lampen, die jeweils bis zu 16 Millionen Farben und verschiedene Weißtöne erzeugen können, sowie die essentielle Hue Bridge als Steuerzentrale. Mit der intuitiven Philips Hue App können Sie Lichtszenen erstellen, Zeitpläne programmieren und die Beleuchtung von unterwegs steuern. Die nahtlose Integration mit Amazon Alexa, Google Assistant und Apple HomeKit ermöglicht eine komfortable Sprachsteuerung. Besonders praktisch: Die Lampen lassen sich mit anderen Smart-Home-Geräten verbinden und auf Ereignisse wie Sonnenauf- und -untergang, Heimkehr oder Wetteränderungen reagieren. Mit nur 9,5 Watt pro Lampe sind die LEDs äußerst energieeffizient und haben eine Lebensdauer von bis zu 25.000 Stunden, was Ihren Stromverbrauch deutlich reduziert.</description>
         <brand>Philips</brand>
         <category>Smart Home</category>
         <price>179.99</price>
@@ -125,7 +125,7 @@
         <id>10</id>
         <name>Samsung Odyssey G9</name>
         <sku>SAMODG9-49INCH</sku>
-        <description>Der Samsung Odyssey G9 ist ein 49-Zoll Curved Gaming-Monitor mit QHD-Auflösung, 240Hz Bildwiederholrate und Quantum Dot-Technologie für beeindruckende Gaming-Erlebnisse.</description>
+        <description>Der Samsung Odyssey G9 ist ein revolutionärer 49-Zoll Super-Ultrawide Curved Gaming-Monitor, der mit seiner extremen 1000R-Krümmung ein vollständig immersives Spielerlebnis bietet – genau dem natürlichen Sichtfeld des menschlichen Auges entsprechend. Die beeindruckende Dual QHD-Auflösung von 5120 x 1440 Pixeln liefert gestochen scharfe Bilder mit feinen Details, während die Quantum Dot-Technologie für eine außergewöhnliche Farbbrillanz mit 125% sRGB-Farbraumabdeckung sorgt. Mit einer blitzschnellen Bildwiederholrate von 240Hz und 1ms Reaktionszeit gehören Bewegungsunschärfen und Schlierenbildung der Vergangenheit an – ideal für kompetitive Spiele, bei denen jede Millisekunde zählt. Die HDR1000-Zertifizierung garantiert beeindruckende Kontraste mit tiefen Schwarztönen und strahlenden Highlights. Dank G-SYNC Compatibility und AMD FreeSync Premium Pro erleben Sie flüssiges, ruckelfreies Gameplay ohne störendes Tearing. Die Picture-by-Picture-Funktion ermöglicht es, zwei verschiedene Eingabequellen gleichzeitig anzuzeigen – perfekt für Multitasking und Streaming.</description>
         <brand>Samsung</brand>
         <category>Monitore</category>
         <price>1399.00</price>
@@ -155,7 +155,7 @@
         <id>1</id>
         <name>Samsung Galaxy S23 Ultra</name>
         <sku>SAMS23U-128-BLK</sku>
-        <description>Das Samsung Galaxy S23 Ultra ist ein leistungsstarkes Smartphone mit einem 6,8-Zoll Dynamic AMOLED-Display, Snapdragon 8 Gen 2 Prozessor und einer 200-Megapixel-Hauptkamera. Es bietet eine hervorragende Leistung für anspruchsvolle Anwendungen und Spiele.</description>
+        <description>Das Samsung Galaxy S23 Ultra repräsentiert die Spitze der Smartphone-Technologie und vereint kompromisslose Leistung mit professioneller Kameratechnik. Das atemberaubende 6,8-Zoll Dynamic AMOLED 2X Display mit adaptiver 120Hz-Bildwiederholrate und QHD+-Auflösung liefert lebendige Farben und tiefe Kontraste für ein beeindruckendes visuelles Erlebnis. Angetrieben vom speziell optimierten Snapdragon 8 Gen 2 for Galaxy Prozessor und 12GB RAM bewältigt es mühelos anspruchsvollste Multitasking-Aufgaben und grafikintensive Spiele. Das revolutionäre Kamerasystem mit 200-Megapixel-Hauptsensor setzt neue Maßstäbe in der Smartphone-Fotografie und ermöglicht gestochen scharfe Aufnahmen mit außergewöhnlichem Detailreichtum. Der integrierte S Pen verwandelt das Smartphone in ein kreatives Werkzeug für präzises Zeichnen, Notizen und Bildbearbeitung. Die massive 5000mAh-Batterie mit Schnellladefunktion sorgt für ausdauernde Nutzung, während die robuste IP68-Zertifizierung das Gerät zuverlässig vor Wasser und Staub schützt. Mit seiner KI-gestützten Software und dem umfassenden Ökosystem von Samsung-Diensten bietet das S23 Ultra ein durchdachtes Premium-Erlebnis für anspruchsvolle Nutzer.</description>
         <brand>Samsung</brand>
         <category>Smartphones</category>
         <price>1199.99</price>
@@ -187,7 +187,7 @@
         <id>2</id>
         <name>Apple iPhone 15 Pro</name>
         <sku>APPL15P-256-GLD</sku>
-        <description>Das iPhone 15 Pro verfügt über ein 6,1-Zoll Super Retina XDR-Display, den A17 Pro Chip und ein fortschrittliches Kamerasystem mit 48 MP. Es bietet herausragende Leistung in einem eleganten Design aus Titan.</description>
+        <description>Das iPhone 15 Pro setzt neue Maßstäbe in der Smartphone-Technologie mit seinem revolutionären Design aus Titan-Legierung, die außergewöhnliche Robustheit bei geringerem Gewicht bietet. Das brillante 6,1-Zoll Super Retina XDR-Display mit ProMotion-Technologie liefert flüssige Animationen mit adaptiver Bildwiederholrate bis 120Hz und beeindruckender Helligkeit von bis zu 2000 Nits im Freien. Der bahnbrechende A17 Pro Chip mit 3-Nanometer-Architektur bietet nicht nur unübertroffene Rechenleistung für mobile Gaming auf Konsolenniveau, sondern auch höchste Energieeffizienz. Das professionelle Kamerasystem mit 48 MP Hauptsensor, verbesserter Ultraweitwinkel- und Telekamera ermöglicht beeindruckende Fotografie mit optischem 3x-Zoom und unterstützt ProRAW für maximale kreative Kontrolle. Die Action Button-Taste bietet schnellen Zugriff auf häufig genutzte Funktionen, während der neue USB-C-Anschluss mit Thunderbolt 3 Geschwindigkeiten professionelle Workflows beschleunigt. Mit fortschrittlichen Funktionen wie Unfallerkennung, Satellitennotruf und verbesserter Face ID-Technologie setzt Apple neue Standards für Sicherheit und Innovation.</description>
         <brand>Apple</brand>
         <category>Smartphones</category>
         <price>1199.00</price>
@@ -219,7 +219,7 @@
         <id>3</id>
         <name>Sony WH-1000XM5</name>
         <sku>SONWH1000XM5-BLK</sku>
-        <description>Die Sony WH-1000XM5 sind kabellose Noise-Cancelling-Kopfhörer mit fortschrittlicher Geräuschunterdrückung, hervorragender Klangqualität und bis zu 30 Stunden Akkulaufzeit. Sie bieten kristallklaren Sound und maximalen Komfort.</description>
+        <description>Die Sony WH-1000XM5 repräsentieren die fünfte Generation von Sonys preisgekrönter Noise-Cancelling-Kopfhörerserie und setzen neue Maßstäbe in der Geräuschunterdrückungstechnologie. Mit acht speziellen Mikrofonen und zwei fortschrittlichen Prozessoren analysieren und eliminieren sie Umgebungsgeräusche mit beispielloser Präzision – ideal für konzentriertes Arbeiten oder entspanntes Reisen. Der neu entwickelte 30mm-Treiber mit Carbon-Faser-Verbundmaterial liefert einen außergewöhnlich detailreichen Klang mit präzisen Höhen, natürlichen Mitten und kraftvollen, aber kontrollierten Bässen. Die LDAC-Codec-Unterstützung ermöglicht High-Resolution Audio mit dreimal höherer Bitrate als konventionelles Bluetooth. Das komplett überarbeitete, minimalistische Design mit weichen, synthetischen Lederpolstern und optimierter Gewichtsverteilung garantiert stundenlangen Tragekomfort ohne Druckstellen. Die beeindruckende Akkulaufzeit von bis zu 30 Stunden mit aktiviertem Noise-Cancelling und die Schnellladefunktion (3 Stunden Wiedergabe nach nur 3 Minuten Ladezeit) machen die WH-1000XM5 zum perfekten Begleiter für lange Reisen. Intelligente Funktionen wie Speak-to-Chat, das die Musik automatisch pausiert, wenn Sie sprechen, und Multipoint-Verbindung für nahtloses Wechseln zwischen zwei Bluetooth-Geräten runden das Premium-Erlebnis ab.</description>
         <brand>Sony</brand>
         <category>Kopfhörer</category>
         <price>399.99</price>
@@ -249,7 +249,7 @@
         <id>4</id>
         <name>Dell XPS 15 (2023)</name>
         <sku>DELLXPS15-i7-32-1TB</sku>
-        <description>Das Dell XPS 15 ist ein leistungsstarkes Premium-Notebook mit 15,6-Zoll 4K OLED-Display, Intel Core i7 Prozessor der 13. Generation, 32GB RAM und 1TB SSD. Es bietet hervorragende Leistung für kreative Arbeiten und anspruchsvolle Anwendungen.</description>
+        <description>Das Dell XPS 15 (2023) verkörpert die perfekte Symbiose aus Eleganz, Leistung und Präzision für anspruchsvolle Kreativprofis und Power-User. Das atemberaubende 15,6-Zoll 4K OLED-Display mit 3840 x 2400 Pixeln bietet 100% DCI-P3 Farbraumabdeckung, VESA DisplayHDR 500 und Dolby Vision Unterstützung für lebensechte Farben und beeindruckende Kontraste – ideal für Foto- und Videobearbeitung auf professionellem Niveau. Der leistungsstarke Intel Core i7-13700H Prozessor der 13. Generation mit 14 Kernen (6 Performance- und 8 Effizienz-Kerne) und bis zu 5,0 GHz Taktfrequenz bewältigt mühelos komplexe Berechnungen und Multitasking-Szenarien. Die NVIDIA GeForce RTX 4060 Grafikkarte mit 8GB GDDR6-Speicher beschleunigt kreative Anwendungen und ermöglicht flüssiges Gaming in der Freizeit. Die Kombination aus 32GB schnellem DDR5-RAM und einer ultraschnellen 1TB NVMe SSD garantiert verzögerungsfreies Arbeiten selbst mit großen Dateien und komplexen Projekten. Das präzisionsgefertigte Gehäuse aus CNC-gefrästem Aluminium und Karbonfaser vereint höchste Stabilität mit geringem Gewicht und verleiht dem XPS 15 seine charakteristische Premium-Anmutung. Die randlose InfinityEdge-Konstruktion maximiert die Bildschirmfläche bei minimalen Abmessungen, während die Quad-Lautsprecher mit Waves MaxxAudio Pro und Dolby Atmos für ein immersives Klangerlebnis sorgen. Mit einer Akkulaufzeit von bis zu 13 Stunden, umfangreichen Anschlussmöglichkeiten und Windows 11 Pro ist das XPS 15 der ideale mobile Arbeitsplatz für professionelle Kreative.</description>
         <brand>Dell</brand>
         <category>Laptops</category>
         <price>2499.00</price>
@@ -281,7 +281,7 @@
         <id>5</id>
         <name>LG OLED C3 65 Zoll</name>
         <sku>LGOLED65C3-2023</sku>
-        <description>Der LG OLED C3 ist ein 65-Zoll-Fernseher mit 4K OLED-Display, α9 Gen6 AI-Prozessor und Dolby Vision IQ. Er bietet hervorragende Bildqualität mit perfektem Schwarz, lebendigen Farben und unterstützt alle wichtigen HDR-Formate.</description>
+        <description>Der LG OLED C3 65 Zoll repräsentiert die neueste Generation der preisgekrönten OLED-Technologie von LG und bietet ein unvergleichliches Heimkinoerlebnis. Das selbstleuchtende 4K OLED evo-Panel mit über 8 Millionen individuell steuerbaren Pixeln erzeugt perfektes Schwarz, unendliche Kontraste und lebensechte Farben mit 100% DCI-P3-Farbraumabdeckung. Der leistungsstarke α9 Gen6 AI-Prozessor mit Deep Learning analysiert Inhalte in Echtzeit und optimiert Bild und Ton automatisch für jede Szene. Die Unterstützung aller wichtigen HDR-Formate (Dolby Vision IQ, HDR10, HLG) in Kombination mit dem Filmmaker Mode garantiert die originalgetreue Wiedergabe von Filmen, genau wie vom Regisseur beabsichtigt. Für Gamer bietet der C3 mit vier HDMI 2.1-Anschlüssen, 120Hz Bildwiederholrate, VRR, NVIDIA G-SYNC, AMD FreeSync Premium und dem Game Optimizer ein optimales Setup mit minimaler Eingabeverzögerung. Das schlanke, rahmenlose Design mit elegantem Metallständer fügt sich harmonisch in jedes Wohnambiente ein. Die webOS 23 Smart-TV-Plattform mit intuitiver Benutzeroberfläche bietet Zugang zu allen wichtigen Streaming-Diensten, während die integrierte ThinQ AI Sprachsteuerung und Kompatibilität mit Google Assistant, Amazon Alexa und Apple HomeKit eine nahtlose Smart-Home-Integration ermöglichen. Das 2.2-Kanal-Soundsystem mit 40 Watt Leistung und virtueller 9.1.2-Kanal-Upmixing durch Dolby Atmos sorgt für ein raumfüllendes Klangerlebnis.</description>
         <brand>LG</brand>
         <category>Fernseher</category>
         <price>2299.00</price>
@@ -312,7 +312,7 @@
         <id>11</id>
         <name>Apple MacBook Air M3</name>
         <sku>APMBAIRM3-16-512</sku>
-        <description>Das neue MacBook Air mit M3 Chip bietet eine herausragende Performance, ein brillantes 13,6-Zoll Liquid Retina Display und eine Akkulaufzeit von bis zu 18 Stunden.</description>
+        <description>Das neue Apple MacBook Air mit M3 Chip repräsentiert die perfekte Balance aus Leistung, Mobilität und Eleganz. Der revolutionäre M3-Chip mit 8-Kern CPU, 10-Kern GPU und 16-Kern Neural Engine liefert bis zu 60% mehr Leistung als die M1-Generation und bewältigt anspruchsvolle Aufgaben wie Videobearbeitung, 3D-Rendering und komplexe Berechnungen mit beeindruckender Geschwindigkeit und Effizienz. Das brillante 13,6-Zoll Liquid Retina Display mit P3-Farbraum, True Tone-Technologie und 500 Nits Helligkeit sorgt für lebendige Farben und gestochen scharfe Texte bei jeder Umgebungsbeleuchtung. Trotz seiner leistungsstarken Komponenten arbeitet das MacBook Air völlig lüfterlos und damit absolut geräuschlos. Die beeindruckende Akkulaufzeit von bis zu 18 Stunden ermöglicht einen ganzen Arbeitstag ohne Ladegerät, während das ultradünne (1,13 cm) und ultraleichte (1,24 kg) Aluminiumgehäuse maximale Mobilität gewährleistet. Die 1080p FaceTime HD-Kamera mit verbessertem Bildsignal-Prozessor sorgt für brillante Videokonferenzen, während das Vier-Lautsprecher-System mit Spatial Audio ein immersives Klangerlebnis bietet. Mit MagSafe 3 zum sicheren Laden, zwei Thunderbolt-Anschlüssen und der Magic Keyboard mit Touch ID vereint das MacBook Air M3 fortschrittliche Technologie mit durchdachter Benutzerfreundlichkeit in einem zeitlosen Design.</description>
         <brand>Apple</brand>
         <category>Laptops</category>
         <price>1599.00</price>
@@ -341,7 +341,7 @@
         <id>12</id>
         <name>JBL Flip 7</name>
         <sku>JBLFLIP7-BLK</sku>
-        <description>Der JBL Flip 7 ist ein tragbarer Bluetooth-Lautsprecher mit kraftvollem Sound, 20 Stunden Akkulaufzeit und IP67-Wasserschutz.</description>
+        <description>Der JBL Flip 7 ist der neueste Vertreter der beliebten Flip-Serie und setzt neue Maßstäbe für tragbare Bluetooth-Lautsprecher. Mit seinen verbesserten Dual-Passivradiatoren und leistungsstarken Neodym-Treibern liefert er einen beeindruckend kraftvollen 360°-Sound mit tiefen, präzisen Bässen und klaren Höhen – und das trotz seiner kompakten Größe. Die robuste Konstruktion mit IP67-Zertifizierung macht den Lautsprecher vollständig staub- und wasserdicht, sodass er selbst kurzzeitiges Untertauchen bis zu 1 Meter Wassertiefe für 30 Minuten problemlos übersteht – ideal für Pool-Partys, Strandausflüge oder Outdoor-Abenteuer bei jedem Wetter. Die verbesserte Lithium-Ionen-Batterie bietet eine beeindruckende Akkulaufzeit von bis zu 20 Stunden, während die USB-C-Schnellladefunktion für minimale Ausfallzeiten sorgt. Mit der innovativen PartyBoost-Funktion können Sie mehrere kompatible JBL-Lautsprecher koppeln, um ein synchronisiertes Stereo- oder Multi-Speaker-Erlebnis zu schaffen. Das strapazierfähige, aber stylische Design mit hochwertiger Stoffummantelung in verschiedenen lebendigen Farben macht den Flip 7 zum modischen Accessoire für unterwegs. Die integrierte Freisprechfunktion mit Rauschunterdrückung ermöglicht kristallklare Telefonate, während die JBL Portable App zusätzliche Anpassungsmöglichkeiten und Softwareupdates bietet.</description>
         <brand>JBL</brand>
         <category>Lautsprecher</category>
         <price>129.99</price>
@@ -366,7 +366,7 @@
         <id>13</id>
         <name>Amazon Kindle Paperwhite 11. Gen</name>
         <sku>KINDLEPW11-8GB</sku>
-        <description>Der Kindle Paperwhite der 11. Generation bietet ein blendfreies 6,8-Zoll-Display, verstellbare Farbtemperatur und wochenlange Akkulaufzeit.</description>
+        <description>Der Amazon Kindle Paperwhite der 11. Generation ist der fortschrittlichste E-Reader für leidenschaftliche Leser, der das digitale Leseerlebnis auf ein neues Niveau hebt. Das vergrößerte 6,8-Zoll-Display mit 300 ppi Auflösung und blendfreier E-Ink-Technologie bietet eine papierähnliche Leseerfahrung selbst bei direkter Sonneneinstrahlung. Die 17 LED-Frontlichter mit verstellbarer Farbtemperatur (warmweiß bis kühlweiß) ermöglichen angenehmes Lesen zu jeder Tageszeit und reduzieren die Augenbelastung bei nächtlichen Lesesessions. Die 20% schnellere Seitenumblätterung im Vergleich zum Vorgängermodell sorgt für ein flüssigeres Leseerlebnis, während die intuitive Benutzeroberfläche mit verbesserter Typografie und anpassbaren Leseeinstellungen maximalen Lesekomfort bietet. Mit der IPX8-Zertifizierung ist der Paperwhite bis zu 60 Minuten in 2 Meter tiefem Süßwasser geschützt – ideal für entspanntes Lesen in der Badewanne oder am Pool. Der 8GB interne Speicher fasst tausende Bücher, während die beeindruckende Akkulaufzeit von bis zu 10 Wochen bei durchschnittlicher Nutzung von 30 Minuten täglich lange Leseabenteuer ohne Ladepausen ermöglicht. Der USB-C-Anschluss sorgt für schnelles und bequemes Aufladen. Mit Funktionen wie Whispersync (synchronisiert Lesefortschritt über Geräte hinweg), X-Ray (liefert Hintergrundinformationen zu Charakteren und Orten) und der integrierten Wörterbuch-Funktion bietet der Kindle Paperwhite ein umfassendes und bereicherndes Leseerlebnis.</description>
         <brand>Amazon</brand>
         <category>E-Reader</category>
         <price>149.99</price>
@@ -391,7 +391,7 @@
         <id>14</id>
         <name>Garmin Forerunner 265</name>
         <sku>GARFOR265-BLK</sku>
-        <description>Die Garmin Forerunner 265 ist eine GPS-Laufuhr mit AMOLED-Display, Trainingsanalysen und Musikfunktion.</description>
+        <description>Die Garmin Forerunner 265 ist eine hochspezialisierte GPS-Laufuhr, die fortschrittliche Trainingstechnologie mit alltagstauglichem Design verbindet. Das brillante 1,3-Zoll AMOLED-Touchdisplay mit Always-On-Funktion bietet selbst bei direkter Sonneneinstrahlung hervorragende Ablesbarkeit und lebendige Farben. Die Multi-GNSS-Technologie (GPS, GLONASS, Galileo) mit SatIQ-Funktion optimiert automatisch die Satellitenkonnektivität und liefert präzise Streckendaten bei minimalem Batterieverbrauch. Fortschrittliche Laufmetriken wie Schrittlänge, Bodenkontaktzeit und vertikale Oszillation helfen Läufern, ihre Lauftechnik zu verfeinern, während der integrierte Trainingsberater personalisierte Workouts basierend auf Ihrem Fitnesslevel, Erholungszeit und Rennzielen erstellt. Die Uhr bietet umfassende Gesundheitsüberwachung mit 24/7-Herzfrequenzmessung, Blutsauerstoffsättigung, Schlafanalyse und täglichem Morning Report. Der integrierte Speicher für bis zu 500 Songs ermöglicht kabelloses Musikhören über Bluetooth-Kopfhörer ohne Smartphone. Mit einer Akkulaufzeit von bis zu 13 Tagen im Smartwatch-Modus und 20 Stunden im GPS-Modus mit aktiviertem AMOLED-Display begleitet die Forerunner 265 Sie zuverlässig durch Training und Wettkämpfe. Praktische Smartwatch-Funktionen wie kontaktloses Bezahlen mit Garmin Pay, Smartphone-Benachrichtigungen und Connect IQ-Unterstützung für anpassbare Zifferblätter und Apps machen die Uhr zum perfekten Alltagsbegleiter für ambitionierte Läufer und Multisport-Athleten.</description>
         <brand>Garmin</brand>
         <category>Wearables</category>
         <price>499.00</price>
@@ -417,7 +417,7 @@
         <id>15</id>
         <name>Philips Airfryer XXL</name>
         <sku>PHIAIRFRY-XXL</sku>
-        <description>Der Philips Airfryer XXL bereitet Speisen mit wenig oder ganz ohne Öl zu und bietet Platz für bis zu 1,4kg Pommes.</description>
+        <description>Der Philips Airfryer XXL revolutioniert die gesunde Zubereitung von Speisen mit seiner patentierten Rapid Air-Technologie, die heiße Luft in einem hocheffizienten Wirbel zirkulieren lässt. Diese innovative Methode ermöglicht es, knusprige und schmackhafte Gerichte mit bis zu 90% weniger Fett zuzubereiten als in herkömmlichen Fritteusen. Mit seinem großzügigen 1,4kg-Fassungsvermögen – ausreichend für eine ganze Familienportion Pommes oder sogar ein komplettes 1,4kg-Hähnchen – ist der Airfryer XXL ideal für Familien und Gastgeber. Die digitale Bedienoberfläche mit fünf vorprogrammierten Kochprogrammen (Tiefkühlpommes, Hähnchen, Fisch, Backen und Rösten) und dem einzigartigen Smart Chef-Programm, das Temperatur und Zeit automatisch anpasst, macht die Zubereitung zum Kinderspiel. Die innovative Twin TurboStar-Technologie extrahiert überschüssiges Fett aus den Speisen und fängt es im Fettreduzierer am Boden auf. Mit der QuickClean-Technologie und den spülmaschinenfesten Teilen ist die Reinigung in weniger als 90 Sekunden erledigt. Der Airfryer XXL ist nicht nur zum Frittieren geeignet, sondern auch zum Backen, Grillen, Rösten und sogar zum Aufwärmen – ein vielseitiges Multitalent für die moderne Küche, das gesundes Essen ohne Geschmackseinbußen ermöglicht.</description>
         <brand>Philips</brand>
         <category>Küchengeräte</category>
         <price>249.00</price>
@@ -441,7 +441,7 @@
         <id>16</id>
         <name>Logitech MX Master 3S</name>
         <sku>LOGMXM3S-GRAPH</sku>
-        <description>Die Logitech MX Master 3S ist eine ergonomische Maus mit MagSpeed-Scrollrad, anpassbaren Tasten und leisen Klicks.</description>
+        <description>Die Logitech MX Master 3S ist die neueste Evolution der preisgekrönten MX Master-Serie und setzt neue Maßstäbe für Präzision, Komfort und Produktivität. Der hochpräzise 8K DPI-Sensor ermöglicht eine gestochen scharfe Cursor-Kontrolle auf nahezu jeder Oberfläche – selbst auf Glas – und kann in 1000-DPI-Schritten an Ihre Arbeitsweise angepasst werden. Das revolutionäre elektromagnetische MagSpeed-Scrollrad aus Stahl bietet zwei Scrollmodi: einen präzisen Raster-Modus mit taktiler Rückmeldung für exaktes Scrollen und einen ultraschnellen Freilauf-Modus, der bis zu 1000 Zeilen pro Sekunde durchblättern kann. Die neu entwickelten Quiet Clicks reduzieren die Klickgeräusche um 90% im Vergleich zum Vorgängermodell, sorgen aber dennoch für ein zufriedenstellendes taktiles Feedback – ideal für konzentriertes Arbeiten in ruhigen Umgebungen. Die wissenschaftlich entwickelte ergonomische Form mit Daumenauflage und optimierter Handballenposition beugt Ermüdungserscheinungen auch bei stundenlanger Nutzung vor. Mit der Logitech Flow-Technologie können Sie nahtlos zwischen bis zu drei Computern wechseln und sogar Dateien zwischen verschiedenen Betriebssystemen übertragen. Alle sieben Tasten sind über die Logitech Options+ Software individuell programmierbar und können für jede Anwendung spezifisch konfiguriert werden. Die Schnellladefunktion über USB-C liefert drei Stunden Nutzung nach nur einer Minute Ladezeit, während der Akku bei voller Ladung bis zu 70 Tage hält. Die MX Master 3S ist mit Windows, macOS, Linux, iPadOS und ChromeOS kompatibel und kann per Bluetooth Low Energy oder mit dem mitgelieferten Logi Bolt USB-Empfänger verbunden werden.</description>
         <brand>Logitech</brand>
         <category>Mäuse</category>
         <price>119.99</price>
@@ -465,7 +465,7 @@
         <id>17</id>
         <name>TP-Link Deco X50 Mesh WLAN Set</name>
         <sku>TPLDECOX50-3P</sku>
-        <description>Das TP-Link Deco X50 Mesh WLAN Set sorgt für schnelles und stabiles WLAN im ganzen Haus mit Wi-Fi 6 und bis zu 650m² Abdeckung.</description>
+        <description>Das TP-Link Deco X50 Mesh WLAN Set ist die ultimative Lösung für flächendeckendes, schnelles und zuverlässiges Internet in größeren Wohnungen und Häusern. Mit der fortschrittlichen Wi-Fi 6 (AX3000) Technologie liefert es kombinierte Datenraten von bis zu 3 Gbps (574 Mbps auf 2,4 GHz + 2402 Mbps auf 5 GHz) und ermöglicht so reibungsloses 4K-Streaming, Online-Gaming und Videokonferenzen in jedem Raum. Die drei enthaltenen Mesh-Einheiten decken problemlos Flächen bis zu 650m² ab und eliminieren Funklöcher zuverlässig. Dank OFDMA und MU-MIMO-Technologie können mehr Geräte gleichzeitig mit maximaler Effizienz kommunizieren – ideal für moderne Smart Homes mit zahlreichen verbundenen Geräten. Die intelligente BSS-Färbungstechnologie reduziert Interferenzen mit Nachbarnetzwerken in dicht besiedelten Wohngebieten. Die Einrichtung ist dank der intuitiven Deco-App in wenigen Minuten erledigt, während die AI-Driven Mesh-Technologie automatisch den optimalen Verbindungspfad für jedes Gerät ermittelt und bei Bedarf nahtloses Roaming zwischen den Einheiten gewährleistet. Umfassende Sicherheitsfunktionen wie WPA3-Verschlüsselung, regelmäßige automatische Firmware-Updates und die optionale HomeShield-Funktion mit Kindersicherung, Gerätepriorisierung und Netzwerkschutz sorgen für ein sicheres Online-Erlebnis für die ganze Familie. Jede Deco-Einheit verfügt über zwei Gigabit-Ethernet-Ports für kabelgebundene Verbindungen zu Smart-TVs, Spielkonsolen oder Desktop-Computern.</description>
         <brand>TP-Link</brand>
         <category>Netzwerk</category>
         <price>249.99</price>
@@ -489,7 +489,7 @@
         <id>18</id>
         <name>Samsung Galaxy Tab S9 FE</name>
         <sku>SAMTABS9FE-128-GR</sku>
-        <description>Das Galaxy Tab S9 FE bietet ein 10,9-Zoll-Display, S Pen Unterstützung und eine lange Akkulaufzeit für produktives Arbeiten und Entertainment.</description>
+        <description>Das Samsung Galaxy Tab S9 FE (Fan Edition) ist ein vielseitiges Premium-Tablet zu einem attraktiven Preis, das Produktivität und Unterhaltung perfekt vereint. Das brillante 10,9-Zoll LCD-Display mit 2304 x 1440 Pixeln (WQXGA) und 90Hz Bildwiederholrate sorgt für gestochen scharfe Texte, lebendige Farben und flüssiges Scrollen bei allen Anwendungen. Der im Lieferumfang enthaltene S Pen reagiert mit minimaler Latenz und 4.096 Druckstufen, was präzises Zeichnen, Notizen und Dokumentenbearbeitung ermöglicht – ideal für Kreative und Studenten. Der energieeffiziente Exynos 1380 Octa-Core-Prozessor in Kombination mit 6GB RAM sorgt für reibungslose Multitasking-Performance bei alltäglichen Aufgaben, während der 128GB große interne Speicher (erweiterbar per microSD um bis zu 1TB) ausreichend Platz für Apps, Fotos und Dokumente bietet. Die robuste Metallkonstruktion mit IP68-Zertifizierung schützt das Tablet zuverlässig vor Wasser und Staub – perfekt für den mobilen Einsatz. Die leistungsstarke 8000mAh-Batterie ermöglicht bis zu 18 Stunden Videowiedergabe oder mehrere Arbeitstage bei normaler Nutzung. Mit Samsung DeX verwandelt sich das Tab S9 FE auf Knopfdruck in eine produktive Desktop-ähnliche Umgebung mit Multitasking-Fenstern und intuitiver Benutzeroberfläche. Die Quad-Lautsprecher mit Dolby Atmos liefern ein immersives Klangerlebnis für Filme und Musik, während die 8MP-Hauptkamera und die 12MP-Ultraweitwinkel-Frontkamera für Videokonferenzen und gelegentliche Schnappschüsse optimiert sind. Mit One UI 6 auf Basis von Android 13 und Samsungs Versprechen von 4 Android-Versions-Updates und 5 Jahren Sicherheitsupdates ist das Galaxy Tab S9 FE eine zukunftssichere Investition.</description>
         <brand>Samsung</brand>
         <category>Tablets</category>
         <price>549.00</price>
@@ -515,7 +515,7 @@
         <id>19</id>
         <name>Dyson V15 Detect Absolute</name>
         <sku>DYSONV15-ABS</sku>
-        <description>Der Dyson V15 Detect Absolute ist ein kabelloser Staubsauger mit Laser-Stauberkennung, starker Saugleistung und LCD-Anzeige.</description>
+        <description>Der Dyson V15 Detect Absolute repräsentiert die Spitze der kabellosen Staubsaugertechnologie und revolutioniert die Haushaltsreinigung mit seiner bahnbrechenden Laser Dust Detection-Technologie. Ein präziser grüner Laser in der Slim Fluffy-Bodendüse macht selbst mikroskopisch kleine Staubpartikel sichtbar, die für das bloße Auge unsichtbar sind, und sorgt so für eine gründlichere Reinigung als je zuvor. Der leistungsstarke Hyperdymium-Motor erzeugt eine beeindruckende Saugleistung von bis zu 240 AW (Air Watts) und bewältigt mühelos Staub, Tierhaare und Schmutz auf allen Bodenbelägen. Die intelligente piezoelektrische Sensortechnologie analysiert kontinuierlich die eingesaugten Partikel und passt die Saugleistung automatisch an die erkannte Verschmutzung an – für optimale Effizienz und verlängerte Akkulaufzeit. Das integrierte LCD-Display zeigt in Echtzeit die Größe und Menge der aufgesaugten Partikel an und liefert wissenschaftliche Beweise für eine tiefenreine Wohnung. Der fortschrittliche 5-stufige Filtrationskreislauf mit HEPA-Filter fängt 99,99% aller Partikel bis zu einer Größe von 0,3 Mikrometern ein und gibt nur gereinigte Luft zurück – ideal für Allergiker. Der leistungsstarke Akku ermöglicht bis zu 60 Minuten unterbrechungsfreie Reinigung im Eco-Modus, während der großzügige 0,76-Liter-Staubbehälter mit hygienischem Entleerungsmechanismus den Kontakt mit Schmutz minimiert. Im umfangreichen Zubehörset sind neben der Laser Slim Fluffy-Düse auch die Anti-Tangle-Bodendüse mit Kammtechnologie gegen Haarwickel, die Mini-Elektrobürste für Polstermöbel, die Kombi-Düse, die Fugendüse und das flexible Verlängerungsstück für schwer erreichbare Stellen enthalten – für jede Reinigungsaufgabe das passende Werkzeug.</description>
         <brand>Dyson</brand>
         <category>Haushalt</category>
         <price>699.00</price>
@@ -539,7 +539,7 @@
         <id>20</id>
         <name>Canon EOS R50 Kit</name>
         <sku>CANONR50-1855</sku>
-        <description>Die Canon EOS R50 ist eine spiegellose Systemkamera mit 24,2 MP, 4K-Video und vielseitigem 18-55mm Objektiv.</description>
+        <description>Die Canon EOS R50 Kit ist eine kompakte und leistungsstarke spiegellose Systemkamera, die fortschrittliche Technologie für Einsteiger und ambitionierte Hobbyfotografen zugänglich macht. Der hochauflösende 24,2-Megapixel APS-C CMOS-Sensor in Kombination mit dem leistungsstarken DIGIC X Bildprozessor liefert beeindruckende Bildqualität mit hervorragender Detailwiedergabe, natürlichen Farben und exzellenter Leistung bei wenig Licht. Das mitgelieferte vielseitige RF-S 18-55mm F4.5-6.3 IS STM Objektiv bietet einen praktischen Brennweitenbereich von Weitwinkel bis Tele (entspricht 29-88mm im Kleinbildformat) und ist mit einem optischen Bildstabilisator ausgestattet, der Verwacklungen um bis zu 4,5 Blendenstufen reduziert. Das fortschrittliche Dual Pixel CMOS AF II-System mit 651 automatisch wählbaren AF-Bereichen und intelligenter Motiverkennung für Menschen, Tiere und Fahrzeuge sorgt für blitzschnelle und präzise Fokussierung selbst bei bewegten Motiven. Videografen profitieren von hochwertigen 4K 30p-Aufnahmen mit Oversampling aus 6K für maximale Detailschärfe, Full HD mit bis zu 120 fps für Zeitlupenaufnahmen und dem praktischen vertikalen Videomodus für Social-Media-Content. Der klare elektronische Sucher mit 2,36 Millionen Bildpunkten und das voll bewegliche 7,5 cm (3,0 Zoll) Touch-LCD mit 1,62 Millionen Bildpunkten ermöglichen flexible Bildkomposition aus jedem Winkel. Dank integriertem WLAN und Bluetooth können Bilder und Videos direkt auf Smartphones oder Tablets übertragen und in sozialen Medien geteilt werden. Die intuitive Benutzeroberfläche mit Guided Display-Funktion macht den Einstieg in die kreative Fotografie besonders einfach, während fortgeschrittene Funktionen wie Fokus-Bracketing, Intervallaufnahmen und zahlreiche kreative Filter kreativen Spielraum für ambitionierte Projekte bieten.</description>
         <brand>Canon</brand>
         <category>Kameras</category>
         <price>899.00</price>
