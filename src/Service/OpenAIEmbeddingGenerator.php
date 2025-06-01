@@ -74,8 +74,9 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
     /**
      * Generate embeddings for a product
      * 
-     * Extracts text from the product using getTextForEmbedding() and
-     * generates a vector embedding for it.
+     * Groups product fields into title, metadata, specifications, and features.
+     * Creates separate chunks for specifications and features, each containing the product metadata.
+     * Generates embeddings for each chunk and averages them if there are multiple chunks.
      * 
      * {@inheritdoc}
      * 
@@ -84,8 +85,89 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     public function generateEmbedding(Product $product): array
     {
-        $text = $product->getTextForEmbedding();
-        return $this->generateEmbeddingForText($text);
+        // Group fields into title, context, and main content
+        $groupedFields = $this->groupFieldData($product);
+
+        // Create chunks with main content always included
+        $chunks = $this->getChunks($groupedFields);
+
+        // Generate embeddings for each chunk
+        $embeddings = [];
+        foreach ($chunks as $chunk) {
+            $embeddings[] = $this->generateEmbeddingForText($chunk);
+        }
+
+        // Average the embeddings if there are multiple chunks
+        if (count($embeddings) > 1) {
+            return $this->averageEmbeddings($embeddings);
+        } else {
+            return $embeddings[0];
+        }
+    }
+
+    /**
+     * Generate embeddings for individual product features
+     * 
+     * Creates a vector embedding for each feature of the product.
+     * Each feature is combined with basic product metadata for context.
+     * 
+     * @param Product $product The product whose features to generate embeddings for
+     * @return array<string, array<int, float>> Array of feature embeddings, keyed by feature text
+     */
+    public function generateFeatureEmbeddings(Product $product): array
+    {
+        $features = $product->getFeatures();
+        if (empty($features)) {
+            return [];
+        }
+
+        // Get basic product metadata for context
+        $baseContext = $product->getName() . ' ' . $product->getBrand() . ' ' . $product->getCategory();
+
+        $featureEmbeddings = [];
+        foreach ($features as $feature) {
+            // Combine feature with product context
+            $featureText = $baseContext . ' Feature: ' . $feature;
+
+            // Generate embedding for this feature
+            $featureEmbeddings[$feature] = $this->generateEmbeddingForText($featureText);
+        }
+
+        return $featureEmbeddings;
+    }
+
+    /**
+     * Generate embeddings for individual product specifications
+     * 
+     * Creates a vector embedding for each specification of the product.
+     * Each specification is combined with basic product metadata for context.
+     * 
+     * @param Product $product The product whose specifications to generate embeddings for
+     * @return array<string, array<int, float>> Array of specification embeddings, keyed by specification text
+     */
+    public function generateSpecificationEmbeddings(Product $product): array
+    {
+        $specifications = $product->getSpecifications();
+        if (empty($specifications)) {
+            return [];
+        }
+
+        // Get basic product metadata for context
+        $baseContext = $product->getName() . ' ' . $product->getBrand() . ' ' . $product->getCategory();
+
+        $specificationEmbeddings = [];
+        foreach ($specifications as $key => $value) {
+            // Format specification as "key: value"
+            $specText = $key . ': ' . $value;
+
+            // Combine specification with product context
+            $specificationText = $baseContext . ' Specification: ' . $specText;
+
+            // Generate embedding for this specification
+            $specificationEmbeddings[$specText] = $this->generateEmbeddingForText($specificationText);
+        }
+
+        return $specificationEmbeddings;
     }
 
     /**
@@ -110,6 +192,10 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * representation of the provided text. Falls back to mock embeddings if
      * the API key is not set or if the API call fails.
      * 
+     * The text is chunked into smaller pieces with a token size of 500 before
+     * being sent to the API. If multiple chunks are generated, the embeddings
+     * are averaged to produce a single embedding vector.
+     * 
      * @param string $text The text to generate embeddings for
      * @return array<int, float> The embedding vector
      * @throws \RuntimeException If the API response format is invalid
@@ -122,28 +208,232 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
         }
 
         try {
-            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => [
-                    'input' => $text,
-                    'model' => $this->embeddingModel,
-                ],
-            ]);
+            // Chunk the text before embedding
+            $chunks = $this->chunkText($text, 500);
 
-            $data = $response->toArray();
+            // If there's only one chunk, process it directly
+            if (count($chunks) === 1) {
+                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->apiKey,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => [
+                        'input' => $chunks[0],
+                        'model' => $this->embeddingModel,
+                    ],
+                ]);
 
-            if (isset($data['data'][0]['embedding'])) {
-                return $data['data'][0]['embedding'];
+                $data = $response->toArray();
+
+                if (isset($data['data'][0]['embedding'])) {
+                    return $data['data'][0]['embedding'];
+                }
+
+                throw new \RuntimeException('Failed to generate embedding: Invalid response format');
             }
 
-            throw new \RuntimeException('Failed to generate embedding: Invalid response format');
+            // For multiple chunks, process each one and average the embeddings
+            $embeddings = [];
+            foreach ($chunks as $chunk) {
+                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->apiKey,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => [
+                        'input' => $chunk,
+                        'model' => $this->embeddingModel,
+                    ],
+                ]);
+
+                $data = $response->toArray();
+
+                if (isset($data['data'][0]['embedding'])) {
+                    $embeddings[] = $data['data'][0]['embedding'];
+                } else {
+                    throw new \RuntimeException('Failed to generate embedding: Invalid response format');
+                }
+            }
+
+            // Average the embeddings
+            return $this->averageEmbeddings($embeddings);
         } catch (\Exception $e) {
             // Fallback to mock embedding on error
             return $this->generateMockEmbedding($text);
         }
+    }
+
+    /**
+     * Chunk text into smaller pieces based on approximate token size
+     * 
+     * Splits the input text into chunks of approximately the specified token size.
+     * This is a simple implementation that assumes 1 token is roughly 4 characters.
+     * 
+     * @param string $text The text to chunk
+     * @param int $tokenSize The approximate token size for each chunk
+     * @return array<int, string> Array of text chunks
+     */
+    private function chunkText(string $text, int $tokenSize = 500): array
+    {
+        // Simple approximation: 1 token ≈ 4 characters
+        $charsPerToken = 4;
+        $chunkSize = $tokenSize * $charsPerToken;
+
+        // If text is smaller than chunk size, return it as is
+        if (strlen($text) <= $chunkSize) {
+            return [$text];
+        }
+
+        $chunks = [];
+        $words = explode(' ', $text);
+        $currentChunk = '';
+
+        foreach ($words as $word) {
+            // If adding this word would exceed the chunk size, start a new chunk
+            if (strlen($currentChunk) + strlen($word) + 1 > $chunkSize && !empty($currentChunk)) {
+                $chunks[] = trim($currentChunk);
+                $currentChunk = '';
+            }
+
+            $currentChunk .= ' ' . $word;
+        }
+
+        // Add the last chunk if it's not empty
+        if (!empty($currentChunk)) {
+            $chunks[] = trim($currentChunk);
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * Group product fields into title, metadata, specifications, and features
+     * 
+     * @param Product $product The product to group fields for
+     * @return array<string, string> Grouped fields with keys 'title', 'metadata', 'specifications', 'features'
+     */
+    private function groupFieldData(Product $product): array
+    {
+        // Title: Product name and brand
+        $title = $product->getName() . ' ' . $product->getBrand();
+
+        // Metadata: Category and description
+        $metadata = $product->getCategory() . ' ' . $product->getDescription();
+
+        // Specifications
+        $specifications = '';
+        if (!empty($product->getSpecifications())) {
+            foreach ($product->getSpecifications() as $key => $value) {
+                $specifications .= ' ' . $key . ': ' . $value;
+            }
+        }
+
+        // Features
+        $features = '';
+        if (!empty($product->getFeatures())) {
+            $features = implode(', ', $product->getFeatures());
+        }
+
+        return [
+            'title' => $title,
+            'metadata' => $metadata,
+            'specifications' => $specifications,
+            'features' => $features
+        ];
+    }
+
+    /**
+     * Create separate chunks for specifications and features, each with product metadata
+     * 
+     * @param array<string, string> $groupedFields Grouped fields with keys 'title', 'metadata', 'specifications', and 'features'
+     * @param int $numChunks Number of chunks to create (default: 2) - not used in this implementation
+     * @return array<int, string> Array of text chunks
+     */
+    private function getChunks(array $groupedFields, int $numChunks = 2): array
+    {
+        $title = $groupedFields['title'];
+        $metadata = $groupedFields['metadata'];
+        $specifications = $groupedFields['specifications'];
+        $features = $groupedFields['features'];
+
+        $chunks = [];
+
+        // Create a base chunk with title and metadata
+        $baseChunk = $title . ' ' . $metadata;
+
+        // If both specifications and features are empty, return just the base chunk
+        if (empty($specifications) && empty($features)) {
+            return [$baseChunk];
+        }
+
+        // Create a chunk for specifications if not empty
+        if (!empty($specifications)) {
+            $chunks[] = $baseChunk . ' Specifications: ' . $specifications;
+        }
+
+        // Create a chunk for features if not empty
+        if (!empty($features)) {
+            $chunks[] = $baseChunk . ' Features: ' . $features;
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * Split text into approximately equal chunks
+     * 
+     * @param string $text Text to split
+     * @param int $numChunks Number of chunks to create
+     * @return array<int, string> Array of text chunks
+     */
+    private function splitTextIntoChunks(string $text, int $numChunks): array
+    {
+        $words = explode(' ', $text);
+        $totalWords = count($words);
+        $wordsPerChunk = ceil($totalWords / $numChunks);
+
+        $chunks = [];
+        for ($i = 0; $i < $numChunks; $i++) {
+            $start = $i * $wordsPerChunk;
+            if ($start >= $totalWords) {
+                break;
+            }
+
+            $chunkWords = array_slice($words, $start, $wordsPerChunk);
+            $chunks[] = implode(' ', $chunkWords);
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * Average multiple embedding vectors into a single vector
+     * 
+     * @param array<int, array<int, float>> $embeddings Array of embedding vectors
+     * @return array<int, float> The averaged embedding vector
+     */
+    private function averageEmbeddings(array $embeddings): array
+    {
+        if (empty($embeddings)) {
+            throw new \InvalidArgumentException('Cannot average empty embeddings array');
+        }
+
+        $count = count($embeddings);
+        $dimensions = count($embeddings[0]);
+        $result = array_fill(0, $dimensions, 0.0);
+
+        foreach ($embeddings as $embedding) {
+            for ($i = 0; $i < $dimensions; $i++) {
+                $result[$i] += $embedding[$i];
+            }
+        }
+
+        for ($i = 0; $i < $dimensions; $i++) {
+            $result[$i] /= $count;
+        }
+
+        return $result;
     }
 
     /**
@@ -170,12 +460,16 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             $embedding[] = $value;
         }
 
-        // Pad to 1536 dimensions (similar to OpenAI's embeddings)
-        while (count($embedding) < 1536) {
-            $embedding = array_merge($embedding, $embedding);
+        // Efficiently pad to 1536 dimensions without using array_merge in a loop
+        $originalLength = count($embedding);
+
+        // Create a padded array of exactly 1536 elements
+        $padded = [];
+        for ($i = 0; $i < 1536; $i++) {
+            // Use modulo to cycle through the original embedding values
+            $padded[] = $embedding[$i % $originalLength];
         }
 
-        // Trim to exactly 1536
-        return array_slice($embedding, 0, 1536);
+        return $padded;
     }
 }

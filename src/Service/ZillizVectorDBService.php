@@ -147,8 +147,98 @@ class ZillizVectorDBService
                         'primary_key' => $product->getId(),
                         'title' => $product->getName(),
                         'vector' => $product->getEmbeddings(),
+                        'type' => 'product',
                     ]
                 );
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            dump($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Insert product features into the vector database
+     * 
+     * Iterates through the provided product's features and inserts each feature
+     * with its embedding into the vector database.
+     * 
+     * @param Product $product The product whose features to insert
+     * @param array<string, array<int, float>> $featureEmbeddings Array of feature embeddings
+     * @return bool True if all insertions were successful, false if any failed
+     */
+    public function insertProductFeatures(Product $product, array $featureEmbeddings): bool
+    {
+        try {
+            $features = $product->getFeatures();
+            if (empty($features) || empty($featureEmbeddings)) {
+                return true;
+            }
+
+            foreach ($features as $index => $feature) {
+                if (!isset($featureEmbeddings[$feature])) {
+                    continue;
+                }
+
+                $this->milvus->vector()->insert(
+                    collectionName: $this->collectionName,
+                    data: [
+                        'primary_key' => $product->getId() * 10000 + $index,
+                        'title' => $feature,
+                        'vector' => $featureEmbeddings[$feature],
+                        'product_id' => $product->getId(),
+                        'product_name' => $product->getName(),
+                        'type' => 'feature',
+                    ]
+                );
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            dump($e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Insert product specifications into the vector database
+     * 
+     * Iterates through the provided product's specifications and inserts each specification
+     * with its embedding into the vector database.
+     * 
+     * @param Product $product The product whose specifications to insert
+     * @param array<string, array<int, float>> $specificationEmbeddings Array of specification embeddings
+     * @return bool True if all insertions were successful, false if any failed
+     */
+    public function insertProductSpecifications(Product $product, array $specificationEmbeddings): bool
+    {
+        try {
+            $specifications = $product->getSpecifications();
+            if (empty($specifications) || empty($specificationEmbeddings)) {
+                return true;
+            }
+
+            $index = 0;
+            foreach ($specifications as $key => $value) {
+                $specText = $key . ': ' . $value;
+                if (!isset($specificationEmbeddings[$specText])) {
+                    continue;
+                }
+
+                $this->milvus->vector()->insert(
+                    collectionName: $this->collectionName,
+                    data: [
+                        'primary_key' => $product->getId() * 10000 + 5000 + $index,
+                        'title' => $specText,
+                        'vector' => $specificationEmbeddings[$specText],
+                        'product_id' => $product->getId(),
+                        'product_name' => $product->getName(),
+                        'type' => 'specification',
+                    ]
+                );
+                $index++;
             }
 
             return true;
@@ -175,6 +265,7 @@ class ZillizVectorDBService
                 collectionName: $this->collectionName,
                 vector: $queryEmbedding,
                 outputFields: ["primary_key", "title", "link"],
+                limit: 5,
             );
 
             return $result->json()['data'] ?? [];

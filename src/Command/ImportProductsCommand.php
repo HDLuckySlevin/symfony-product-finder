@@ -56,6 +56,8 @@ class ImportProductsCommand extends Command
             // Generate embeddings
             $io->section('Generating embeddings');
             $productsWithEmbeddings = [];
+            $featureEmbeddings = [];
+            $specificationEmbeddings = [];
             $progressBar = $io->createProgressBar(count($products));
             $progressBar->start();
 
@@ -64,22 +66,28 @@ class ImportProductsCommand extends Command
                     continue;
                 }
 
-                // Generate embedding
+                // Generate product embedding
                 $embedding = $this->embeddingGenerator->generateEmbedding($product);
                 $product->setEmbeddings($embedding);
                 $productsWithEmbeddings[] = $product;
+
+                // Generate feature embeddings
+                $featureEmbeddings[$product->getId()] = $this->embeddingGenerator->generateFeatureEmbeddings($product);
+
+                // Generate specification embeddings
+                $specificationEmbeddings[$product->getId()] = $this->embeddingGenerator->generateSpecificationEmbeddings($product);
 
                 $progressBar->advance();
             }
 
             $progressBar->finish();
             $io->newLine(2);
-            $io->success(sprintf('Generated embeddings for %d products', count($productsWithEmbeddings)));
+            $io->success(sprintf('Generated embeddings for %d products and their features/specifications', count($productsWithEmbeddings)));
 
             // Initialize Zilliz collection
             $io->section('Initializing Zilliz collection');
             $result = $this->vectorDBService->initializeCollection();
-            
+
             if ($result) {
                 $io->success('Successfully initialized Zilliz collection');
             } else {
@@ -89,11 +97,53 @@ class ImportProductsCommand extends Command
             // Insert products into Zilliz
             $io->section('Inserting products into Zilliz');
             $result = $this->vectorDBService->insertProducts($productsWithEmbeddings);
-            
+
             if ($result) {
                 $io->success('Successfully inserted products into Zilliz');
             } else {
                 $io->warning('Failed to insert products into Zilliz. Using mock mode.');
+            }
+
+            // Insert product features into Zilliz
+            $io->section('Inserting product features into Zilliz');
+            $featuresSuccess = true;
+            foreach ($productsWithEmbeddings as $product) {
+                $productId = $product->getId();
+                if (!isset($featureEmbeddings[$productId]) || empty($featureEmbeddings[$productId])) {
+                    continue;
+                }
+
+                $result = $this->vectorDBService->insertProductFeatures($product, $featureEmbeddings[$productId]);
+                if (!$result) {
+                    $featuresSuccess = false;
+                }
+            }
+
+            if ($featuresSuccess) {
+                $io->success('Successfully inserted product features into Zilliz');
+            } else {
+                $io->warning('Failed to insert some product features into Zilliz.');
+            }
+
+            // Insert product specifications into Zilliz
+            $io->section('Inserting product specifications into Zilliz');
+            $specificationsSuccess = true;
+            foreach ($productsWithEmbeddings as $product) {
+                $productId = $product->getId();
+                if (!isset($specificationEmbeddings[$productId]) || empty($specificationEmbeddings[$productId])) {
+                    continue;
+                }
+
+                $result = $this->vectorDBService->insertProductSpecifications($product, $specificationEmbeddings[$productId]);
+                if (!$result) {
+                    $specificationsSuccess = false;
+                }
+            }
+
+            if ($specificationsSuccess) {
+                $io->success('Successfully inserted product specifications into Zilliz');
+            } else {
+                $io->warning('Failed to insert some product specifications into Zilliz.');
             }
 
 
