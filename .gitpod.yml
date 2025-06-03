@@ -1,0 +1,54 @@
+image: gitpod/workspace-full
+
+tasks:
+  - name: Initialize DDEV
+    init: |
+      echo "Installing DDEV..."
+      curl -fsSL https://raw.githubusercontent.com/ddev/ddev/master/scripts/install_ddev.sh | bash
+      echo "DDEV installation complete."
+      echo "Attempting to source bashrc to make ddev command available..."
+      source ~/.bashrc || echo "Failed to source .bashrc, ddev command might not be immediately available in this script block for 'init'. It should be available for 'command'."
+      # Verify ddev is available for the next step, if not, exit early
+      if ! command -v ddev &> /dev/null; then
+        echo "ddev command could not be found after installation and sourcing .bashrc. Please check PATH or installation."
+        echo "You might need to open a new terminal or restart the workspace."
+        # Attempt to add ddev to PATH directly if sourcing bashrc fails
+        export PATH="$HOME/.ddev/bin:$PATH"
+        if ! command -v ddev &> /dev/null; then
+            echo "Still cannot find ddev. Exiting."
+            exit 1
+        fi
+      fi
+      echo "ddev version:"
+      ddev version
+      echo "Configuring DDEV..."
+      ddev config global --instrumentation-opt-in=false --omit-containers=ddev-ssh-agent
+      # The ddev config command might try to start docker, which might not be fully ready.
+      # We will handle the start in the 'command' block.
+      # We also need to ensure the project is configured to not bind all interfaces,
+      # as Gitpod handles the port forwarding.
+      ddev config --bind-all-interfaces=false --project-tld=gitpod.io
+      echo "DDEV configuration complete."
+    command: |
+      echo "Starting DDEV..."
+      # Ensure Docker is running before starting DDEV
+      sudo systemctl start docker --quiet || echo "Docker already running or failed to start via systemctl."
+      ddev start -y
+      echo "DDEV started."
+      echo "Application should be available at: $(ddev describe -j | jq -r '.raw.urls.web[0]')"
+
+ports:
+  - port: 80
+    onOpen: open-preview
+  - port: 443
+    onOpen: ignore
+  # Add other necessary ports if DDEV config reveals them (e.g. Mailpit, database)
+  - port: 8025 # Mailpit HTTP
+    onOpen: open-browser
+  - port: 8026 # Mailpit HTTPS
+    onOpen: ignore
+  - port: 3306 # MariaDB - adjust if different db is used, usually not exposed directly to browser
+
+vscode:
+  extensions:
+    - ddev.ddev-vscode-extension
