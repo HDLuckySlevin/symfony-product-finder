@@ -21,7 +21,7 @@
         "symfony/twig-bundle": "6.4.*",
         "symfony/validator": "6.4.*",
         "symfony/yaml": "6.4.*",
-        "openai-php/client": "^0.10.0"
+        "openai-php/client": "^0.13.0"
     },
     "config": {
         "allow-plugins": {
