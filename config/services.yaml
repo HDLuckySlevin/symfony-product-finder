@@ -39,3 +39,7 @@ services:
         factory: ['OpenAI', 'client']
         arguments:
             $apiKey: '%env(OPENAI_API_KEY)%'
+
+    App\Service\OpenAIEmbeddingGenerator:
+        arguments:
+            $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%'

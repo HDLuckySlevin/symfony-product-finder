@@ -21,13 +21,20 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
     private Client $client;
 
     /**
+     * OpenAI embedding model to use
+     */
+    private string $embeddingModel;
+
+    /**
      * Constructor
      * 
      * @param Client $client The OpenAI API client
+     * @param string $embeddingModel The embedding model to use (default: 'text-embedding-3-large')
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, string $embeddingModel = 'text-embedding-3-large')
     {
         $this->client = $client;
+        $this->embeddingModel = $embeddingModel;
     }
 
     /**
@@ -161,9 +168,6 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     private function generateEmbeddingForText(string $text): array
     {
-        // Default model, consider making this configurable if needed
-        $embeddingModel = 'text-embedding-3-large';
-
         try {
             // Chunk the text before embedding
             $chunks = $this->chunkText($text, 500);
@@ -171,7 +175,7 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             // If there's only one chunk, process it directly
             if (count($chunks) === 1) {
                 $response = $this->client->embeddings()->create([
-                    'model' => $embeddingModel,
+                    'model' => $this->embeddingModel,
                     'input' => $chunks[0],
                 ]);
 
@@ -186,7 +190,7 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             $embeddings = [];
             foreach ($chunks as $chunk) {
                 $response = $this->client->embeddings()->create([
-                    'model' => $embeddingModel,
+                    'model' => $this->embeddingModel,
                     'input' => $chunk,
                 ]);
 
