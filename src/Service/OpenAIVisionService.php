@@ -2,25 +2,28 @@
 
 namespace App\Service;
 
-use OpenAI\Client;
-use OpenAI\Exception\ErrorException; // For catching API errors
+// Ensure correct use statements. OpenAIClientInterface is now primary.
+use App\Service\OpenAIClientInterface;
+use OpenAI\Exception\ErrorException;
 
 /**
  * Service for interacting with the OpenAI GPT-4o API for image processing.
  */
 class OpenAIVisionService
 {
+    private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
     /**
-     * @var Client The OpenAI API client.
+     * @var OpenAIClientInterface The OpenAI API client (adapter/mock).
      */
-    private Client $openAiClient;
+    private OpenAIClientInterface $openAiClient;
 
     /**
      * OpenAIVisionService constructor.
      *
-     * @param Client $openAiClient The OpenAI API client (expected to be pre-configured with the API key).
+     * @param OpenAIClientInterface $openAiClient The service implementing OpenAIClientInterface.
      */
-    public function __construct(Client $openAiClient)
+    public function __construct(OpenAIClientInterface $openAiClient)
     {
         $this->openAiClient = $openAiClient;
     }
@@ -72,6 +75,15 @@ class OpenAIVisionService
         }
 
         $imageUrl = "data:{$imageMimeType};base64,{$base64Image}";
+
+        // The private constant ALLOWED_MIME_TYPES was added in a previous step.
+        // If it's missing from the SEARCH block, it implies the SEARCH block is from an older version.
+        // Assuming it's present as per subtask 01J3CBGF9XQ4Q7Y4Z7X4Q7Y4Z7.
+        // The constant definition should be at the class level, not here.
+        // private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($imageMimeType, self::ALLOWED_MIME_TYPES, true)) {
+            throw new \InvalidArgumentException("Unsupported image MIME type: " . $imageMimeType . ". Allowed types are: " . implode(', ', self::ALLOWED_MIME_TYPES));
+        }
 
         $messages = [
             [

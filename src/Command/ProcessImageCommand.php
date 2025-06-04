@@ -65,6 +65,16 @@ class ProcessImageCommand extends Command
         $io->writeln('Prompt: ' . $preprompt);
         $io->newLine();
 
+        if (!file_exists($imagePath)) {
+            $io->error("Error: Image file not found at path: " . $imagePath);
+            return Command::FAILURE;
+        }
+
+        if (@getimagesize($imagePath) === false) {
+            $io->error("Error: The file at path is not a valid image or is corrupted: " . $imagePath);
+            return Command::FAILURE;
+        }
+
         try {
             $io->section('Attempting to get description from OpenAI Vision API...');
             $imageGptResult = $this->visionService->getDescriptionForImage($imagePath, $preprompt);

@@ -17,7 +17,7 @@ use Symfony\Component\Console\Command\Command; // For Command::SUCCESS etc.
  */
 class ProcessImageCommandTest extends KernelTestCase
 {
-    private MockObject $visionServiceMock;
+    private MockObject $mockVisionService; // Renamed for clarity from visionServiceMock
     private CommandTester $commandTester;
     private string $tempDir;
     private string $dummyImagePath;
@@ -25,40 +25,31 @@ class ProcessImageCommandTest extends KernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        static::bootKernel();
+        self::bootKernel(); // Ensure kernel is booted first
 
         $this->tempDir = sys_get_temp_dir() . '/process_image_command_tests';
         if (!is_dir($this->tempDir)) {
             mkdir($this->tempDir, 0777, true);
         }
-        $this->dummyImagePath = $this->tempDir . '/dummy-command-test.jpg';
-        file_put_contents($this->dummyImagePath, 'dummy command image content');
+        $this->dummyImagePath = $this->tempDir . '/dummy-command-test.png'; // Changed to .png for clarity
+        // Create a tiny valid PNG for testing getimagesize()
+        $tinyPngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+        file_put_contents($this->dummyImagePath, base64_decode($tinyPngBase64));
 
-        $this->visionServiceMock = $this->createMock(OpenAIVisionService::class);
+        // Create the mock object for OpenAIVisionService
+        $this->mockVisionService = $this->createMock(OpenAIVisionService::class);
 
-        $application = new Application(static::$kernel);
+        // Get the special test service container
+        $container = self::getContainer();
 
-        // Instead of adding a new command, we ensure the service container uses our mock
-        // for the OpenAIVisionService when ProcessImageCommand is instantiated by Symfony.
-        // This requires that ProcessImageCommand is registered as a service and autowired.
-        // We can override the service in the test container.
-        if (static::getContainer()->has(OpenAIVisionService::class)) {
-            static::getContainer()->set(OpenAIVisionService::class, $this->visionServiceMock);
-        } else {
-            // Fallback or error if service definition is not as expected
-            // For now, we assume it's correctly set up for autowiring or explicitly defined
-            // If not, direct instantiation was the previous approach:
-            // $application->add(new ProcessImageCommand($this->visionServiceMock));
-            // $command = $application->find('app:process-image');
-            // $this->commandTester = new CommandTester($command);
-            // return;
-            // For this test, let's ensure the command is fetched from the application
-            // to test the actual command registration and service injection.
-        }
+        // Replace the actual service with the mock instance in the test container
+        $container->set(OpenAIVisionService::class, $this->mockVisionService);
 
-        // Fetch the command from the application; it should now use the mocked service
+        // Initialize Application and CommandTester
+        $application = new Application(self::$kernel); // Use self::$kernel after bootKernel()
         $command = $application->find('app:process-image');
         $this->commandTester = new CommandTester($command);
+        // $this->commandTester->setDecorated(false); // Removed this line
     }
 
     /**
@@ -66,15 +57,18 @@ class ProcessImageCommandTest extends KernelTestCase
      */
     public function testExecuteSuccessfully(): void
     {
-        $this->visionServiceMock->expects($this->once())
+        $this->mockVisionService->expects($this->once()) // Use the renamed mock property
             ->method('getDescriptionForImage')
             ->with($this->dummyImagePath, 'Test prompt for success')
             ->willReturn('Successful description from command test');
 
-        $this->commandTester->execute([
-            'image_path' => $this->dummyImagePath,
-            'preprompt' => 'Test prompt for success',
-        ]);
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath,
+                'preprompt' => 'Test prompt for success',
+            ],
+            ['decorated' => false] // Pass decorated option here
+        );
 
         $this->commandTester->assertCommandIsSuccessful();
         $output = $this->commandTester->getDisplay();
@@ -87,15 +81,18 @@ class ProcessImageCommandTest extends KernelTestCase
      */
     public function testExecuteWithServiceRuntimeException(): void
     {
-        $this->visionServiceMock->expects($this->once())
+        $this->mockVisionService->expects($this->once()) // Use the renamed mock property
             ->method('getDescriptionForImage')
             ->with($this->dummyImagePath, 'Test prompt for service error')
             ->will($this->throwException(new \RuntimeException('Service Error')));
 
-        $this->commandTester->execute([
-            'image_path' => $this->dummyImagePath,
-            'preprompt' => 'Test prompt for service error',
-        ]);
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath,
+                'preprompt' => 'Test prompt for service error',
+            ],
+            ['decorated' => false]
+        );
 
         $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
         $output = $this->commandTester->getDisplay();
@@ -105,23 +102,30 @@ class ProcessImageCommandTest extends KernelTestCase
 
     /**
      * Test command execution with an invalid image path (service throws InvalidArgumentException).
+     * This test assumes the file exists and is a valid image format, but the service has a reason to reject it
+     * (e.g. content-related, or a specific path the service is mocked to consider invalid argument for).
+     * The command's own file_exists and getimagesize checks would pass.
      */
     public function testExecuteWithInvalidImagePath(): void
     {
-        $nonExistentPath = $this->tempDir . '/non_existent_image.jpg';
-        $this->visionServiceMock->expects($this->once())
+        // Using the valid dummy image path, but mocking the service to throw InvalidArgumentException for it.
+        $this->mockVisionService->expects($this->once()) // Use the renamed mock property
             ->method('getDescriptionForImage')
-            ->with($nonExistentPath, 'Test prompt for invalid path')
-            ->will($this->throwException(new \InvalidArgumentException('Image not found')));
+            ->with($this->dummyImagePath, 'Test prompt for invalid path by service')
+            ->will($this->throwException(new \InvalidArgumentException('Service rejected image argument')));
 
-        $this->commandTester->execute([
-            'image_path' => $nonExistentPath,
-            'preprompt' => 'Test prompt for invalid path',
-        ]);
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath, // Valid image, but service will say invalid argument
+                'preprompt' => 'Test prompt for invalid path by service',
+            ],
+            ['decorated' => false]
+        );
 
         $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('[ERROR] Invalid argument: Image not found', $output);
+        // This message comes from the command's catch block for InvalidArgumentException
+        $this->assertStringContainsString('[ERROR] Invalid argument: Service rejected image argument', $output);
     }
 
     /**
@@ -147,17 +151,73 @@ class ProcessImageCommandTest extends KernelTestCase
         // $this->assertStringContainsString('image_path argument is missing', $output);
     }
 
+    /**
+     * Test command execution with a non-existent image path argument.
+     */
+    public function testExecuteWithNonExistentImagePathArgument(): void
+    {
+        $nonExistentPath = $this->tempDir . '/this_file_does_not_exist.jpg';
+
+        $this->mockVisionService->expects($this->never()) // Use the renamed mock property
+            ->method('getDescriptionForImage');
+
+        $this->commandTester->execute(
+            [
+                'image_path' => $nonExistentPath,
+                'preprompt' => 'Test prompt for non-existent path',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        $output = $this->commandTester->getDisplay();
+        // This message comes directly from the command's initial file_exists check
+        $this->assertStringContainsString("[ERROR] Error: Image file not found at path: " . $nonExistentPath, $output);
+    }
+
+    /**
+     * Test command execution with a non-image file argument.
+     */
+    public function testExecuteWithNonImageFileArgument(): void
+    {
+        $nonImagePath = $this->tempDir . '/dummy.txt';
+        file_put_contents($nonImagePath, 'This is not an image.');
+
+        $this->mockVisionService->expects($this->never()) // Use the renamed mock property
+            ->method('getDescriptionForImage');
+
+        $this->commandTester->execute(
+            [
+                'image_path' => $nonImagePath,
+                'preprompt' => 'Test prompt for non-image file',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        $output = $this->commandTester->getDisplay();
+        // This message comes directly from the command's initial getimagesize check
+        $this->assertStringContainsString("[ERROR] Error: The file at path is not a valid image or is corrupted: " . $nonImagePath, $output);
+    }
+
 
     protected function tearDown(): void
     {
+        // Clean up main dummy image
         if (file_exists($this->dummyImagePath)) {
             unlink($this->dummyImagePath);
         }
+        // Clean up potential non-image file
+        $nonImagePath = $this->tempDir . '/dummy.txt';
+        if (file_exists($nonImagePath)) {
+            unlink($nonImagePath);
+        }
+
         if (is_dir($this->tempDir)) {
-             $files = glob($this->tempDir . '/*');
-            foreach($files as $file){
+             $files = glob($this->tempDir . '/*'); // Get all file names
+            foreach($files as $file){ // Iterate files
                 if(is_file($file)) {
-                    unlink($file);
+                    unlink($file); // Delete file
                 }
             }
             rmdir($this->tempDir);
