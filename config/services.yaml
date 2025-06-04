@@ -37,15 +37,18 @@ services:
             $dimension: 1536
 
     # Added for OpenAI client and vision service
-    OpenAI\Client:
+    OpenAI\Client: # The actual client from the library
         factory: ['OpenAI', 'client']
         arguments:
             - '%env(OPENAI_API_KEY)%'
 
+    App\Service\OpenAIClientAdapter:
+        arguments:
+            $adaptee: '@OpenAI\Client' # Inject the actual client here
+
+    # Alias the interface to the adapter for autowiring
+    App\Service\OpenAIClientInterface: '@App\Service\OpenAIClientAdapter'
+
     App\Service\OpenAIVisionService:
-        # Autowiring should handle the $openAiClient argument
-        # if OpenAI\Client service is correctly defined and autowirable.
-        # If explicit injection is preferred or if issues persist, uncomment the following:
-        # arguments:
-        #     $openAiClient: '@OpenAI\Client'
-        public: true # Ensure service is public if accessed directly from container in tests/dev
+        # Now autowiring should work with OpenAIClientInterface
+        public: true
