@@ -58,6 +58,16 @@ Die Anwendung besteht aus folgenden Hauptkomponenten:
    ddev start
    ```
 
+### Entwicklung mit Gitpod
+
+Dieses Projekt kann direkt in Gitpod geöffnet und verwendet werden, einer Online-IDE für GitHub.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/iGore/symfony-product-finder)
+
+Gitpod startet automatisch eine voll funktionsfähige Entwicklungsumgebung, einschließlich der DDEV-Integration. Nach dem Start des Workspaces wird DDEV automatisch gestartet, und die Anwendung ist über die von Gitpod bereitgestellte URL zugänglich. Die notwendigen Ports (z.B. für den Webserver und Mailpit) werden automatisch geöffnet.
+
+Sie können DDEV-Befehle wie gewohnt im Gitpod-Terminal verwenden (z.B. `ddev ssh`, `ddev logs`).
+
 ## Verwendung
 
 ### Produkte importieren
