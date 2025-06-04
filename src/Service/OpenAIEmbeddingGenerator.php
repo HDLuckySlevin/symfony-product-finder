@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Product;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use OpenAI\Client;
 
 /**
  * Service for generating vector embeddings using OpenAI's API
@@ -16,14 +16,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
 {
     /**
-     * HTTP client for making API requests
+     * OpenAI API client
      */
-    private HttpClientInterface $httpClient;
-
-    /**
-     * OpenAI API key
-     */
-    private string $apiKey;
+    private Client $client;
 
     /**
      * OpenAI embedding model to use
@@ -33,42 +28,13 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
     /**
      * Constructor
      * 
-     * @param HttpClientInterface $httpClient The HTTP client for making API requests
-     * @param string $apiKey OpenAI API key (default: empty string)
-     * @param string $embeddingModel OpenAI embedding model to use (default: 'text-embedding-ada-002')
+     * @param Client $client The OpenAI API client
+     * @param string $embeddingModel The embedding model to use (default: 'text-embedding-3-large')
      */
-    public function __construct(
-        HttpClientInterface $httpClient,
-        string $apiKey = '',
-        string $embeddingModel = 'text-embedding-ada-002'
-    ) {
-        $this->httpClient = $httpClient;
-        $this->apiKey = $apiKey;
-        $this->embeddingModel = $embeddingModel;
-    }
-
-    /**
-     * Set API key for OpenAI
-     * 
-     * @param string $apiKey The OpenAI API key
-     * @return self For method chaining
-     */
-    public function setApiKey(string $apiKey): self
+    public function __construct(Client $client, string $embeddingModel = 'text-embedding-3-large')
     {
-        $this->apiKey = $apiKey;
-        return $this;
-    }
-
-    /**
-     * Set embedding model
-     * 
-     * @param string $embeddingModel The OpenAI embedding model to use
-     * @return self For method chaining
-     */
-    public function setEmbeddingModel(string $embeddingModel): self
-    {
+        $this->client = $client;
         $this->embeddingModel = $embeddingModel;
-        return $this;
     }
 
     /**
@@ -202,63 +168,44 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     private function generateEmbeddingForText(string $text): array
     {
-        if (empty($this->apiKey)) {
-            // Return mock embedding if no API key is provided
-            return $this->generateMockEmbedding($text);
-        }
-
         try {
             // Chunk the text before embedding
             $chunks = $this->chunkText($text, 500);
 
             // If there's only one chunk, process it directly
             if (count($chunks) === 1) {
-                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $this->apiKey,
-                        'Content-Type' => 'application/json',
-                    ],
-                    'json' => [
-                        'input' => $chunks[0],
-                        'model' => $this->embeddingModel,
-                    ],
+                $response = $this->client->embeddings()->create([
+                    'model' => $this->embeddingModel,
+                    'input' => $chunks[0],
                 ]);
 
-                $data = $response->toArray();
-
-                if (isset($data['data'][0]['embedding'])) {
-                    return $data['data'][0]['embedding'];
+                if (isset($response->embeddings[0]->embedding)) {
+                    return $response->embeddings[0]->embedding;
                 }
 
-                throw new \RuntimeException('Failed to generate embedding: Invalid response format');
+                throw new \RuntimeException('Failed to generate embedding: Invalid response format from OpenAI client');
             }
 
             // For multiple chunks, process each one and average the embeddings
             $embeddings = [];
             foreach ($chunks as $chunk) {
-                $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/embeddings', [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $this->apiKey,
-                        'Content-Type' => 'application/json',
-                    ],
-                    'json' => [
-                        'input' => $chunk,
-                        'model' => $this->embeddingModel,
-                    ],
+                $response = $this->client->embeddings()->create([
+                    'model' => $this->embeddingModel,
+                    'input' => $chunk,
                 ]);
 
-                $data = $response->toArray();
-
-                if (isset($data['data'][0]['embedding'])) {
-                    $embeddings[] = $data['data'][0]['embedding'];
+                if (isset($response->embeddings[0]->embedding)) {
+                    $embeddings[] = $response->embeddings[0]->embedding;
                 } else {
-                    throw new \RuntimeException('Failed to generate embedding: Invalid response format');
+                    throw new \RuntimeException('Failed to generate embedding: Invalid response format from OpenAI client');
                 }
             }
 
             // Average the embeddings
             return $this->averageEmbeddings($embeddings);
         } catch (\Exception $e) {
+            // Log the error message for debugging
+            // error_log('OpenAI API Error: ' . $e->getMessage());
             // Fallback to mock embedding on error
             return $this->generateMockEmbedding($text);
         }

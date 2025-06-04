@@ -34,3 +34,12 @@ services:
             $milvus: '@Milvus\Client'
             $collectionName: '%env(MILVUS_COLLECTION)%'
             $dimension: 1536
+
+    OpenAI\Client:
+        factory: ['OpenAI', 'client']
+        arguments:
+            $apiKey: '%env(OPENAI_API_KEY)%'
+
+    App\Service\OpenAIEmbeddingGenerator:
+        arguments:
+            $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%'
