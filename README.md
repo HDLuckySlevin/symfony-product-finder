@@ -75,7 +75,7 @@ Sie können DDEV-Befehle wie gewohnt im Gitpod-Terminal verwenden (z.B. `ddev ss
 Verwenden Sie den folgenden Befehl, um Produkte aus einer XML-Datei zu importieren:
 
 ```
-php bin/console app:import-products src/DataFixtures/xml/sample_products.xml
+ddev php bin/console app:import-products src/DataFixtures/xml/sample_products.xml
 ```
 
 Beim Import werden nicht nur die Produkte als Ganzes, sondern auch deren einzelne Merkmale und Spezifikationen als separate Vektoren in der Datenbank gespeichert. Dies ermöglicht präzisere Suchergebnisse und eine bessere Zuordnung von Nutzeranfragen zu spezifischen Produkteigenschaften.
@@ -87,7 +87,7 @@ Die API-Keys sind optional. Wenn sie nicht angegeben werden, verwendet die Anwen
 Testen Sie die Produktsuche mit dem folgenden Befehl:
 
 ```
-php bin/console app:test-search "Ich suche ein wasserdichtes Smartphone mit guter Kamera"
+ddev php bin/console app:test-search "Ich suche ein wasserdichtes Smartphone mit guter Kamera"
 ```
 
 ### Web-Interface

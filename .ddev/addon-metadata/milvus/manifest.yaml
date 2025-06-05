@@ -1,0 +1,8 @@
+name: milvus
+repository: iGore/ddev-milvus
+version: v1.0
+install_date: "2025-06-05T19:03:52+02:00"
+project_files:
+    - docker-compose.milvus.yaml
+global_files: []
+removal_actions: []
