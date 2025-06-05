@@ -20,8 +20,8 @@ class MilvusClientFactory
      * @param string $token The authentication token for the Milvus server
      * @return MilvusClient A configured Milvus client instance
      */
-    public static function create(string $host, int $port, $token): MilvusClient
+    public static function create(string $token, string $host, int $port): MilvusClient
     {
-        return new MilvusClient(host: $host, port: $port, token: $token);
+        return new MilvusClient(token: $token, host: $host, port: $port);
     }
 }

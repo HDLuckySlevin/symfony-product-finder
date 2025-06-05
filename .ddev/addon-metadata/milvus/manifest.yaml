@@ -1,0 +1,8 @@
+name: milvus
+repository: https://github.com/iGore/ddev-milvus/tarball/refs/pull/2/head
+version: ""
+install_date: "2025-06-04T20:41:11+02:00"
+project_files:
+    - docker-compose.milvus.yaml
+global_files: []
+removal_actions: []

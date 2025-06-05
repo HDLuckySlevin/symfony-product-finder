@@ -38,7 +38,7 @@ class ZillizVectorDBService
      */
     public function __construct(
         MilvusClient $milvus,
-        string $collectionName = 'products',
+        string $collectionName = 'default',
         int $dimension = 1536
     ) {
         $this->milvus = $milvus;
@@ -95,36 +95,6 @@ class ZillizVectorDBService
     }
 
     /**
-     * Insert a single product into the vector database
-     * 
-     * Note: This method contains debug code (dump statements) and uses hardcoded
-     * vector values instead of the product's actual embeddings.
-     * 
-     * @param Product $product The product to insert
-     * @return bool True if the insertion was successful, false otherwise
-     */
-    public function insertProduct(Product $product): bool
-    {
-        dump('Test');
-
-        dump($product->getName());
-        dump($product->getEmbeddings());
-        try {
-            $this->milvus->vector()->insert(
-                collectionName: $this->collectionName,
-                data: [
-                    'vector' => [0.1, 0.2, 0.3 /* etc... */],
-                    "title" => $product->getName(),
-                    "link" => "https://example.com/document-name-here",
-                ]
-            );
-            return true;
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
-
-    /**
      * Insert multiple products into the vector database
      * 
      * Iterates through the provided products array and inserts each valid product
@@ -144,17 +114,16 @@ class ZillizVectorDBService
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
-                        'primary_key' => $product->getId(),
                         'title' => $product->getName(),
                         'vector' => $product->getEmbeddings(),
                         'type' => 'product',
-                    ]
+                    ],
+                    dbName: $this->collectionName,
                 );
             }
 
             return true;
         } catch (\Throwable $e) {
-            dump($e->getMessage());
             return false;
         }
     }
@@ -185,7 +154,6 @@ class ZillizVectorDBService
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
-                        'primary_key' => $product->getId() * 10000 + $index,
                         'title' => $feature,
                         'vector' => $featureEmbeddings[$feature],
                         'product_id' => $product->getId(),
@@ -197,7 +165,6 @@ class ZillizVectorDBService
 
             return true;
         } catch (\Throwable $e) {
-            dump($e->getMessage());
             return false;
         }
     }
@@ -230,7 +197,6 @@ class ZillizVectorDBService
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
-                        'primary_key' => $product->getId() * 10000 + 5000 + $index,
                         'title' => $specText,
                         'vector' => $specificationEmbeddings[$specText],
                         'product_id' => $product->getId(),
@@ -243,7 +209,6 @@ class ZillizVectorDBService
 
             return true;
         } catch (\Throwable $e) {
-            dump($e->getMessage());
             return false;
         }
     }
@@ -264,8 +229,8 @@ class ZillizVectorDBService
             $result = $this->milvus->vector()->search(    
                 collectionName: $this->collectionName,
                 vector: $queryEmbedding,
-                outputFields: ["primary_key", "title", "link"],
-                limit: 5,
+                limit: $limit,
+                outputFields: ["id", "title", "link"],
             );
 
             return $result->json()['data'] ?? [];

@@ -66,7 +66,7 @@ class TestSearchCommand extends Command
             foreach ($results as $index => $result) {
                 $table[] = [
                     $index + 1,
-                    $result['primary_key'] ?? 'N/A',
+                    $result['id'] ?? 'N/A',
                     $result['title'] ?? 'Unknown product',
                     $result['distance'] ?? 'N/A',
                 ];

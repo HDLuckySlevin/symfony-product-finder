@@ -25,9 +25,9 @@ services:
     Milvus\Client:
         factory: ['@App\Factory\MilvusClientFactory', 'create']
         arguments:
+            $token: '%env(MILVUS_TOKEN)%'
             $host: '%env(MILVUS_HOST)%'
             $port: '%env(int:MILVUS_PORT)%'
-            $token: '%env(MILVUS_API_KEY)%'
 
     App\Service\ZillizVectorDBService:
         arguments:
