@@ -29,9 +29,9 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * Constructor
      * 
      * @param Client $client The OpenAI API client
-     * @param string $embeddingModel The embedding model to use (default: 'text-embedding-3-large')
+     * @param string $embeddingModel The embedding model to use (default: 'text-embedding-ada-002')
      */
-    public function __construct(Client $client, string $embeddingModel = 'text-embedding-3-large')
+    public function __construct(Client $client, string $embeddingModel = 'text-embedding-ada-002')
     {
         $this->client = $client;
         $this->embeddingModel = $embeddingModel;
