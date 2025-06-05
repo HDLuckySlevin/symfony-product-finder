@@ -22,6 +22,12 @@ Die Anwendung besteht aus folgenden Hauptkomponenten:
 4. **API-Controller**: Stellt REST-Endpunkte für die Produktsuche bereit
 5. **Web-Interface**: Bietet eine benutzerfreundliche Oberfläche für Endnutzer
 
+The core of the application is built upon the following key libraries and technologies:
+
+- **Symfony Framework**: Provides the foundational structure for the application.
+- **`helgesverre/milvus`**: Used for all interactions with the Milvus/Zilliz vector database, including storing and querying product vectors.
+- **`openai-php/client`**: Enables the generation of text embeddings for products and search queries via the OpenAI API.
+
 ## Installation
 
 ### Voraussetzungen
@@ -58,6 +64,14 @@ Die Anwendung besteht aus folgenden Hauptkomponenten:
    ddev start
    ```
 
+### Accessing the Application
+
+This project uses ddev for local development. After running `ddev start` (as mentioned in the "Einrichtung" steps), the web interface can be accessed in your browser.
+
+The typical URL for the application is `https://<projectname>.ddev.site`. For this project, the specific URL is `https://symfony-product-finder.ddev.site/`.
+
+Additionally, the Milvus admin interface (Attu) can be accessed at `https://<projectname>.ddev.site:8521`. For this project, the URL is `https://symfony-product-finder.ddev.site:8521`.
+
 ### Entwicklung mit Gitpod
 
 Dieses Projekt kann direkt in Gitpod geöffnet und verwendet werden, einer Online-IDE für GitHub.
@@ -92,7 +106,7 @@ ddev php bin/console app:test-search "Ich suche ein wasserdichtes Smartphone mit
 
 ### Web-Interface
 
-Öffnen Sie die Anwendung in Ihrem Browser unter `https://symfony-product-finder.ddev.site/` und verwenden Sie die Chat-Schnittstelle, um Produkte zu finden.
+Once you have accessed the application using the URL provided in the "Accessing the Application" section, you can use the chat interface to find products.
 
 ## Anpassung
 
