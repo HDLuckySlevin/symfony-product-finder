@@ -50,7 +50,7 @@ class ZillizVectorDBService
      * Initialize the vector database collection
      * 
      * Checks if the collection exists and returns true if it does.
-     * Currently, collection creation is commented out.
+     * If the collection doesn't exist, it calls createCollection to create it.
      * 
      * @return bool True if the collection exists or was created successfully, false otherwise
      */
@@ -62,33 +62,32 @@ class ZillizVectorDBService
                 return true;
             }
 
-            // $this->milvus->createCollection([
-            //     'collection_name' => $this->collectionName,
-            //     'fields' => [
-            //         [
-            //             'name' => 'id',
-            //             'description' => 'ID',
-            //             'data_type' => 'INT64',
-            //             'is_primary_key' => true,
-            //             'auto_id' => false,
-            //         ],
-            //         [
-            //             'name' => 'product_name',
-            //             'description' => 'Product Name',
-            //             'data_type' => 'VARCHAR',
-            //             'max_length' => 255,
-            //         ],
-            //         [
-            //             'name' => 'embedding',
-            //             'description' => 'Embedding',
-            //             'data_type' => 'FLOAT_VECTOR',
-            //             'type_params' => [
-            //                 'dim' => $this->dimension,
-            //             ],
-            //         ],
-            //     ],
-            // ]);
+            return $this->createCollection($this->dimension);
+        } catch (\Throwable $e) {
             return false;
+        }
+    }
+
+    /**
+     * Create a new collection in the vector database
+     * 
+     * Creates a collection with an id field (primary key), auto_id parameter,
+     * and a Float_vector field with the specified dimension.
+     * 
+     * @param int $dimension The dimension of the vector embeddings
+     * @return bool True if the collection was created successfully, false otherwise
+     */
+    public function createCollection(int $dimension): bool
+    {
+        try {
+            $this->milvus->collections()->create(
+                collectionName: $this->collectionName,
+                dimension: $dimension,
+                metricType: "COSINE",
+                primaryField: "id",
+                vectorField: "vector"
+            );
+            return true;
         } catch (\Throwable $e) {
             return false;
         }
