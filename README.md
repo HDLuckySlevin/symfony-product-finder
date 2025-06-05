@@ -1,26 +1,26 @@
-# Produktfinder mit GenAI und Symfony
+# Product Finder with GenAI and Symfony
 
-Diese Symfony-Anwendung ermöglicht das Einlesen von XML-Produktdaten, die Vektorisierung der Produkte und die Synchronisation mit Zilliz (einer Vektordatenbank). Endnutzer können über eine natürlichsprachliche Schnittstelle Produkte finden, die ihren Bedürfnissen entsprechen.
+This Symfony application enables the import of XML product data, the vectorization of products, and synchronization with Zilliz (a vector database). End users can find products that meet their needs through a natural language interface.
 
-## Funktionen
+## Features
 
-- Import von Elektronikprodukten aus XML-Dateien
-- Vektorisierung aller Produkteigenschaften mit OpenAI Embeddings
-- Einzelne Speicherung von Produktmerkmalen und Spezifikationen in der Vektordatenbank
-- Speicherung und Suche in der Zilliz Vektordatenbank
-- Natürlichsprachliche Produktsuche über API
-- Web-Interface mit DeepChat für Endnutzer
-- Flexible Konfiguration für API-Keys und Endpunkte
+- Import of electronic products from XML files
+- Vectorization of all product properties with OpenAI Embeddings
+- Individual storage of product features and specifications in the vector database
+- Storage and search in the Zilliz vector database
+- Natural language product search via API
+- Web interface with DeepChat for end users
+- Flexible configuration for API keys and endpoints
 
-## Technische Architektur
+## Technical Architecture
 
-Die Anwendung besteht aus folgenden Hauptkomponenten:
+The application consists of the following main components:
 
-1. **XML-Import**: Liest Produktdaten aus XML-Dateien und konvertiert sie in Product-Objekte
-2. **Embedding-Generator**: Erzeugt Vektorrepräsentationen für Produkte, Produktmerkmale, Spezifikationen und Suchanfragen
-3. **Zilliz-Integration**: Speichert und durchsucht Produktvektoren, Merkmalvektoren und Spezifikationsvektoren in der Vektordatenbank
-4. **API-Controller**: Stellt REST-Endpunkte für die Produktsuche bereit
-5. **Web-Interface**: Bietet eine benutzerfreundliche Oberfläche für Endnutzer
+1. **XML Import**: Reads product data from XML files and converts them into Product objects
+2. **Embedding Generator**: Creates vector representations for products, product features, specifications, and search queries
+3. **Zilliz Integration**: Stores and searches product vectors, feature vectors, and specification vectors in the vector database
+4. **API Controller**: Provides REST endpoints for product search
+5. **Web Interface**: Offers a user-friendly interface for end users
 
 The core of the application is built upon the following key libraries and technologies:
 
@@ -30,26 +30,26 @@ The core of the application is built upon the following key libraries and techno
 
 ## Installation
 
-### Voraussetzungen
+### Prerequisites
 
-- PHP 8.1 oder höher
+- PHP 8.1 or higher
 - Composer
-- Symfony CLI (optional, für lokale Entwicklung)
+- Symfony CLI (optional, for local development)
 
-### Einrichtung
+### Setup
 
-1. Klonen Sie das Repository:
+1. Clone the repository:
    ```
    git clone [repository-url]
    cd symfony-product-finder
    ```
 
-2. Installieren Sie die Abhängigkeiten:
+2. Install the dependencies:
    ```
    ddev composer install
    ```
 
-3. Konfigurieren Sie die Umgebungsvariablen in einer `.env.local` Datei:
+3. Configure the environment variables in a `.env.local` file:
    ```
    OPENAI_API_KEY=your_openai_api_key
    OPENAI_EMBEDDING_MODEL=text-embedding-3-small
@@ -59,83 +59,75 @@ The core of the application is built upon the following key libraries and techno
    MILVUS_COLLECTION=products
    ```
 
-4. Starten Sie den Symfony-Server:
+4. Start the Symfony server:
    ```
    ddev start
    ```
 
-### Accessing the Application
+### Development with Gitpod
 
-This project uses ddev for local development. After running `ddev start` (as mentioned in the "Einrichtung" steps), the web interface can be accessed in your browser.
-
-The typical URL for the application is `https://<projectname>.ddev.site`. For this project, the specific URL is `https://symfony-product-finder.ddev.site/`.
-
-Additionally, the Milvus admin interface (Attu) can be accessed at `https://<projectname>.ddev.site:8521`. For this project, the URL is `https://symfony-product-finder.ddev.site:8521`.
-
-### Entwicklung mit Gitpod
-
-Dieses Projekt kann direkt in Gitpod geöffnet und verwendet werden, einer Online-IDE für GitHub.
+This project can be opened and used directly in Gitpod, an online IDE for GitHub.
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/iGore/symfony-product-finder)
 
-Gitpod startet automatisch eine voll funktionsfähige Entwicklungsumgebung, einschließlich der DDEV-Integration. Nach dem Start des Workspaces wird DDEV automatisch gestartet, und die Anwendung ist über die von Gitpod bereitgestellte URL zugänglich. Die notwendigen Ports (z.B. für den Webserver und Mailpit) werden automatisch geöffnet.
+Gitpod automatically starts a fully functional development environment, including DDEV integration. After starting the workspace, DDEV is automatically started, and the application is accessible via the URL provided by Gitpod. The necessary ports (e.g., for the web server and Mailpit) are automatically opened.
 
-Sie können DDEV-Befehle wie gewohnt im Gitpod-Terminal verwenden (z.B. `ddev ssh`, `ddev logs`).
+You can use DDEV commands in the Gitpod terminal as usual (e.g., `ddev ssh`, `ddev logs`).
 
-## Verwendung
+## Usage
 
-### Produkte importieren
+### Importing Products
 
-Verwenden Sie den folgenden Befehl, um Produkte aus einer XML-Datei zu importieren:
+Use the following command to import products from an XML file:
 
 ```
 ddev php bin/console app:import-products src/DataFixtures/xml/sample_products.xml
 ```
 
-Beim Import werden nicht nur die Produkte als Ganzes, sondern auch deren einzelne Merkmale und Spezifikationen als separate Vektoren in der Datenbank gespeichert. Dies ermöglicht präzisere Suchergebnisse und eine bessere Zuordnung von Nutzeranfragen zu spezifischen Produkteigenschaften.
+During import, not only the products as a whole but also their individual features and specifications are stored as separate vectors in the database. This enables more precise search results and better matching of user queries to specific product properties.
 
-Die API-Keys sind optional. Wenn sie nicht angegeben werden, verwendet die Anwendung Mock-Daten für Tests.
+The API keys are optional. If not provided, the application uses mock data for testing.
 
-### Produktsuche testen
+### Testing Product Search
 
-Testen Sie die Produktsuche mit dem folgenden Befehl:
+Test the product search with the following command:
 
 ```
-ddev php bin/console app:test-search "Ich suche ein wasserdichtes Smartphone mit guter Kamera"
+ddev php bin/console app:test-search "I'm looking for a waterproof smartphone with a good camera"
 ```
 
-### Web-Interface
+### Web Interface
 
-Once you have accessed the application using the URL provided in the "Accessing the Application" section, you can use the chat interface to find products.
+Open the application in your browser at `https://symfony-product-finder.ddev.site/` and use the chat interface to find products.
 
-## Anpassung
+## Customization
 
-### Eigene XML-Struktur
+### Custom XML Structure
 
-Sie können die XML-Importlogik in `src/Service/XmlImportService.php` anpassen, um Ihre eigene XML-Struktur zu unterstützen.
+You can adapt the XML import logic in `src/Service/XmlImportService.php` to support your own XML structure.
 
-### Andere Embedding-Provider
+### Other Embedding Providers
 
-Die Anwendung verwendet standardmäßig OpenAI für Embeddings, kann aber leicht auf andere Provider umgestellt werden. Implementieren Sie dazu das `EmbeddingGeneratorInterface`. Wenn Sie einen anderen Provider verwenden möchten, müssen Sie auch die Methoden `generateFeatureEmbeddings` und `generateSpecificationEmbeddings` implementieren, um Embeddings für einzelne Produktmerkmale und Spezifikationen zu erzeugen.
+The application uses OpenAI for embeddings by default but can be easily switched to other providers. To do this, implement the `EmbeddingGeneratorInterface`. If you want to use another provider, you also need to implement the methods `generateFeatureEmbeddings` and `generateSpecificationEmbeddings` to create embeddings for individual product features and specifications.
 
-### Zilliz-Konfiguration
+### Zilliz Configuration
 
-Die Zilliz-Integration kann in `src/Service/ZillizVectorDBService.php` angepasst werden, um spezifische Anforderungen zu erfüllen. Sie können die Methoden `insertProductFeatures` und `insertProductSpecifications` anpassen, um die Art und Weise zu ändern, wie Produktmerkmale und Spezifikationen in der Vektordatenbank gespeichert werden.
+The Zilliz integration can be customized in `src/Service/ZillizVectorDBService.php` to meet specific requirements. You can adapt the methods `insertProductFeatures` and `insertProductSpecifications` to change how product features and specifications are stored in the vector database.
 
-## Entwicklung
+## Development
 
-### Tests ausführen
+### Running Tests
 
 ```
 ddev php bin/phpunit
 ```
 
-### Neue Funktionen hinzufügen
+### Adding New Features
 
-1. Erstellen Sie neue Controller in `src/Controller/`
-2. Fügen Sie neue Services in `src/Service/` hinzu
-3. Erweitern Sie die Entitäten in `src/Entity/`
+1. Create new controllers in `src/Controller/`
+2. Add new services in `src/Service/`
+3. Extend the entities in `src/Entity/`
 
-## Lizenz
+## License
 
-Dieses Projekt steht unter der MIT-Lizenz.
+This project is licensed under the MIT License.
