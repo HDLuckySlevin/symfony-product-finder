@@ -68,11 +68,12 @@ class TestSearchCommand extends Command
                     $index + 1,
                     $result['id'] ?? 'N/A',
                     $result['title'] ?? 'Unknown product',
+                    $result['type'] ?? 'Unknown product',
                     $result['distance'] ?? 'N/A',
                 ];
             }
 
-            $io->table(['#', 'ID', 'Product Name', 'Similarity Score'], $table);
+            $io->table(['#', 'ID', 'Product Name', 'Field Type', 'Distance'], $table);
 
             return Command::SUCCESS;
         } catch (\Exception $e) {

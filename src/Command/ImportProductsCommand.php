@@ -64,9 +64,9 @@ class ImportProductsCommand extends Command
                     continue;
                 }
 
-                // Generate product embedding (includes specification, description, and features in one chunk)
-                $embedding = $this->embeddingGenerator->generateEmbedding($product);
-                $product->setEmbeddings($embedding);
+                // Generate embeddings for each field, specification, and feature of the product
+                $embeddings = $this->embeddingGenerator->generateEmbedding($product);
+                $product->setEmbeddings($embeddings);
                 $productsWithEmbeddings[] = $product;
 
                 $progressBar->advance();
@@ -74,7 +74,7 @@ class ImportProductsCommand extends Command
 
             $progressBar->finish();
             $io->newLine(2);
-            $io->success(sprintf('Generated embeddings for %d products (including specification, description, and features in one chunk)', count($productsWithEmbeddings)));
+            $io->success(sprintf('Generated embeddings for %d products (separate embeddings for each field, specification, and feature)', count($productsWithEmbeddings)));
 
             // Initialize Milvus collection
             $io->section('Initializing Milvus collection');
@@ -96,8 +96,8 @@ class ImportProductsCommand extends Command
                 $io->warning('Failed to insert products into Milvus. Using mock mode.');
             }
 
-            // No longer inserting separate features and specifications
-            // All product data (including specification, description, and features) is now in a single chunk
+            // Each field, specification, and feature of the product is now embedded separately
+            // and stored in the vector database with the product title set as a dynamic field
 
 
             $io->success('Import process completed successfully');
