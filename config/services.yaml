@@ -29,7 +29,7 @@ services:
             $host: '%env(MILVUS_HOST)%'
             $port: '%env(int:MILVUS_PORT)%'
 
-    App\Service\ZillizVectorDBService:
+    App\Service\MilvusVectorStoreService:
         arguments:
             $milvus: '@Milvus\Client'
             $collectionName: '%env(MILVUS_COLLECTION)%'

@@ -6,13 +6,13 @@ use App\Entity\Product;
 use HelgeSverre\Milvus\Milvus as MilvusClient;
 
 /**
- * Service for interacting with Zilliz/Milvus vector database
+ * Service for interacting with Milvus vector database
  * 
  * This service provides methods for storing and retrieving product data
  * in a vector database for similarity search. It handles collection initialization,
  * product insertion, and similarity search operations.
  */
-class ZillizVectorDBService
+class MilvusVectorStoreService implements VectorStoreInterface
 {
     /**
      * Milvus client instance for interacting with the vector database
@@ -144,10 +144,9 @@ class ZillizVectorDBService
                 collectionName: $this->collectionName,
                 vector: $queryEmbedding,
                 limit: $limit,
-                outputFields: ["id", "title", "link"],
+                outputFields: ["id", "title"],
                 dbName: $this->collectionName,
             );
-
             return $result->json()['data'] ?? [];
         } catch (\Throwable $e) {
             return [];

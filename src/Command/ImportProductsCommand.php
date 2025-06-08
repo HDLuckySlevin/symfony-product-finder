@@ -5,7 +5,7 @@ namespace App\Command;
 use App\Entity\Product;
 use App\Service\EmbeddingGeneratorInterface;
 use App\Service\XmlImportService;
-use App\Service\ZillizVectorDBService;
+use App\Service\VectorStoreInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,23 +15,23 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:import-products',
-    description: 'Import products from XML file, generate embeddings and sync with Zilliz',
+    description: 'Import products from XML file, generate embeddings and sync with Milvus',
 )]
 class ImportProductsCommand extends Command
 {
     private XmlImportService $xmlImportService;
     private EmbeddingGeneratorInterface $embeddingGenerator;
-    private ZillizVectorDBService $vectorDBService;
+    private VectorStoreInterface $vectorStoreService;
 
     public function __construct(
         XmlImportService $xmlImportService,
         EmbeddingGeneratorInterface $embeddingGenerator,
-        ZillizVectorDBService $vectorDBService
+        VectorStoreInterface $vectorStoreService
     ) {
         parent::__construct();
         $this->xmlImportService = $xmlImportService;
         $this->embeddingGenerator = $embeddingGenerator;
-        $this->vectorDBService = $vectorDBService;
+        $this->vectorStoreService = $vectorStoreService;
     }
 
     protected function configure(): void
@@ -76,24 +76,24 @@ class ImportProductsCommand extends Command
             $io->newLine(2);
             $io->success(sprintf('Generated embeddings for %d products (including specification, description, and features in one chunk)', count($productsWithEmbeddings)));
 
-            // Initialize Zilliz collection
-            $io->section('Initializing Zilliz collection');
-            $result = $this->vectorDBService->initializeCollection();
+            // Initialize Milvus collection
+            $io->section('Initializing Milvus collection');
+            $result = $this->vectorStoreService->initializeCollection();
 
             if ($result) {
-                $io->success('Successfully initialized Zilliz collection');
+                $io->success('Successfully initialized Milvus collection');
             } else {
-                $io->warning('Failed to initialize Zilliz collection. Using mock mode.');
+                $io->warning('Failed to initialize Milvus collection. Using mock mode.');
             }
 
-            // Insert products into Zilliz
-            $io->section('Inserting products into Zilliz');
-            $result = $this->vectorDBService->insertProducts($productsWithEmbeddings);
+            // Insert products into Milvus
+            $io->section('Inserting products into Milvus');
+            $result = $this->vectorStoreService->insertProducts($productsWithEmbeddings);
 
             if ($result) {
-                $io->success('Successfully inserted products into Zilliz');
+                $io->success('Successfully inserted products into Milvus');
             } else {
-                $io->warning('Failed to insert products into Zilliz. Using mock mode.');
+                $io->warning('Failed to insert products into Milvus. Using mock mode.');
             }
 
             // No longer inserting separate features and specifications

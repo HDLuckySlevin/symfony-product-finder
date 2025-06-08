@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Service\EmbeddingGeneratorInterface;
-use App\Service\ZillizVectorDBService;
+use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,14 +12,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProductFinderController extends AbstractController
 {
     private EmbeddingGeneratorInterface $embeddingGenerator;
-    private ZillizVectorDBService $vectorDBService;
+    private VectorStoreInterface $vectorStoreService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
-        ZillizVectorDBService $vectorDBService
+        VectorStoreInterface $vectorStoreService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
-        $this->vectorDBService = $vectorDBService;
+        $this->vectorStoreService = $vectorStoreService;
     }
 
     #[Route('/api/products/search', name: 'api_products_search', methods: ['POST'])]
@@ -27,7 +27,7 @@ class ProductFinderController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $query = $data['query'] ?? '';
-        
+
         if (empty($query)) {
             return $this->json([
                 'success' => false,
@@ -35,13 +35,13 @@ class ProductFinderController extends AbstractController
                 'products' => []
             ], 400);
         }
-        
+
         // Generate embedding for the query
         $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($query);
-        
+
         // Search for similar products
-        $results = $this->vectorDBService->searchSimilarProducts($queryEmbedding);
-        
+        $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding);
+
         return $this->json([
             'success' => true,
             'query' => $query,
@@ -69,7 +69,7 @@ class ProductFinderController extends AbstractController
         $searchQuery = $this->extractSearchIntent($message, $history);
 
         $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($searchQuery);
-        $results = $this->vectorDBService->searchSimilarProducts($queryEmbedding);
+        $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding);
         $responseMessage = $this->generateChatResponse($message, $searchQuery, $results, $history);
 
         return $this->json([
@@ -79,7 +79,7 @@ class ProductFinderController extends AbstractController
             'products' => $results
         ]);
     }
-    
+
     /**
      * Extract search intent from a chat message
      */
@@ -89,7 +89,7 @@ class ProductFinderController extends AbstractController
         // Hier könntest du auch komplexere Logik/NLP einsetzen
         return $message;
     }
-    
+
     /**
      * Generate a chat response based on the search results
      */
@@ -99,17 +99,17 @@ class ProductFinderController extends AbstractController
         if (empty($results)) {
             return "Es tut mir leid, ich konnte keine passenden Produkte zu Ihrer Anfrage finden. Können Sie Ihre Anforderungen genauer beschreiben?";
         }
-        
+
         $count = count($results);
         $productNames = array_map(function($result) {
             return $result['title'] ?? 'Unbekanntes Produkt';
         }, array_slice($results, 0, 3));
-        
+
         $productList = implode(', ', $productNames);
         if ($count > 3) {
             $productList .= ' und ' . ($count - 3) . ' weitere';
         }
-        
+
         return "Basierend auf Ihrer Anfrage \"$originalMessage\" habe ich folgende Produkte gefunden: $productList. Möchten Sie mehr Details zu einem bestimmten Produkt?";
     }
 }

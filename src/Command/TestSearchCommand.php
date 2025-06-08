@@ -3,7 +3,7 @@
 namespace App\Command;
 
 use App\Service\EmbeddingGeneratorInterface;
-use App\Service\ZillizVectorDBService;
+use App\Service\VectorStoreInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,15 +18,15 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class TestSearchCommand extends Command
 {
     private EmbeddingGeneratorInterface $embeddingGenerator;
-    private ZillizVectorDBService $vectorDBService;
+    private VectorStoreInterface $vectorStoreService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
-        ZillizVectorDBService $vectorDBService
+        VectorStoreInterface $vectorStoreService
     ) {
         parent::__construct();
         $this->embeddingGenerator = $embeddingGenerator;
-        $this->vectorDBService = $vectorDBService;
+        $this->vectorStoreService = $vectorStoreService;
     }
 
     protected function configure(): void
@@ -51,15 +51,15 @@ class TestSearchCommand extends Command
 
             // Search for similar products
             $io->text('Searching for similar products...');
-            $results = $this->vectorDBService->searchSimilarProducts($queryEmbedding, 5);
-            
+            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 5);
+
             if (empty($results)) {
                 $io->warning('No products found matching the query');
                 return Command::SUCCESS;
             }
-            
+
             $io->success(sprintf('Found %d products matching the query', count($results)));
-            
+
             // Display results
             $io->section('Search results:');
             $table = [];
@@ -71,9 +71,9 @@ class TestSearchCommand extends Command
                     $result['distance'] ?? 'N/A',
                 ];
             }
-            
+
             $io->table(['#', 'ID', 'Product Name', 'Similarity Score'], $table);
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error('An error occurred during search: ' . $e->getMessage());
