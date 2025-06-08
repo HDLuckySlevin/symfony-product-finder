@@ -55,10 +55,10 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
         $groupedFields = $this->groupFieldData($product);
 
         // Create a single chunk with all product information
-        $chunks = $this->getChunks($groupedFields);
+        $chunk = $this->getChunk($groupedFields);
 
         // Generate embedding for the combined text
-        return $this->generateEmbeddingForText($chunks[0]);
+        return $this->generateEmbeddingForText($chunk);
     }
 
     /**
@@ -83,10 +83,6 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * representation of the provided text. Falls back to mock embeddings if
      * the API key is not set or if the API call fails.
      * 
-     * The text is chunked into smaller pieces with a token size of 500 before
-     * being sent to the API. If multiple chunks are generated, only the first
-     * chunk is used to produce the embedding vector.
-     * 
      * @param string $text The text to generate embeddings for
      * @return array<int, float> The embedding vector
      * @throws \RuntimeException If the API response format is invalid
@@ -94,27 +90,10 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
     private function generateEmbeddingForText(string $text): array
     {
         try {
-            // Chunk the text before embedding
-            $chunks = $this->chunkText($text, 500);
-
-            // If there's only one chunk, process it directly
-            if (count($chunks) === 1) {
-                $response = $this->client->embeddings()->create([
-                    'model' => $this->embeddingModel,
-                    'input' => $chunks[0],
-                ]);
-
-                if (isset($response->embeddings[0]->embedding)) {
-                    return $response->embeddings[0]->embedding;
-                }
-
-                throw new \RuntimeException('Failed to generate embedding: Invalid response format from OpenAI client');
-            }
-
-            // For multiple chunks, use only the first chunk
+            // Send the full text directly to the API without chunking
             $response = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
-                'input' => $chunks[0],
+                'input' => $text,
             ]);
 
             if (isset($response->embeddings[0]->embedding)) {
@@ -128,49 +107,6 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             // Fallback to mock embedding on error
             return $this->generateMockEmbedding($text);
         }
-    }
-
-    /**
-     * Chunk text into smaller pieces based on approximate token size
-     * 
-     * Splits the input text into chunks of approximately the specified token size.
-     * This is a simple implementation that assumes 1 token is roughly 4 characters.
-     * 
-     * @param string $text The text to chunk
-     * @param int $tokenSize The approximate token size for each chunk
-     * @return array<int, string> Array of text chunks
-     */
-    private function chunkText(string $text, int $tokenSize = 500): array
-    {
-        // Simple approximation: 1 token ≈ 4 characters
-        $charsPerToken = 4;
-        $chunkSize = $tokenSize * $charsPerToken;
-
-        // If text is smaller than chunk size, return it as is
-        if (strlen($text) <= $chunkSize) {
-            return [$text];
-        }
-
-        $chunks = [];
-        $words = explode(' ', $text);
-        $currentChunk = '';
-
-        foreach ($words as $word) {
-            // If adding this word would exceed the chunk size, start a new chunk
-            if (strlen($currentChunk) + strlen($word) + 1 > $chunkSize && !empty($currentChunk)) {
-                $chunks[] = trim($currentChunk);
-                $currentChunk = '';
-            }
-
-            $currentChunk .= ' ' . $word;
-        }
-
-        // Add the last chunk if it's not empty
-        if (!empty($currentChunk)) {
-            $chunks[] = trim($currentChunk);
-        }
-
-        return $chunks;
     }
 
     /**
@@ -215,7 +151,7 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * @param array<string, string> $groupedFields Grouped fields with keys 'title', 'metadata', 'specifications', and 'features'
      * @return array<int, string> Array containing a single text chunk
      */
-    private function getChunks(array $groupedFields): array
+    private function getChunk(array $groupedFields): string
     {
         $title = $groupedFields['title'];
         $metadata = $groupedFields['metadata'];
@@ -235,7 +171,7 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             $chunk .= ' Features: ' . $features;
         }
 
-        return [$chunk];
+        return $chunk;
     }
 
     /**
