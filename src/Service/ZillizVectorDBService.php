@@ -33,7 +33,7 @@ class ZillizVectorDBService
      * Constructor
      * 
      * @param MilvusClient $milvus The Milvus client instance
-     * @param string $collectionName The name of the collection to use (default: 'products')
+     * @param string $collectionName The name of the collection to use (default: 'default')
      * @param int $dimension The dimension of the vector embeddings (default: 1536)
      */
     public function __construct(
