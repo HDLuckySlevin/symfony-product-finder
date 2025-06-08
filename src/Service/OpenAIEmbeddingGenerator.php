@@ -10,8 +10,7 @@ use OpenAI\Client;
  * 
  * This service implements the EmbeddingGeneratorInterface and provides
  * methods for generating vector embeddings for products and search queries
- * using OpenAI's embedding models. It includes fallback to mock embeddings
- * when the API is unavailable or no API key is provided.
+ * using OpenAI's embedding models.
  */
 class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
 {
@@ -80,12 +79,11 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * Generate embedding for a text using OpenAI API
      * 
      * Makes an API call to OpenAI's embeddings endpoint to generate a vector
-     * representation of the provided text. Falls back to mock embeddings if
-     * the API key is not set or if the API call fails.
+     * representation of the provided text.
      * 
      * @param string $text The text to generate embeddings for
      * @return array<int, float> The embedding vector
-     * @throws \RuntimeException If the API response format is invalid
+     * @throws \RuntimeException If the API response format is invalid or if the API call fails
      */
     private function generateEmbeddingForText(string $text): array
     {
@@ -104,8 +102,8 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
         } catch (\Exception $e) {
             // Log the error message for debugging
             // error_log('OpenAI API Error: ' . $e->getMessage());
-            // Fallback to mock embedding on error
-            return $this->generateMockEmbedding($text);
+            // Re-throw the exception
+            throw new \RuntimeException('Failed to generate embedding: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -174,40 +172,4 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
         return $chunk;
     }
 
-    /**
-     * Generate a mock embedding for testing purposes
-     * 
-     * Creates a deterministic but unique embedding vector based on the MD5 hash
-     * of the input text. This is used when no API key is provided or when the
-     * API call fails. The generated vector has the same dimensions as OpenAI's
-     * embeddings (1536).
-     * 
-     * @param string $text The text to generate a mock embedding for
-     * @return array<int, float> The mock embedding vector with 1536 dimensions
-     */
-    private function generateMockEmbedding(string $text): array
-    {
-        // Create a deterministic but unique embedding based on the text
-        $hash = md5($text);
-        $bytes = str_split($hash, 2);
-
-        // Convert to float values between -1 and 1
-        $embedding = [];
-        foreach ($bytes as $byte) {
-            $value = (hexdec($byte) / 255) * 2 - 1;
-            $embedding[] = $value;
-        }
-
-        // Efficiently pad to 1536 dimensions without using array_merge in a loop
-        $originalLength = count($embedding);
-
-        // Create a padded array of exactly 1536 elements
-        $padded = [];
-        for ($i = 0; $i < 1536; $i++) {
-            // Use modulo to cycle through the original embedding values
-            $padded[] = $embedding[$i % $originalLength];
-        }
-
-        return $padded;
-    }
 }
