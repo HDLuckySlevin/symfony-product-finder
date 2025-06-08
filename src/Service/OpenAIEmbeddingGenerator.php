@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Product;
 use OpenAI\Client;
+use Psr\Log\LoggerInterface;
 
 /**
  * Service for generating vector embeddings using OpenAI's API
@@ -25,14 +26,24 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
     private string $embeddingModel;
 
     /**
+     * Logger for recording operations and errors
+     */
+    private LoggerInterface $logger;
+
+    /**
      * Constructor
      * 
      * @param Client $client The OpenAI API client
+     * @param LoggerInterface $logger The logger service
      * @param string $embeddingModel The embedding model to use (default: 'text-embedding-ada-002')
      */
-    public function __construct(Client $client, string $embeddingModel = 'text-embedding-ada-002')
-    {
+    public function __construct(
+        Client $client, 
+        LoggerInterface $logger,
+        string $embeddingModel = 'text-embedding-ada-002'
+    ) {
         $this->client = $client;
+        $this->logger = $logger;
         $this->embeddingModel = $embeddingModel;
     }
 
@@ -50,6 +61,11 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     public function generateEmbedding(Product $product): array
     {
+        $this->logger->info('Generating embedding for product', [
+            'product_id' => $product->getId(),
+            'product_name' => $product->getName()
+        ]);
+
         // Group fields into title, metadata, specifications, and features
         $groupedFields = $this->groupFieldData($product);
 
@@ -57,7 +73,14 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
         $chunk = $this->getChunk($groupedFields);
 
         // Generate embedding for the combined text
-        return $this->generateEmbeddingForText($chunk);
+        $result = $this->generateEmbeddingForText($chunk);
+
+        $this->logger->debug('Successfully generated embedding for product', [
+            'product_id' => $product->getId(),
+            'embedding_size' => count($result)
+        ]);
+
+        return $result;
     }
 
     /**
@@ -72,7 +95,17 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     public function generateQueryEmbedding(string $query): array
     {
-        return $this->generateEmbeddingForText($query);
+        $this->logger->info('Generating embedding for search query', [
+            'query_length' => strlen($query)
+        ]);
+
+        $result = $this->generateEmbeddingForText($query);
+
+        $this->logger->debug('Successfully generated embedding for search query', [
+            'embedding_size' => count($result)
+        ]);
+
+        return $result;
     }
 
     /**
@@ -87,6 +120,11 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     private function generateEmbeddingForText(string $text): array
     {
+        $this->logger->debug('Generating embedding for text', [
+            'text_length' => strlen($text),
+            'model' => $this->embeddingModel
+        ]);
+
         try {
             // Send the full text directly to the API without chunking
             $response = $this->client->embeddings()->create([
@@ -95,13 +133,22 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
             ]);
 
             if (isset($response->embeddings[0]->embedding)) {
-                return $response->embeddings[0]->embedding;
+                $embedding = $response->embeddings[0]->embedding;
+                $this->logger->debug('Successfully received embedding from OpenAI', [
+                    'embedding_size' => count($embedding)
+                ]);
+                return $embedding;
             } else {
+                $this->logger->error('Invalid response format from OpenAI client', [
+                    'response' => json_encode($response)
+                ]);
                 throw new \RuntimeException('Failed to generate embedding: Invalid response format from OpenAI client');
             }
         } catch (\Exception $e) {
-            // Log the error message for debugging
-            // error_log('OpenAI API Error: ' . $e->getMessage());
+            $this->logger->error('Error generating embedding with OpenAI API', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             // Re-throw the exception
             throw new \RuntimeException('Failed to generate embedding: ' . $e->getMessage(), 0, $e);
         }
