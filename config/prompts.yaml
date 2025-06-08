@@ -1,0 +1,10 @@
+# Prompts configuration file
+# Contains all prompts used in the application
+
+test_search_command:
+  system_prompt: 'You are a product finder assistant. Analyze the following products and provide recommendations based on the user query.'
+  user_message_template: "Query: %query%\n\nAvailable products:\n%products_list%\n\nPlease recommend the most suitable products for this query and explain why."
+
+product_finder_controller:
+  no_results_message: "I'm sorry, I couldn't find any matching products for your request. Could you describe your requirements in more detail?"
+  results_found_template: "Based on your request \"%original_message%\" I found the following products: %product_list%. Would you like more details about a specific product?"

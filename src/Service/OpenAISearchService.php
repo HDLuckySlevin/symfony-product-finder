@@ -6,12 +6,12 @@ use OpenAI\Client;
 use Psr\Log\LoggerInterface;
 
 /**
- * Service for generating results using OpenAI's Chat API
+ * Service for generating search results using OpenAI's Chat API
  * 
  * This service provides methods for generating text completions
- * using OpenAI's chat models.
+ * using OpenAI's chat models for search functionality.
  */
-class OpenAIChatService implements SearchServiceInterface
+class OpenAISearchService implements SearchServiceInterface
 {
     /**
      * OpenAI API client
@@ -55,7 +55,7 @@ class OpenAIChatService implements SearchServiceInterface
      */
     public function generateChatCompletion(array $messages, array $options = []): string
     {
-        $this->logger->info('Generating chat completion', [
+        $this->logger->info('Generating chat completion for search', [
             'model' => $this->chatModel,
             'message_count' => count($messages)
         ]);
@@ -70,7 +70,7 @@ class OpenAIChatService implements SearchServiceInterface
 
             if (isset($response->choices[0]->message->content)) {
                 $content = $response->choices[0]->message->content;
-                $this->logger->debug('Successfully received chat completion from OpenAI', [
+                $this->logger->debug('Successfully received chat completion from OpenAI for search', [
                     'content_length' => strlen($content)
                 ]);
                 return $content;
@@ -78,15 +78,15 @@ class OpenAIChatService implements SearchServiceInterface
                 $this->logger->error('Invalid response format from OpenAI client', [
                     'response' => json_encode($response)
                 ]);
-                throw new \RuntimeException('Failed to generate chat completion: Invalid response format from OpenAI client');
+                throw new \RuntimeException('Failed to generate chat completion for search: Invalid response format from OpenAI client');
             }
         } catch (\Exception $e) {
-            $this->logger->error('Error generating chat completion with OpenAI API', [
+            $this->logger->error('Error generating chat completion with OpenAI API for search', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
             // Re-throw the exception
-            throw new \RuntimeException('Failed to generate chat completion: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to generate chat completion for search: ' . $e->getMessage(), 0, $e);
         }
     }
 

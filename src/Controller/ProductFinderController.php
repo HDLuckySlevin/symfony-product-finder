@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\EmbeddingGeneratorInterface;
+use App\Service\PromptServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,13 +14,16 @@ class ProductFinderController extends AbstractController
 {
     private EmbeddingGeneratorInterface $embeddingGenerator;
     private VectorStoreInterface $vectorStoreService;
+    private PromptServiceInterface $promptService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
-        VectorStoreInterface $vectorStoreService
+        VectorStoreInterface $vectorStoreService,
+        PromptServiceInterface $promptService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
+        $this->promptService = $promptService;
     }
 
     #[Route('/api/products/search', name: 'api_products_search', methods: ['POST'])]
@@ -54,7 +58,7 @@ class ProductFinderController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $message = $data['message'] ?? '';
-        $history = $data['history'] ?? []; // <-- History auslesen
+        $history = $data['history'] ?? []; // <-- Read history
 
         if (empty($message)) {
             return $this->json([
@@ -65,7 +69,7 @@ class ProductFinderController extends AbstractController
             ], 400);
         }
 
-        // History an Intent-Extraktion übergeben
+        // Pass history to intent extraction
         $searchQuery = $this->extractSearchIntent($message, $history);
 
         $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($searchQuery);
@@ -85,8 +89,8 @@ class ProductFinderController extends AbstractController
      */
     private function extractSearchIntent(string $message, array $history = []): string
     {
-        // Beispiel: Nutze die letzte Nutzer-Nachricht als Such-Query
-        // Hier könntest du auch komplexere Logik/NLP einsetzen
+        // Example: Use the last user message as search query
+        // You could also implement more complex logic/NLP here
         return $message;
     }
 
@@ -95,21 +99,24 @@ class ProductFinderController extends AbstractController
      */
     private function generateChatResponse(string $originalMessage, string $searchQuery, array $results, array $history = []): string
     {
-        // Du kannst die History hier für Kontext verwenden, z.B. für Follow-Ups
+        // You can use the history here for context, e.g., for follow-ups
         if (empty($results)) {
-            return "Es tut mir leid, ich konnte keine passenden Produkte zu Ihrer Anfrage finden. Können Sie Ihre Anforderungen genauer beschreiben?";
+            return $this->promptService->getPrompt('product_finder_controller', 'no_results_message');
         }
 
         $count = count($results);
         $productNames = array_map(function($result) {
-            return $result['title'] ?? 'Unbekanntes Produkt';
+            return $result['title'] ?? 'Unknown Product';
         }, array_slice($results, 0, 3));
 
         $productList = implode(', ', $productNames);
         if ($count > 3) {
-            $productList .= ' und ' . ($count - 3) . ' weitere';
+            $productList .= ' and ' . ($count - 3) . ' more';
         }
 
-        return "Basierend auf Ihrer Anfrage \"$originalMessage\" habe ich folgende Produkte gefunden: $productList. Möchten Sie mehr Details zu einem bestimmten Produkt?";
+        return $this->promptService->getPrompt('product_finder_controller', 'results_found_template', [
+            'original_message' => $originalMessage,
+            'product_list' => $productList
+        ]);
     }
 }

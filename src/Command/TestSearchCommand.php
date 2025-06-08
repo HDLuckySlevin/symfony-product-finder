@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\EmbeddingGeneratorInterface;
+use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -21,16 +22,19 @@ class TestSearchCommand extends Command
     private EmbeddingGeneratorInterface $embeddingGenerator;
     private VectorStoreInterface $vectorStoreService;
     private SearchServiceInterface $searchService;
+    private PromptServiceInterface $promptService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
         VectorStoreInterface $vectorStoreService,
-        SearchServiceInterface $searchService
+        SearchServiceInterface $searchService,
+        PromptServiceInterface $promptService
     ) {
         parent::__construct();
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
         $this->searchService = $searchService;
+        $this->promptService = $promptService;
     }
 
     protected function configure(): void
@@ -78,9 +82,10 @@ class TestSearchCommand extends Command
             $io->text('Processing results with OpenAI...');
 
             // Create system prompt that acts as a product finder
+            $systemPromptContent = $this->promptService->getPrompt('test_search_command', 'system_prompt');
             $systemPrompt = [
                 'role' => 'system',
-                'content' => 'You are a product finder assistant. Analyze the following products and provide recommendations based on the user query.'
+                'content' => $systemPromptContent
             ];
 
             // Create user message with query and products
@@ -89,9 +94,14 @@ class TestSearchCommand extends Command
                 $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
             }
 
+            $userMessageContent = $this->promptService->getPrompt('test_search_command', 'user_message_template', [
+                'query' => $query,
+                'products_list' => $productsList
+            ]);
+
             $userMessage = [
                 'role' => 'user',
-                'content' => "Query: $query\n\nAvailable products:\n$productsList\n\nPlease recommend the most suitable products for this query and explain why."
+                'content' => $userMessageContent
             ];
 
             $messages = [$systemPrompt, $userMessage];

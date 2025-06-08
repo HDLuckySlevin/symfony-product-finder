@@ -44,9 +44,9 @@ services:
         arguments:
             $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%'
 
-    App\Service\OpenAIChatService:
+    App\Service\OpenAISearchService:
         arguments:
             $chatModel: '%env(OPENAI_CHAT_MODEL)%'
 
     # Bind the interface to the implementation
-    App\Service\SearchServiceInterface: '@App\Service\OpenAIChatService'
+    App\Service\SearchServiceInterface: '@App\Service\OpenAISearchService'
