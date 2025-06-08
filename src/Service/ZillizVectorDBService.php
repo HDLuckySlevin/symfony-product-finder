@@ -153,10 +153,8 @@ class ZillizVectorDBService
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
-                        'title' => $feature,
+                        'title' => $product->getName(),
                         'vector' => $featureEmbeddings[$feature],
-                        'product_id' => $product->getId(),
-                        'product_name' => $product->getName(),
                         'type' => 'feature',
                     ]
                 );
