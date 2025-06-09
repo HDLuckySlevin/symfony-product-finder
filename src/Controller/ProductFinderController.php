@@ -53,8 +53,7 @@ class ProductFinderController extends AbstractController
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
     public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
     {
-        $message = $chatRequest->getMessage();
-        $history = $chatRequest->getHistory();
+        $message = $chatRequest->message;
 
         if (empty($message)) {
             $response = new ChatResponseDto(
@@ -67,8 +66,8 @@ class ProductFinderController extends AbstractController
             return $this->json($response, 400);
         }
 
-        // Pass history to intent extraction
-        $searchQuery = $this->extractSearchIntent($message, $history);
+        // Use message directly as search query
+        $searchQuery = $message;
 
         try {
             // Generate embedding for the query
@@ -82,7 +81,7 @@ class ProductFinderController extends AbstractController
             }
 
             // Filter results to only include products with distance <= 0.5
-            $filteredResults = array_filter($results, function($result) {
+            $filteredResults = array_filter($results, static function($result) {
                 return isset($result['distance']) && $result['distance'] <= 0.5;
             });
 
@@ -117,7 +116,7 @@ class ProductFinderController extends AbstractController
             $recommendation = $this->searchService->generateChatCompletion($messages);
 
             // Convert results to ProductResponseDto objects
-            $productDtos = array_map(function($result) {
+            $productDtos = array_map(static function($result) {
                 return ProductResponseDto::fromArray($result);
             }, $filteredResults);
 
@@ -142,14 +141,5 @@ class ProductFinderController extends AbstractController
         }
     }
 
-    /**
-     * Extract search intent from a chat message
-     */
-    private function extractSearchIntent(string $message, array $history = []): string
-    {
-        // Example: Use the last user message as search query
-        // You could also implement more complex logic/NLP here
-        return $message;
-    }
 
 }

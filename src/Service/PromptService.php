@@ -10,6 +10,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class PromptService implements PromptServiceInterface
 {
+    /** @var array<string, array<string, string>> */
     private array $prompts;
 
     /**
@@ -43,7 +44,7 @@ class PromptService implements PromptServiceInterface
      * 
      * @param string $section The section in the YAML file
      * @param string $key The key of the prompt
-     * @param array $parameters Parameters to replace in the prompt
+     * @param array<string, string> $parameters Parameters to replace in the prompt
      * @return string The prompt with parameters replaced
      * @throws \InvalidArgumentException If the prompt key is not found
      */

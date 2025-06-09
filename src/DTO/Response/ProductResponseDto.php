@@ -4,9 +4,9 @@ namespace App\DTO\Response;
 
 class ProductResponseDto implements \JsonSerializable
 {
-    private ?string $id = null;
-    private ?string $title = null;
-    private ?float $distance = null;
+    public readonly ?string $id;
+    public readonly ?string $title;
+    public readonly ?float $distance;
 
     public function __construct(?string $id = null, ?string $title = null, ?float $distance = null)
     {
@@ -15,38 +15,10 @@ class ProductResponseDto implements \JsonSerializable
         $this->distance = $distance;
     }
 
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-    public function setId(?string $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
-    }
-
-    public function getDistance(): ?float
-    {
-        return $this->distance;
-    }
-
-    public function setDistance(?float $distance): void
-    {
-        $this->distance = $distance;
-    }
-
     /**
      * Create a ProductResponseDto from an array
+     * 
+     * @param array<string, mixed> $data
      */
     public static function fromArray(array $data): self
     {
@@ -59,6 +31,8 @@ class ProductResponseDto implements \JsonSerializable
 
     /**
      * Convert the DTO to an array for JSON serialization
+     * 
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {

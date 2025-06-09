@@ -2,14 +2,18 @@
 
 namespace App\DTO\Response;
 
-class ChatResponseDto implements \JsonSerializable
+readonly class ChatResponseDto implements \JsonSerializable
 {
-    private bool $success;
-    private ?string $query = null;
-    private ?string $message = null;
-    private ?string $response = null;
-    private array $products = [];
+    public bool $success;
+    public ?string $query;
+    public ?string $message;
+    public ?string $response;
+    /** @var ProductResponseDto[] */
+    public array $products;
 
+    /**
+     * @param ProductResponseDto[] $products
+     */
     public function __construct(
         bool $success = true,
         ?string $query = null,
@@ -24,72 +28,10 @@ class ChatResponseDto implements \JsonSerializable
         $this->products = $products;
     }
 
-    public function isSuccess(): bool
-    {
-        return $this->success;
-    }
-
-    public function setSuccess(bool $success): void
-    {
-        $this->success = $success;
-    }
-
-    public function getQuery(): ?string
-    {
-        return $this->query;
-    }
-
-    public function setQuery(?string $query): void
-    {
-        $this->query = $query;
-    }
-
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
-    public function setMessage(?string $message): void
-    {
-        $this->message = $message;
-    }
-
-    public function getResponse(): ?string
-    {
-        return $this->response;
-    }
-
-    public function setResponse(?string $response): void
-    {
-        $this->response = $response;
-    }
-
-    /**
-     * @return ProductResponseDto[]
-     */
-    public function getProducts(): array
-    {
-        return $this->products;
-    }
-
-    /**
-     * @param ProductResponseDto[] $products
-     */
-    public function setProducts(array $products): void
-    {
-        $this->products = $products;
-    }
-
-    /**
-     * Add a product to the response
-     */
-    public function addProduct(ProductResponseDto $product): void
-    {
-        $this->products[] = $product;
-    }
-
     /**
      * Convert the DTO to an array for JSON serialization
+     *
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {

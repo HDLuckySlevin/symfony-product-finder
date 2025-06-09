@@ -13,8 +13,8 @@ interface SearchServiceInterface
     /**
      * Generate a chat completion for the given messages
      * 
-     * @param array $messages Array of message objects with 'role' and 'content' keys
-     * @param array $options Additional options for the API call (temperature, max_tokens, etc.)
+     * @param array<array{role: string, content: string}> $messages Array of message objects with 'role' and 'content' keys
+     * @param array<string, mixed> $options Additional options for the API call (temperature, max_tokens, etc.)
      * @return string The generated text response
      * @throws \RuntimeException If the API response format is invalid or if the API call fails
      */
@@ -24,7 +24,7 @@ interface SearchServiceInterface
      * Generate a simple text completion for a single prompt
      * 
      * @param string $prompt The text prompt
-     * @param array $options Additional options for the API call
+     * @param array<string, mixed> $options Additional options for the API call
      * @return string The generated text response
      */
     public function generateCompletion(string $prompt, array $options = []): string;
