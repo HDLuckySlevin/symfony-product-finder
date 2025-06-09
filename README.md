@@ -53,6 +53,7 @@ The core of the application is built upon the following key libraries and techno
    ```
    OPENAI_API_KEY=your_openai_api_key
    OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+   OPENAI_CHAT_MODEL=gpt-3.5-turbo
    MILVUS_API_KEY=your_milvus_api_key
    MILVUS_HOST=your_milvus_endpoint
    MILVUS_PORT=443
