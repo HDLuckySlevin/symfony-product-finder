@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Entity\Product;
 use App\Service\EmbeddingGeneratorInterface;
 use App\Service\XmlImportService;
 use App\Service\VectorStoreInterface;

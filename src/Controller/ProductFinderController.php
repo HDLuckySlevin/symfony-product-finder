@@ -50,11 +50,18 @@ class ProductFinderController extends AbstractController
         return $this->json($response);
     }
 
+    /**
+     * Handles chat-based product search requests and returns product recommendations.
+     *
+     * Accepts a chat message as a search query, generates an embedding, retrieves similar products from a vector store, filters results by similarity, and uses prompt templates to generate a chat-based recommendation. Returns a structured JSON response containing the recommendation and matching products, or an error message if no suitable products are found or an error occurs.
+     *
+     * @param ChatRequestDto $chatRequest The incoming chat request containing the user's message.
+     * @return JsonResponse JSON response with product recommendations, no-results message, or error details.
+     */
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
     public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
     {
-        $message = $chatRequest->getMessage();
-        $history = $chatRequest->getHistory();
+        $message = $chatRequest->message;
 
         if (empty($message)) {
             $response = new ChatResponseDto(
@@ -67,8 +74,8 @@ class ProductFinderController extends AbstractController
             return $this->json($response, 400);
         }
 
-        // Pass history to intent extraction
-        $searchQuery = $this->extractSearchIntent($message, $history);
+        // Use message directly as search query
+        $searchQuery = $message;
 
         try {
             // Generate embedding for the query
@@ -82,7 +89,7 @@ class ProductFinderController extends AbstractController
             }
 
             // Filter results to only include products with distance <= 0.5
-            $filteredResults = array_filter($results, function($result) {
+            $filteredResults = array_filter($results, static function($result) {
                 return isset($result['distance']) && $result['distance'] <= 0.5;
             });
 
@@ -117,7 +124,7 @@ class ProductFinderController extends AbstractController
             $recommendation = $this->searchService->generateChatCompletion($messages);
 
             // Convert results to ProductResponseDto objects
-            $productDtos = array_map(function($result) {
+            $productDtos = array_map(static function($result) {
                 return ProductResponseDto::fromArray($result);
             }, $filteredResults);
 
@@ -142,14 +149,5 @@ class ProductFinderController extends AbstractController
         }
     }
 
-    /**
-     * Extract search intent from a chat message
-     */
-    private function extractSearchIntent(string $message, array $history = []): string
-    {
-        // Example: Use the last user message as search query
-        // You could also implement more complex logic/NLP here
-        return $message;
-    }
 
 }

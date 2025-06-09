@@ -2,14 +2,24 @@
 
 namespace App\DTO\Response;
 
-class ChatResponseDto implements \JsonSerializable
+readonly class ChatResponseDto implements \JsonSerializable
 {
-    private bool $success;
-    private ?string $query = null;
-    private ?string $message = null;
-    private ?string $response = null;
-    private array $products = [];
+    public bool $success;
+    public ?string $query;
+    public ?string $message;
+    public ?string $response;
+    /** @var ProductResponseDto[] */
+    public array $products;
 
+    /**
+     * Initializes a new immutable ChatResponseDto with the provided chat response data.
+     *
+     * @param bool $success Indicates whether the chat response was successful.
+     * @param string|null $query Optional query string associated with the chat.
+     * @param string|null $message Optional message to include in the response.
+     * @param string|null $response Optional response content.
+     * @param ProductResponseDto[] $products Array of product response DTOs related to the chat.
+     */
     public function __construct(
         bool $success = true,
         ?string $query = null,
@@ -24,72 +34,13 @@ class ChatResponseDto implements \JsonSerializable
         $this->products = $products;
     }
 
-    public function isSuccess(): bool
-    {
-        return $this->success;
-    }
-
-    public function setSuccess(bool $success): void
-    {
-        $this->success = $success;
-    }
-
-    public function getQuery(): ?string
-    {
-        return $this->query;
-    }
-
-    public function setQuery(?string $query): void
-    {
-        $this->query = $query;
-    }
-
-    public function getMessage(): ?string
-    {
-        return $this->message;
-    }
-
-    public function setMessage(?string $message): void
-    {
-        $this->message = $message;
-    }
-
-    public function getResponse(): ?string
-    {
-        return $this->response;
-    }
-
-    public function setResponse(?string $response): void
-    {
-        $this->response = $response;
-    }
-
     /**
-     * @return ProductResponseDto[]
-     */
-    public function getProducts(): array
-    {
-        return $this->products;
-    }
-
-    /**
-     * @param ProductResponseDto[] $products
-     */
-    public function setProducts(array $products): void
-    {
-        $this->products = $products;
-    }
-
-    /**
-     * Add a product to the response
-     */
-    public function addProduct(ProductResponseDto $product): void
-    {
-        $this->products[] = $product;
-    }
-
-    /**
-     * Convert the DTO to an array for JSON serialization
+     * Returns an associative array representation of the chat response for JSON serialization.
+     *
+     * The resulting array always includes the keys 'success', 'query', 'response', and 'products'.
+     * The 'message' key is included only if the message property is not null.
+     *
+     * @return array<string, mixed> Associative array suitable for JSON encoding.
      */
     public function jsonSerialize(): array
     {
