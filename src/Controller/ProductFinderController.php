@@ -3,20 +3,16 @@
 namespace App\Controller;
 
 use App\DTO\Request\ChatRequestDto;
-use App\DTO\Request\SearchRequestDto;
 use App\DTO\Response\ChatResponseDto;
 use App\DTO\Response\ProductResponseDto;
-use App\DTO\Response\SearchResponseDto;
 use App\Service\EmbeddingGeneratorInterface;
 use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class ProductFinderController extends AbstractController
 {
@@ -24,92 +20,19 @@ class ProductFinderController extends AbstractController
     private VectorStoreInterface $vectorStoreService;
     private PromptServiceInterface $promptService;
     private SearchServiceInterface $searchService;
-    private SerializerInterface $serializer;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
         VectorStoreInterface $vectorStoreService,
         SearchServiceInterface $searchService,
-        PromptServiceInterface $promptService,
-        SerializerInterface $serializer
+        PromptServiceInterface $promptService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
         $this->searchService = $searchService;
         $this->promptService = $promptService;
-        $this->serializer = $serializer;
     }
 
-    #[Route('/api/products/search', name: 'api_products_search', methods: ['POST'])]
-    public function searchProducts(#[MapRequestPayload] SearchRequestDto $searchRequest): JsonResponse
-    {
-        $query = $searchRequest->getQuery();
-
-        if (empty($query)) {
-            $response = new SearchResponseDto(
-                false,
-                null,
-                'Query parameter is required',
-                []
-            );
-            return $this->json($response, 400);
-        }
-
-        try {
-            // Generate embedding for the query
-            $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($query);
-
-            // Search for similar products
-            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
-
-            if (empty($results)) {
-                $response = new SearchResponseDto(
-                    true,
-                    $query,
-                    'No products found matching the query',
-                    []
-                );
-                return $this->json($response);
-            }
-
-            // Filter results to only include products with distance <= 0.5
-            $filteredResults = array_filter($results, function($result) {
-                return isset($result['distance']) && $result['distance'] <= 0.5;
-            });
-
-            if (empty($filteredResults)) {
-                $response = new SearchResponseDto(
-                    true,
-                    $query,
-                    'No products found with sufficient relevance to the query',
-                    []
-                );
-                return $this->json($response);
-            }
-
-            // Convert results to ProductResponseDto objects
-            $productDtos = array_map(function($result) {
-                return ProductResponseDto::fromArray($result);
-            }, $filteredResults);
-
-            $response = new SearchResponseDto(
-                true,
-                $query,
-                null,
-                $productDtos
-            );
-
-            return $this->json($response);
-        } catch (\Exception $e) {
-            $response = new SearchResponseDto(
-                false,
-                $query,
-                'An error occurred during search: ' . $e->getMessage(),
-                []
-            );
-            return $this->json($response, 500);
-        }
-    }
 
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
     public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse

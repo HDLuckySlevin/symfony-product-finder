@@ -13,10 +13,5 @@ class WebInterfaceController extends AbstractController
     {
         return $this->render('home/index.html.twig');
     }
-    
-    #[Route('/search', name: 'app_search')]
-    public function search(): Response
-    {
-        return $this->render('search/index.html.twig');
-    }
+
 }
