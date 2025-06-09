@@ -49,7 +49,7 @@ The application follows a service-oriented architecture with key components orga
 5. OpenAI generates natural language recommendations based on results
 6. User receives product recommendations and matching products
 
-For detailed architecture diagrams, see the [Architecture Documentation](https://gitlab.adesso-group.com/Igor.Besel/symfony-product-finder/-/wikis/Architecture).
+For detailed architecture diagrams, see the [Architecture Documentation](https://github.com/iGore/symfony-product-finder/wiki/Architecture).
 
 ## Installation
 
