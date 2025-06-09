@@ -90,12 +90,12 @@ class OpenAISearchService implements SearchServiceInterface
         }
     }
 
-    /**
-     * Generate a simple text completion for a single prompt
-     * 
-     * @param string $prompt The text prompt
-     * @param array<string, mixed> $options Additional options for the API call
-     * @return string The generated text response
+    /****
+     * Generates a text completion for a single prompt using the OpenAI chat model.
+     *
+     * @param string $prompt The input prompt to generate a response for.
+     * @param array<string, mixed> $options Optional parameters to customize the API call.
+     * @return string The generated text response.
      */
     public function generateCompletion(string $prompt, array $options = []): string
     {

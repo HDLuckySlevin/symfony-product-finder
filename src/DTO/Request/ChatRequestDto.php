@@ -10,8 +10,10 @@ readonly class ChatRequestDto
     #[Assert\Type("string")]
     public string $message;
 
-    /**
-     * @param string $message
+    /****
+     * Initializes a new ChatRequestDto with the provided message.
+     *
+     * @param string $message The chat message content. Defaults to an empty string.
      */
     public function __construct(string $message = '')
     {

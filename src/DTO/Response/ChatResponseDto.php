@@ -12,7 +12,13 @@ readonly class ChatResponseDto implements \JsonSerializable
     public array $products;
 
     /**
-     * @param ProductResponseDto[] $products
+     * Initializes a new immutable ChatResponseDto with the provided chat response data.
+     *
+     * @param bool $success Indicates whether the chat response was successful.
+     * @param string|null $query Optional query string associated with the chat.
+     * @param string|null $message Optional message to include in the response.
+     * @param string|null $response Optional response content.
+     * @param ProductResponseDto[] $products Array of product response DTOs related to the chat.
      */
     public function __construct(
         bool $success = true,
@@ -29,9 +35,12 @@ readonly class ChatResponseDto implements \JsonSerializable
     }
 
     /**
-     * Convert the DTO to an array for JSON serialization
+     * Returns an associative array representation of the chat response for JSON serialization.
      *
-     * @return array<string, mixed>
+     * The resulting array always includes the keys 'success', 'query', 'response', and 'products'.
+     * The 'message' key is included only if the message property is not null.
+     *
+     * @return array<string, mixed> Associative array suitable for JSON encoding.
      */
     public function jsonSerialize(): array
     {
