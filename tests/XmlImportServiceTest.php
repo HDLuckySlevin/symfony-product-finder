@@ -5,6 +5,7 @@ namespace App\Tests;
 use App\Entity\Product;
 use App\Serializer\ProductXmlSerializer;
 use App\Service\XmlImportService;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -15,6 +16,9 @@ class XmlImportServiceTest extends TestCase
     private ValidatorInterface $validator;
     private ProductXmlSerializer $productXmlSerializer;
 
+    /**
+     * @throws Exception
+     */
     protected function setUp(): void
     {
         $this->validator = $this->createMock(ValidatorInterface::class);

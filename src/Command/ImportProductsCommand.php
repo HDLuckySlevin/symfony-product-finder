@@ -60,10 +60,6 @@ class ImportProductsCommand extends Command
             $progressBar->start();
 
             foreach ($products as $product) {
-                if (!$product instanceof Product) {
-                    continue;
-                }
-
                 // Generate embeddings for each field, specification, and feature of the product
                 $embeddings = $this->embeddingGenerator->generateEmbedding($product);
                 $product->setEmbeddings($embeddings);
