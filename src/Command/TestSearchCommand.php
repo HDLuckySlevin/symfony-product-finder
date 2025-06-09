@@ -82,7 +82,7 @@ class TestSearchCommand extends Command
             $io->text('Processing results with OpenAI...');
 
             // Create system prompt that acts as a product finder
-            $systemPromptContent = $this->promptService->getPrompt('test_search_command', 'system_prompt');
+            $systemPromptContent = $this->promptService->getPrompt('product_finder', 'system_prompt');
             $systemPrompt = [
                 'role' => 'system',
                 'content' => $systemPromptContent
@@ -94,7 +94,7 @@ class TestSearchCommand extends Command
                 $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
             }
 
-            $userMessageContent = $this->promptService->getPrompt('test_search_command', 'user_message_template', [
+            $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
                 'query' => $query,
                 'products_list' => $productsList
             ]);
