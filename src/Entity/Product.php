@@ -96,12 +96,10 @@ class Product
      * Set the product ID
      * 
      * @param int|null $id The product ID
-     * @return self For method chaining
      */
-    public function setId(?int $id): self
+    public function setId(?int $id): void
     {
         $this->id = $id;
-        return $this;
     }
 
     /**
@@ -118,12 +116,10 @@ class Product
      * Set the product name
      * 
      * @param string|null $name The product name
-     * @return self For method chaining
      */
-    public function setName(?string $name): self
+    public function setName(?string $name): void
     {
         $this->name = $name;
-        return $this;
     }
 
     /**
@@ -140,12 +136,10 @@ class Product
      * Set the product SKU (Stock Keeping Unit)
      * 
      * @param string|null $sku The product SKU
-     * @return self For method chaining
      */
-    public function setSku(?string $sku): self
+    public function setSku(?string $sku): void
     {
         $this->sku = $sku;
-        return $this;
     }
 
     /**
@@ -162,12 +156,10 @@ class Product
      * Set the product description
      * 
      * @param string|null $description The product description
-     * @return self For method chaining
      */
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
-        return $this;
     }
 
     /**
@@ -184,12 +176,10 @@ class Product
      * Set the product brand
      * 
      * @param string|null $brand The product brand
-     * @return self For method chaining
      */
-    public function setBrand(?string $brand): self
+    public function setBrand(?string $brand): void
     {
         $this->brand = $brand;
-        return $this;
     }
 
     /**
@@ -206,12 +196,10 @@ class Product
      * Set the product category
      * 
      * @param string|null $category The product category
-     * @return self For method chaining
      */
-    public function setCategory(?string $category): self
+    public function setCategory(?string $category): void
     {
         $this->category = $category;
-        return $this;
     }
 
     /**
@@ -228,12 +216,10 @@ class Product
      * Set the product price
      * 
      * @param float|null $price The product price
-     * @return self For method chaining
      */
-    public function setPrice(?float $price): self
+    public function setPrice(?float $price): void
     {
         $this->price = $price;
-        return $this;
     }
 
     /**
@@ -250,12 +236,10 @@ class Product
      * Set the product specifications
      * 
      * @param array<string, string>|null $specifications The product specifications as key-value pairs
-     * @return self For method chaining
      */
-    public function setSpecifications(?array $specifications): self
+    public function setSpecifications(?array $specifications): void
     {
         $this->specifications = $specifications;
-        return $this;
     }
 
     /**
@@ -272,12 +256,10 @@ class Product
      * Set the product features
      * 
      * @param array<int, string>|null $features The product features
-     * @return self For method chaining
      */
-    public function setFeatures(?array $features): self
+    public function setFeatures(?array $features): void
     {
         $this->features = $features;
-        return $this;
     }
 
     /**
@@ -294,12 +276,10 @@ class Product
      * Set the product image URL
      * 
      * @param string|null $imageUrl The product image URL
-     * @return self For method chaining
      */
-    public function setImageUrl(?string $imageUrl): self
+    public function setImageUrl(?string $imageUrl): void
     {
         $this->imageUrl = $imageUrl;
-        return $this;
     }
 
     /**
@@ -316,12 +296,10 @@ class Product
      * Set the product rating
      * 
      * @param float|null $rating The product rating
-     * @return self For method chaining
      */
-    public function setRating(?float $rating): self
+    public function setRating(?float $rating): void
     {
         $this->rating = $rating;
-        return $this;
     }
 
     /**
@@ -338,12 +316,10 @@ class Product
      * Set the product stock quantity
      * 
      * @param int|null $stock The product stock quantity
-     * @return self For method chaining
      */
-    public function setStock(?int $stock): self
+    public function setStock(?int $stock): void
     {
         $this->stock = $stock;
-        return $this;
     }
 
     /**
@@ -360,11 +336,9 @@ class Product
      * Set the product embeddings vector
      * 
      * @param array<int, float>|null $embeddings The product embeddings
-     * @return self For method chaining
      */
-    public function setEmbeddings(?array $embeddings): self
+    public function setEmbeddings(?array $embeddings): void
     {
         $this->embeddings = $embeddings;
-        return $this;
     }
 }

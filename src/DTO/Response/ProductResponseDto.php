@@ -20,10 +20,9 @@ class ProductResponseDto implements \JsonSerializable
         return $this->id;
     }
 
-    public function setId(?string $id): self
+    public function setId(?string $id): void
     {
         $this->id = $id;
-        return $this;
     }
 
     public function getTitle(): ?string
@@ -31,10 +30,9 @@ class ProductResponseDto implements \JsonSerializable
         return $this->title;
     }
 
-    public function setTitle(?string $title): self
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
-        return $this;
     }
 
     public function getDistance(): ?float
@@ -42,10 +40,9 @@ class ProductResponseDto implements \JsonSerializable
         return $this->distance;
     }
 
-    public function setDistance(?float $distance): self
+    public function setDistance(?float $distance): void
     {
         $this->distance = $distance;
-        return $this;
     }
 
     /**
