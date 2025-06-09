@@ -1,190 +1,78 @@
 # Product Finder with GenAI and Symfony
 
-This Symfony application enables the import of XML product data, the vectorization of products, and synchronization with Milvus (a vector database). End users can find products that meet their needs through a natural language interface.
+This Symfony application enables natural language product search through AI-powered semantic understanding. It imports product data from XML, vectorizes product attributes using OpenAI embeddings, and stores them in Milvus vector database for efficient similarity search.
 
 ## Features
 
-- Import of electronic products from XML files
-- Vectorization of all product properties with OpenAI Embeddings
-- Individual storage of product features and specifications in the vector database
-- Storage and search in the Milvus vector database
+- Import electronic products from XML files
+- Vectorize product properties with OpenAI Embeddings
+- Store and search products in Milvus vector database
 - Natural language product search via API
-- Web interface with DeepChat for end users
+- Web interface with DeepChat for intuitive user interaction
 - Flexible configuration for API keys and endpoints
 
-## Technical Architecture
+## Technical Stack
 
-The application consists of the following main components:
+- **Symfony 6.4**: Core application framework
+- **PHP 8.2+**: Required runtime
+- **OpenAI API**: For embeddings and chat completions
+- **Milvus**: Vector database for similarity search
+- **DDEV**: Local development environment
+- **Gitpod**: Cloud development environment
 
-1. **XML Import**: Reads product data from XML files and converts them into Product objects
-2. **Embedding Generator**: Creates vector representations for products, product features, specifications, and search queries
-3. **Milvus Integration**: Stores and searches product vectors, feature vectors, and specification vectors in the vector database
-4. **API Controller**: Provides REST endpoints for product search
-5. **Web Interface**: Offers a user-friendly interface for end users
+## Architecture
 
-The core of the application is built upon the following key libraries and technologies:
+The application follows a service-oriented architecture with key components organized into controllers, services, and entities.
 
-- **Symfony Framework**: Provides the foundational structure for the application.
-- **`helgesverre/milvus`**: Used for all interactions with the Milvus vector database, including storing and querying product vectors.
-- **`openai-php/client`**: Enables the generation of text embeddings for products and search queries via the OpenAI API.
-
-## System Architecture and Search Flow Sequence
-
-### System Architecture Components
-
-The application follows a service-oriented architecture with the following key components:
+### Key Components
 
 1. **Controllers**:
-   - `ProductFinderController`: Handles API endpoints for product search, including basic search and chat-based search
-   - `WebInterfaceController`: Manages the web interface for end users
+   - `ProductFinderController`: Handles product search API endpoints
+   - `WebInterfaceController`: Manages the web interface
 
 2. **Services**:
    - `XmlImportService`: Parses XML files and extracts product data
-   - `OpenAIEmbeddingGenerator`: Generates vector embeddings for products and search queries using OpenAI's API
-   - `MilvusVectorStoreService`: Manages interactions with the Milvus vector database for storing and searching product vectors
-   - `OpenAISearchService`: Generates natural language recommendations based on search results using OpenAI's chat models
-   - `PromptService`: Manages prompts for the OpenAI chat models
+   - `OpenAIEmbeddingGenerator`: Generates vector embeddings using OpenAI
+   - `MilvusVectorStoreService`: Manages vector database interactions
+   - `OpenAISearchService`: Generates natural language recommendations
+   - `PromptService`: Manages prompts for OpenAI chat models
 
 3. **Entities**:
-   - `Product`: Represents a product with its properties, features, specifications, and vector embeddings
+   - `Product`: Represents products with properties, features, and specifications
 
-```mermaid
-graph TB
-subgraph UIs["User Interfaces"]
-CLI[TestSearchCommand]
-WEB[ProductFinderController]
-end
-subgraph SL["Service Layer"]
-SI[SearchServiceInterface]
-OSS[OpenAISearchService]
-PI[PromptServiceInterface]
-PS[PromptService]
-VS[VectorStoreService]
-end
-subgraph CFG["Configuration"]
-SVC[services.yaml]
-PROMPTS[prompts.yaml]
-ENV[.env]
-end
-subgraph EXT["External APIs"]
-OPENAI[OpenAI Chat API]
-VECTOR[Vector Database]
-end
-subgraph DP["Data Processing"]
-FILTER["Distance Filter ≤ 0.5"]
-PROMPT_ENGINE["Prompt Template Engine"]
-end
-CLI --> SI
-WEB --> SI
-CLI --> PI
-WEB --> PI
-SI -.-> OSS
-PI -.-> PS
-OSS --> OPENAI
-OSS --> FILTER
-PS --> PROMPTS
-PS --> PROMPT_ENGINE
-CLI --> VS
-WEB --> VS
-VS --> VECTOR
-SVC --> OSS
-SVC --> PS
-ENV --> OSS
-PROMPTS --> PS
-FILTER --> PROMPT_ENGINE
-PROMPT_ENGINE --> OPENAI
-```
+### Search Flow
 
-### Search Flow Sequence
+1. User submits natural language query
+2. Query is vectorized using OpenAI embeddings
+3. Vector search finds similar products in Milvus
+4. Results are filtered by relevance threshold (distance ≤ 0.5)
+5. OpenAI generates natural language recommendations based on results
+6. User receives product recommendations and matching products
 
-The search process follows this sequence:
-
-1. **User Query Input**:
-   - User enters a natural language query through the web interface or API
-   - The query is sent to the `ProductFinderController`
-
-2. **Query Processing**:
-   - For chat-based search, the controller extracts the search intent from the user's message
-   - The query is passed to the `OpenAIEmbeddingGenerator` to create a vector representation
-
-3. **Vector Database Search**:
-   - The query embedding is sent to the `MilvusVectorStoreService`
-   - Milvus performs a similarity search using cosine similarity
-   - The service returns the most similar products (up to the specified limit)
-
-4. **Result Filtering**:
-   - Results are filtered based on a relevance threshold (distance <= 0.5)
-   - Products that don't meet the threshold are excluded
-
-5. **Response Generation** (for chat-based search):
-   - The filtered results are passed to the `OpenAISearchService`
-   - A system prompt and user message are created with the query and product list
-   - OpenAI's chat model generates a natural language recommendation
-   - The controller returns both the recommendation and the product list
-
-6. **Response Presentation**:
-   - The web interface displays the results to the user
-   - For API requests, the results are returned as JSON
-
-This architecture enables semantic search capabilities where users can find products based on natural language descriptions of their needs, rather than exact keyword matching.
-
-```mermaid
-sequenceDiagram
-participant U as User
-participant C as Controller/Command
-participant VS as VectorStoreService
-participant F as Distance Filter
-participant PS as PromptService
-participant OSS as OpenAISearchService
-participant API as OpenAI API
-
-    U->>C: Search Query
-    C->>VS: findSimilar(query, limit=3)
-    VS-->>C: Raw Results
-    
-    C->>F: Filter by distance ≤ 0.5
-    F-->>C: Filtered Results
-    
-    alt No Results After Filter
-        C-->>U: "No relevant products found"
-    else Results Found
-        C->>PS: getPrompt('system_prompt')
-        PS-->>C: System Prompt
-        
-        C->>PS: getPrompt('user_message_template', params)
-        PS-->>C: User Message with Products
-        
-        C->>OSS: generateChatCompletion(messages)
-        OSS->>API: Chat Completion Request
-        API-->>OSS: AI Response
-        OSS-->>C: Recommendation Text
-        
-        C-->>U: Products Table + AI Recommendation
-    end
-````
+For detailed architecture diagrams, see the [Architecture Documentation](https://gitlab.adesso-group.com/Igor.Besel/symfony-product-finder/-/wikis/Architecture).
 
 ## Installation
 
 ### Prerequisites
 
-- PHP 8.1 or higher
+- PHP 8.2 or higher
 - Composer
-- Symfony CLI (optional, for local development)
+- DDEV (recommended for local development)
 
-### Setup
+### Local Setup with DDEV
 
 1. Clone the repository:
    ```
-   git clone [repository-url]
+   git clone git@gitlab.adesso-group.com:Igor.Besel/symfony-product-finder.git
    cd symfony-product-finder
    ```
 
-2. Install the dependencies:
+2. Install dependencies:
    ```
    ddev composer install
    ```
 
-3. Configure the environment variables in a `.env.local` file:
+3. Configure environment variables in `.env.local`:
    ```
    OPENAI_API_KEY=your_openai_api_key
    OPENAI_EMBEDDING_MODEL=text-embedding-3-small
@@ -195,74 +83,67 @@ participant API as OpenAI API
    MILVUS_COLLECTION=products
    ```
 
-4. Start the Symfony server:
+4. Start the application:
    ```
    ddev start
    ```
 
-### Development with Gitpod
+### Cloud Development with Gitpod
 
-This project can be opened and used directly in Gitpod, an online IDE for GitHub.
+For quick development without local setup, use Gitpod:
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/iGore/symfony-product-finder)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://gitlab.adesso-group.com/Igor.Besel/symfony-product-finder)
 
-Gitpod automatically starts a fully functional development environment, including DDEV integration. After starting the workspace, DDEV is automatically started, and the application is accessible via the URL provided by Gitpod. The necessary ports (e.g., for the web server and Mailpit) are automatically opened.
-
-You can use DDEV commands in the Gitpod terminal as usual (e.g., `ddev ssh`, `ddev logs`).
+Gitpod provides a ready-to-use environment with DDEV pre-configured. The application is automatically started and accessible via the URL provided by Gitpod.
 
 ## Usage
 
 ### Importing Products
 
-Use the following command to import products from an XML file:
+Import sample products from XML:
 
 ```
 ddev php bin/console app:import-products src/DataFixtures/xml/sample_products.xml
 ```
 
-During import, not only the products as a whole but also their individual features and specifications are stored as separate vectors in the database. This enables more precise search results and better matching of user queries to specific product properties.
+The import process vectorizes both complete products and their individual features/specifications, enabling precise semantic matching.
 
-The API keys are optional. If not provided, the application uses mock data for testing.
+### Testing Search
 
-### Testing Product Search
-
-Test the product search with the following command:
+Try the natural language search:
 
 ```
-ddev php bin/console app:test-search "I'm looking for a waterproof smartphone with a good camera"
+ddev php bin/console app:test-search "I need a waterproof smartphone with a good camera"
 ```
 
 ### Web Interface
 
-Open the application in your browser at `https://symfony-product-finder.ddev.site/` and use the chat interface to find products.
+Access the chat interface at `https://symfony-product-finder.ddev.site/` to search for products using natural language.
 
 ## Customization
 
-### Custom XML Structure
+### Extending the Application
 
-You can adapt the XML import logic in `src/Service/XmlImportService.php` to support your own XML structure.
-
-### Other Embedding Providers
-
-The application uses OpenAI for embeddings by default but can be easily switched to other providers. To do this, implement the `EmbeddingGeneratorInterface`. If you want to use another provider, you also need to implement the methods `generateFeatureEmbeddings` and `generateSpecificationEmbeddings` to create embeddings for individual product features and specifications.
-
-### Milvus Configuration
-
-The Milvus integration can be customized in `src/Service/MilvusVectorStoreService.php` to meet specific requirements. You can adapt the methods `insertProductFeatures` and `insertProductSpecifications` to change how product features and specifications are stored in the vector database.
+- **Custom XML Format**: Modify `XmlImportService.php` to support different XML structures
+- **Alternative Embedding Providers**: Implement `EmbeddingGeneratorInterface` to use different vector providers
+- **Vector Database Configuration**: Customize `MilvusVectorStoreService.php` for specific vector storage needs
 
 ## Development
 
-### Running Tests
+### Testing
+
+Run the test suite:
 
 ```
 ddev php bin/phpunit
 ```
 
-### Adding New Features
+### Project Structure
 
-1. Create new controllers in `src/Controller/`
-2. Add new services in `src/Service/`
-3. Extend the entities in `src/Entity/`
+- **Controllers**: `src/Controller/` - API endpoints and web interface
+- **Services**: `src/Service/` - Business logic and integrations
+- **Entities**: `src/Entity/` - Data models
+- **DTOs**: `src/DTO/` - Data transfer objects for API requests/responses
 
 ## License
 

@@ -2,6 +2,11 @@
 
 namespace App\Controller;
 
+use App\DTO\Request\ChatRequestDto;
+use App\DTO\Request\SearchRequestDto;
+use App\DTO\Response\ChatResponseDto;
+use App\DTO\Response\ProductResponseDto;
+use App\DTO\Response\SearchResponseDto;
 use App\Service\EmbeddingGeneratorInterface;
 use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
@@ -9,7 +14,9 @@ use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class ProductFinderController extends AbstractController
 {
@@ -17,31 +24,35 @@ class ProductFinderController extends AbstractController
     private VectorStoreInterface $vectorStoreService;
     private PromptServiceInterface $promptService;
     private SearchServiceInterface $searchService;
+    private SerializerInterface $serializer;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
         VectorStoreInterface $vectorStoreService,
         SearchServiceInterface $searchService,
-        PromptServiceInterface $promptService
+        PromptServiceInterface $promptService,
+        SerializerInterface $serializer
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
         $this->searchService = $searchService;
         $this->promptService = $promptService;
+        $this->serializer = $serializer;
     }
 
     #[Route('/api/products/search', name: 'api_products_search', methods: ['POST'])]
-    public function searchProducts(Request $request): JsonResponse
+    public function searchProducts(#[MapRequestPayload] SearchRequestDto $searchRequest): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $query = $data['query'] ?? '';
+        $query = $searchRequest->getQuery();
 
         if (empty($query)) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Query parameter is required',
-                'products' => []
-            ], 400);
+            $response = new SearchResponseDto(
+                false,
+                null,
+                'Query parameter is required',
+                []
+            );
+            return $this->json($response, 400);
         }
 
         try {
@@ -52,12 +63,13 @@ class ProductFinderController extends AbstractController
             $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
 
             if (empty($results)) {
-                return $this->json([
-                    'success' => true,
-                    'query' => $query,
-                    'message' => 'No products found matching the query',
-                    'products' => []
-                ]);
+                $response = new SearchResponseDto(
+                    true,
+                    $query,
+                    'No products found matching the query',
+                    []
+                );
+                return $this->json($response);
             }
 
             // Filter results to only include products with distance <= 0.5
@@ -66,42 +78,54 @@ class ProductFinderController extends AbstractController
             });
 
             if (empty($filteredResults)) {
-                return $this->json([
-                    'success' => true,
-                    'query' => $query,
-                    'message' => 'No products found with sufficient relevance to the query',
-                    'products' => []
-                ]);
+                $response = new SearchResponseDto(
+                    true,
+                    $query,
+                    'No products found with sufficient relevance to the query',
+                    []
+                );
+                return $this->json($response);
             }
 
-            return $this->json([
-                'success' => true,
-                'query' => $query,
-                'products' => $filteredResults
-            ]);
+            // Convert results to ProductResponseDto objects
+            $productDtos = array_map(function($result) {
+                return ProductResponseDto::fromArray($result);
+            }, $filteredResults);
+
+            $response = new SearchResponseDto(
+                true,
+                $query,
+                null,
+                $productDtos
+            );
+
+            return $this->json($response);
         } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => 'An error occurred during search: ' . $e->getMessage(),
-                'products' => []
-            ], 500);
+            $response = new SearchResponseDto(
+                false,
+                $query,
+                'An error occurred during search: ' . $e->getMessage(),
+                []
+            );
+            return $this->json($response, 500);
         }
     }
 
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
-    public function chatSearch(Request $request): JsonResponse
+    public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $message = $data['message'] ?? '';
-        $history = $data['history'] ?? []; // <-- Read history
+        $message = $chatRequest->getMessage();
+        $history = $chatRequest->getHistory();
 
         if (empty($message)) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Message parameter is required',
-                'response' => null,
-                'products' => []
-            ], 400);
+            $response = new ChatResponseDto(
+                false,
+                null,
+                'Message parameter is required',
+                null,
+                []
+            );
+            return $this->json($response, 400);
         }
 
         // Pass history to intent extraction
@@ -116,12 +140,14 @@ class ProductFinderController extends AbstractController
 
             if (empty($results)) {
                 $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
-                return $this->json([
-                    'success' => true,
-                    'query' => $searchQuery,
-                    'response' => $noResultsMessage,
-                    'products' => []
-                ]);
+                $response = new ChatResponseDto(
+                    true,
+                    $searchQuery,
+                    null,
+                    $noResultsMessage,
+                    []
+                );
+                return $this->json($response);
             }
 
             // Filter results to only include products with distance <= 0.5
@@ -131,12 +157,14 @@ class ProductFinderController extends AbstractController
 
             if (empty($filteredResults)) {
                 $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
-                return $this->json([
-                    'success' => true,
-                    'query' => $searchQuery,
-                    'response' => $noResultsMessage,
-                    'products' => []
-                ]);
+                $response = new ChatResponseDto(
+                    true,
+                    $searchQuery,
+                    null,
+                    $noResultsMessage,
+                    []
+                );
+                return $this->json($response);
             }
 
             // Create system prompt that acts as a product finder
@@ -165,19 +193,29 @@ class ProductFinderController extends AbstractController
             $messages = [$systemPrompt, $userMessage];
             $recommendation = $this->searchService->generateChatCompletion($messages);
 
-            return $this->json([
-                'success' => true,
-                'query' => $searchQuery,
-                'response' => $recommendation,
-                'products' => $filteredResults
-            ]);
+            // Convert results to ProductResponseDto objects
+            $productDtos = array_map(function($result) {
+                return ProductResponseDto::fromArray($result);
+            }, $filteredResults);
+
+            $response = new ChatResponseDto(
+                true,
+                $searchQuery,
+                null,
+                $recommendation,
+                $productDtos
+            );
+
+            return $this->json($response);
         } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => 'An error occurred during search: ' . $e->getMessage(),
-                'response' => null,
-                'products' => []
-            ], 500);
+            $response = new ChatResponseDto(
+                false,
+                $searchQuery ?? null,
+                'An error occurred during search: ' . $e->getMessage(),
+                null,
+                []
+            );
+            return $this->json($response, 500);
         }
     }
 
