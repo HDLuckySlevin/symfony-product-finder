@@ -154,10 +154,10 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
         try {
             foreach ($products as $product) {
-                if (!$product instanceof Product || empty($product->getEmbeddings())) {
+                if (empty($product->getEmbeddings())) {
                     $this->logger->warning('Skipping product due to missing embeddings', [
-                        'product_id' => $product instanceof Product ? $product->getId() : 'unknown',
-                        'product_name' => $product instanceof Product ? $product->getName() : 'unknown'
+                        'product_id' => $product->getId() ?: 'unknown',
+                        'product_name' => $product->getName() ?: 'unknown'
                     ]);
                     $skippedCount++;
                     continue;

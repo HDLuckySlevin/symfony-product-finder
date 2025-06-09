@@ -133,7 +133,7 @@ class ProductFinderController extends AbstractController
         } catch (\Exception $e) {
             $response = new ChatResponseDto(
                 false,
-                $searchQuery ?? null,
+                $searchQuery,
                 'An error occurred during search: ' . $e->getMessage(),
                 null,
                 []
