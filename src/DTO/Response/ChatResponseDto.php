@@ -29,10 +29,9 @@ class ChatResponseDto implements \JsonSerializable
         return $this->success;
     }
 
-    public function setSuccess(bool $success): self
+    public function setSuccess(bool $success): void
     {
         $this->success = $success;
-        return $this;
     }
 
     public function getQuery(): ?string
@@ -40,10 +39,9 @@ class ChatResponseDto implements \JsonSerializable
         return $this->query;
     }
 
-    public function setQuery(?string $query): self
+    public function setQuery(?string $query): void
     {
         $this->query = $query;
-        return $this;
     }
 
     public function getMessage(): ?string
@@ -51,10 +49,9 @@ class ChatResponseDto implements \JsonSerializable
         return $this->message;
     }
 
-    public function setMessage(?string $message): self
+    public function setMessage(?string $message): void
     {
         $this->message = $message;
-        return $this;
     }
 
     public function getResponse(): ?string
@@ -62,10 +59,9 @@ class ChatResponseDto implements \JsonSerializable
         return $this->response;
     }
 
-    public function setResponse(?string $response): self
+    public function setResponse(?string $response): void
     {
         $this->response = $response;
-        return $this;
     }
 
     /**
@@ -79,19 +75,17 @@ class ChatResponseDto implements \JsonSerializable
     /**
      * @param ProductResponseDto[] $products
      */
-    public function setProducts(array $products): self
+    public function setProducts(array $products): void
     {
         $this->products = $products;
-        return $this;
     }
 
     /**
      * Add a product to the response
      */
-    public function addProduct(ProductResponseDto $product): self
+    public function addProduct(ProductResponseDto $product): void
     {
         $this->products[] = $product;
-        return $this;
     }
 
     /**

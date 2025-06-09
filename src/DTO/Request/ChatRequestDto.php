@@ -24,10 +24,9 @@ class ChatRequestDto
         return $this->message;
     }
 
-    public function setMessage(string $message): self
+    public function setMessage(string $message): void
     {
         $this->message = $message;
-        return $this;
     }
 
     public function getHistory(): array
@@ -35,9 +34,8 @@ class ChatRequestDto
         return $this->history;
     }
 
-    public function setHistory(array $history): self
+    public function setHistory(array $history): void
     {
         $this->history = $history;
-        return $this;
     }
 }

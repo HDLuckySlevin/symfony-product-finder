@@ -34,6 +34,22 @@ class ProductFinderController extends AbstractController
     }
 
 
+    /**
+     * Create a response for when no results are found
+     */
+    private function createNoResultsResponse(string $searchQuery): JsonResponse
+    {
+        $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
+        $response = new ChatResponseDto(
+            true,
+            $searchQuery,
+            null,
+            $noResultsMessage,
+            []
+        );
+        return $this->json($response);
+    }
+
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
     public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
     {
@@ -62,15 +78,7 @@ class ProductFinderController extends AbstractController
             $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
 
             if (empty($results)) {
-                $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
-                $response = new ChatResponseDto(
-                    true,
-                    $searchQuery,
-                    null,
-                    $noResultsMessage,
-                    []
-                );
-                return $this->json($response);
+                return $this->createNoResultsResponse($searchQuery);
             }
 
             // Filter results to only include products with distance <= 0.5
@@ -79,15 +87,7 @@ class ProductFinderController extends AbstractController
             });
 
             if (empty($filteredResults)) {
-                $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
-                $response = new ChatResponseDto(
-                    true,
-                    $searchQuery,
-                    null,
-                    $noResultsMessage,
-                    []
-                );
-                return $this->json($response);
+                return $this->createNoResultsResponse($searchQuery);
             }
 
             // Create system prompt that acts as a product finder
