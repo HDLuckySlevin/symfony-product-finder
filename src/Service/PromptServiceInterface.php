@@ -7,14 +7,14 @@ namespace App\Service;
  */
 interface PromptServiceInterface
 {
-    /**
-     * Get a prompt by its key
-     * 
-     * @param string $section The section in the YAML file
-     * @param string $key The key of the prompt
-     * @param array<string, string> $parameters Parameters to replace in the prompt
-     * @return string The prompt with parameters replaced
-     * @throws \InvalidArgumentException If the prompt key is not found
-     */
+    /****
+ * Retrieves a prompt string identified by section and key, substituting placeholders with provided parameters.
+ *
+ * @param string $section Section name where the prompt is defined.
+ * @param string $key Key identifying the specific prompt.
+ * @param array<string, string> $parameters Optional associative array of placeholder replacements.
+ * @return string The prompt string with parameters substituted.
+ * @throws \InvalidArgumentException If the specified prompt key does not exist.
+ */
     public function getPrompt(string $section, string $key, array $parameters = []): string;
 }

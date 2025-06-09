@@ -21,11 +21,11 @@ interface SearchServiceInterface
     public function generateChatCompletion(array $messages, array $options = []): string;
 
     /**
-     * Generate a simple text completion for a single prompt
-     * 
-     * @param string $prompt The text prompt
-     * @param array<string, mixed> $options Additional options for the API call
-     * @return string The generated text response
-     */
+ * Generates a text completion based on a single prompt.
+ *
+ * @param string $prompt The input text prompt to generate a completion for.
+ * @param array<string, mixed> $options Optional parameters to customize the API call, such as temperature or maximum tokens.
+ * @return string The generated text response.
+ */
     public function generateCompletion(string $prompt, array $options = []): string;
 }
