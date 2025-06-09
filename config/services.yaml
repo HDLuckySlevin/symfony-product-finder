@@ -43,3 +43,10 @@ services:
     App\Service\OpenAIEmbeddingGenerator:
         arguments:
             $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%'
+
+    App\Service\OpenAISearchService:
+        arguments:
+            $chatModel: '%env(OPENAI_CHAT_MODEL)%'
+
+    # Bind the interface to the implementation
+    App\Service\SearchServiceInterface: '@App\Service\OpenAISearchService'

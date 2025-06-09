@@ -3,6 +3,8 @@
 namespace App\Command;
 
 use App\Service\EmbeddingGeneratorInterface;
+use App\Service\PromptServiceInterface;
+use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -19,14 +21,20 @@ class TestSearchCommand extends Command
 {
     private EmbeddingGeneratorInterface $embeddingGenerator;
     private VectorStoreInterface $vectorStoreService;
+    private SearchServiceInterface $searchService;
+    private PromptServiceInterface $promptService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
-        VectorStoreInterface $vectorStoreService
+        VectorStoreInterface $vectorStoreService,
+        SearchServiceInterface $searchService,
+        PromptServiceInterface $promptService
     ) {
         parent::__construct();
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
+        $this->searchService = $searchService;
+        $this->promptService = $promptService;
     }
 
     protected function configure(): void
@@ -51,29 +59,71 @@ class TestSearchCommand extends Command
 
             // Search for similar products
             $io->text('Searching for similar products...');
-            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 5);
+            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
 
             if (empty($results)) {
                 $io->warning('No products found matching the query');
                 return Command::SUCCESS;
             }
 
-            $io->success(sprintf('Found %d products matching the query', count($results)));
+            // Filter results to only include products with distance <= 0.5
+            $filteredResults = array_filter($results, function($result) {
+                return isset($result['distance']) && $result['distance'] <= 0.5;
+            });
 
-            // Display results
-            $io->section('Search results:');
+            if (empty($filteredResults)) {
+                $io->warning('No products found with distance <= 0.5');
+                return Command::SUCCESS;
+            }
+
+            $io->success(sprintf('Found %d products matching the query with distance <= 0.5', count($filteredResults)));
+
+            // Process results using search service
+            $io->text('Processing results with OpenAI...');
+
+            // Create system prompt that acts as a product finder
+            $systemPromptContent = $this->promptService->getPrompt('product_finder', 'system_prompt');
+            $systemPrompt = [
+                'role' => 'system',
+                'content' => $systemPromptContent
+            ];
+
+            // Create user message with query and products
+            $productsList = '';
+            foreach ($filteredResults as $index => $result) {
+                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
+            }
+
+            $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
+                'query' => $query,
+                'products_list' => $productsList
+            ]);
+
+            $userMessage = [
+                'role' => 'user',
+                'content' => $userMessageContent
+            ];
+
+            $messages = [$systemPrompt, $userMessage];
+            $recommendation = $this->searchService->generateChatCompletion($messages);
+
+            // Display raw results
+            $io->section('Raw search results (distance <= 0.5):');
             $table = [];
-            foreach ($results as $index => $result) {
+            foreach ($filteredResults as $index => $result) {
                 $table[] = [
                     $index + 1,
                     $result['id'] ?? 'N/A',
                     $result['title'] ?? 'Unknown product',
-                    $result['type'] ?? 'Unknown product',
                     $result['distance'] ?? 'N/A',
                 ];
             }
 
-            $io->table(['#', 'ID', 'Product Name', 'Field Type', 'Distance'], $table);
+            $io->table(['#', 'ID', 'Product Name', 'Distance'], $table);
+
+            // Display OpenAI recommendation
+            $io->section('OpenAI Recommendation:');
+            $io->writeln($recommendation);
 
             return Command::SUCCESS;
         } catch (\Exception $e) {

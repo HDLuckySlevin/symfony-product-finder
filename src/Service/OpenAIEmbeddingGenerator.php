@@ -192,9 +192,9 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
 
     /**
      * Combine all product information into a single text chunk
-     * 
+     *
      * @param array<string, string> $groupedFields Grouped fields with keys 'title', 'metadata', 'specifications', and 'features'
-     * @return array<int, string> Array containing a single text chunk
+     * @return string Array containing a single text chunk
      */
     private function getChunk(array $groupedFields): string
     {

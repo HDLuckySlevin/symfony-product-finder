@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Service\EmbeddingGeneratorInterface;
+use App\Service\PromptServiceInterface;
+use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,13 +15,19 @@ class ProductFinderController extends AbstractController
 {
     private EmbeddingGeneratorInterface $embeddingGenerator;
     private VectorStoreInterface $vectorStoreService;
+    private PromptServiceInterface $promptService;
+    private SearchServiceInterface $searchService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
-        VectorStoreInterface $vectorStoreService
+        VectorStoreInterface $vectorStoreService,
+        SearchServiceInterface $searchService,
+        PromptServiceInterface $promptService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
+        $this->searchService = $searchService;
+        $this->promptService = $promptService;
     }
 
     #[Route('/api/products/search', name: 'api_products_search', methods: ['POST'])]
@@ -36,17 +44,48 @@ class ProductFinderController extends AbstractController
             ], 400);
         }
 
-        // Generate embedding for the query
-        $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($query);
+        try {
+            // Generate embedding for the query
+            $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($query);
 
-        // Search for similar products
-        $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding);
+            // Search for similar products
+            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
 
-        return $this->json([
-            'success' => true,
-            'query' => $query,
-            'products' => $results
-        ]);
+            if (empty($results)) {
+                return $this->json([
+                    'success' => true,
+                    'query' => $query,
+                    'message' => 'No products found matching the query',
+                    'products' => []
+                ]);
+            }
+
+            // Filter results to only include products with distance <= 0.5
+            $filteredResults = array_filter($results, function($result) {
+                return isset($result['distance']) && $result['distance'] <= 0.5;
+            });
+
+            if (empty($filteredResults)) {
+                return $this->json([
+                    'success' => true,
+                    'query' => $query,
+                    'message' => 'No products found with sufficient relevance to the query',
+                    'products' => []
+                ]);
+            }
+
+            return $this->json([
+                'success' => true,
+                'query' => $query,
+                'products' => $filteredResults
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'An error occurred during search: ' . $e->getMessage(),
+                'products' => []
+            ], 500);
+        }
     }
 
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
@@ -54,7 +93,7 @@ class ProductFinderController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
         $message = $data['message'] ?? '';
-        $history = $data['history'] ?? []; // <-- History auslesen
+        $history = $data['history'] ?? []; // <-- Read history
 
         if (empty($message)) {
             return $this->json([
@@ -65,19 +104,81 @@ class ProductFinderController extends AbstractController
             ], 400);
         }
 
-        // History an Intent-Extraktion übergeben
+        // Pass history to intent extraction
         $searchQuery = $this->extractSearchIntent($message, $history);
 
-        $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($searchQuery);
-        $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding);
-        $responseMessage = $this->generateChatResponse($message, $searchQuery, $results, $history);
+        try {
+            // Generate embedding for the query
+            $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($searchQuery);
 
-        return $this->json([
-            'success' => true,
-            'query' => $searchQuery,
-            'response' => $responseMessage,
-            'products' => $results
-        ]);
+            // Search for similar products
+            $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
+
+            if (empty($results)) {
+                $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
+                return $this->json([
+                    'success' => true,
+                    'query' => $searchQuery,
+                    'response' => $noResultsMessage,
+                    'products' => []
+                ]);
+            }
+
+            // Filter results to only include products with distance <= 0.5
+            $filteredResults = array_filter($results, function($result) {
+                return isset($result['distance']) && $result['distance'] <= 0.5;
+            });
+
+            if (empty($filteredResults)) {
+                $noResultsMessage = $this->promptService->getPrompt('product_finder', 'no_results_message');
+                return $this->json([
+                    'success' => true,
+                    'query' => $searchQuery,
+                    'response' => $noResultsMessage,
+                    'products' => []
+                ]);
+            }
+
+            // Create system prompt that acts as a product finder
+            $systemPromptContent = $this->promptService->getPrompt('product_finder', 'system_prompt');
+            $systemPrompt = [
+                'role' => 'system',
+                'content' => $systemPromptContent
+            ];
+
+            // Create user message with query and products
+            $productsList = '';
+            foreach ($filteredResults as $index => $result) {
+                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
+            }
+
+            $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
+                'query' => $searchQuery,
+                'products_list' => $productsList
+            ]);
+
+            $userMessage = [
+                'role' => 'user',
+                'content' => $userMessageContent
+            ];
+
+            $messages = [$systemPrompt, $userMessage];
+            $recommendation = $this->searchService->generateChatCompletion($messages);
+
+            return $this->json([
+                'success' => true,
+                'query' => $searchQuery,
+                'response' => $recommendation,
+                'products' => $filteredResults
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'An error occurred during search: ' . $e->getMessage(),
+                'response' => null,
+                'products' => []
+            ], 500);
+        }
     }
 
     /**
@@ -85,31 +186,9 @@ class ProductFinderController extends AbstractController
      */
     private function extractSearchIntent(string $message, array $history = []): string
     {
-        // Beispiel: Nutze die letzte Nutzer-Nachricht als Such-Query
-        // Hier könntest du auch komplexere Logik/NLP einsetzen
+        // Example: Use the last user message as search query
+        // You could also implement more complex logic/NLP here
         return $message;
     }
 
-    /**
-     * Generate a chat response based on the search results
-     */
-    private function generateChatResponse(string $originalMessage, string $searchQuery, array $results, array $history = []): string
-    {
-        // Du kannst die History hier für Kontext verwenden, z.B. für Follow-Ups
-        if (empty($results)) {
-            return "Es tut mir leid, ich konnte keine passenden Produkte zu Ihrer Anfrage finden. Können Sie Ihre Anforderungen genauer beschreiben?";
-        }
-
-        $count = count($results);
-        $productNames = array_map(function($result) {
-            return $result['title'] ?? 'Unbekanntes Produkt';
-        }, array_slice($results, 0, 3));
-
-        $productList = implode(', ', $productNames);
-        if ($count > 3) {
-            $productList .= ' und ' . ($count - 3) . ' weitere';
-        }
-
-        return "Basierend auf Ihrer Anfrage \"$originalMessage\" habe ich folgende Produkte gefunden: $productList. Möchten Sie mehr Details zu einem bestimmten Produkt?";
-    }
 }
