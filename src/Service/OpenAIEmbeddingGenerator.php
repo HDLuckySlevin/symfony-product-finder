@@ -35,14 +35,12 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      * 
      * @param HttpClientInterface $httpClient The HTTP client for making API requests
      * @param string $apiKey OpenAI API key (default: empty string)
-     * @param string $embeddingModel OpenAI embedding model to use (default: 'text-embedding-ada-002')
+     * @param string $embeddingModel OpenAI embedding model to use (default: 'text-embedding-3-large')
      */
     public function __construct(
         HttpClientInterface $httpClient,
-
         string $apiKey,
         string $embeddingModel
-
     ) {
         if (empty(trim($apiKey))) {
             throw new \InvalidArgumentException('OpenAI API key cannot be empty.');
