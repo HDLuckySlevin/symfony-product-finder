@@ -268,7 +268,7 @@ class ZillizVectorDBService
                 collectionName: $this->collectionName,
                 vector: $queryEmbedding,
                 outputFields: ["primary_key", "title", "link"],
-                limit: 5,
+                limit: $limit,
             );
 
             return $result->json()['data'] ?? [];
