@@ -15,9 +15,19 @@ use Symfony\Component\Console\Command\Command; // For Command::SUCCESS etc.
  *
  * @covers \App\Command\ProcessImageCommand
  */
+use App\Service\EmbeddingGeneratorInterface;
+use App\Service\ZillizVectorDBService;
+
+/**
+ * Tests for ProcessImageCommand.
+ *
+ * @covers \App\Command\ProcessImageCommand
+ */
 class ProcessImageCommandTest extends KernelTestCase
 {
-    private MockObject $mockVisionService; // Renamed for clarity from visionServiceMock
+    private MockObject $mockVisionService;
+    private MockObject $mockEmbeddingGenerator;
+    private MockObject $mockVectorDBService;
     private CommandTester $commandTester;
     private string $tempDir;
     private string $dummyImagePath;
@@ -38,12 +48,16 @@ class ProcessImageCommandTest extends KernelTestCase
 
         // Create the mock object for OpenAIVisionService
         $this->mockVisionService = $this->createMock(OpenAIVisionService::class);
+        $this->mockEmbeddingGenerator = $this->createMock(EmbeddingGeneratorInterface::class);
+        $this->mockVectorDBService = $this->createMock(ZillizVectorDBService::class);
 
         // Get the special test service container
         $container = self::getContainer();
 
-        // Replace the actual service with the mock instance in the test container
+        // Replace the actual services with mock instances in the test container
         $container->set(OpenAIVisionService::class, $this->mockVisionService);
+        $container->set(EmbeddingGeneratorInterface::class, $this->mockEmbeddingGenerator);
+        $container->set(ZillizVectorDBService::class, $this->mockVectorDBService);
 
         // Initialize Application and CommandTester
         $application = new Application(self::$kernel); // Use self::$kernel after bootKernel()
@@ -57,10 +71,39 @@ class ProcessImageCommandTest extends KernelTestCase
      */
     public function testExecuteSuccessfully(): void
     {
-        $this->mockVisionService->expects($this->once()) // Use the renamed mock property
+        $sampleDescription = 'A red bicycle parked near a bench.';
+        $dummyEmbedding = [0.1, 0.2, 0.3];
+
+        $mockProduct1 = $this->getMockBuilder(\stdClass::class)
+                               ->addMethods(['getId', 'getName', 'getScore'])
+                               ->getMock();
+        $mockProduct1->method('getId')->willReturn('P123');
+        $mockProduct1->method('getName')->willReturn('Awesome Red Bike');
+        $mockProduct1->method('getScore')->willReturn(0.95);
+
+        $mockProduct2 = $this->getMockBuilder(\stdClass::class)
+                               ->addMethods(['getId', 'getName', 'getScore'])
+                               ->getMock();
+        $mockProduct2->method('getId')->willReturn('P456');
+        $mockProduct2->method('getName')->willReturn('Similar Red Pedal Bike');
+        $mockProduct2->method('getScore')->willReturn(0.92345);
+
+        $similarProductsResult = [$mockProduct1, $mockProduct2];
+
+        $this->mockVisionService->expects($this->once())
             ->method('getDescriptionForImage')
             ->with($this->dummyImagePath, 'Test prompt for success')
-            ->willReturn('Successful description from command test');
+            ->willReturn($sampleDescription);
+
+        $this->mockEmbeddingGenerator->expects($this->once())
+            ->method('generateQueryEmbedding')
+            ->with($sampleDescription)
+            ->willReturn($dummyEmbedding);
+
+        $this->mockVectorDBService->expects($this->once())
+            ->method('searchSimilarProducts')
+            ->with($dummyEmbedding, 5)
+            ->willReturn($similarProductsResult);
 
         $this->commandTester->execute(
             [
@@ -72,8 +115,131 @@ class ProcessImageCommandTest extends KernelTestCase
 
         $this->commandTester->assertCommandIsSuccessful();
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString('Successful description from command test', $output);
-        $this->assertStringContainsString('[OK] Successfully retrieved description:', $output); // SymfonyStyle success
+
+        // Check vision service output
+        $this->assertStringContainsString($sampleDescription, $output);
+        $this->assertStringContainsString('[OK] Successfully retrieved description:', $output);
+
+        // Check embedding generator output
+        $this->assertStringContainsString('Embedding generated successfully.', $output);
+
+        // Check vector DB search output
+        $this->assertStringContainsString('Top 5 Similar Products:', $output);
+        $this->assertStringContainsString('ID', $output); // Table header
+        $this->assertStringContainsString('Product Name', $output); // Table header
+        $this->assertStringContainsString('Similarity Score', $output); // Table header
+
+        $this->assertStringContainsString('P123', $output);
+        $this->assertStringContainsString('Awesome Red Bike', $output);
+        $this->assertStringContainsString('0.9500', $output); // Formatted score
+
+        $this->assertStringContainsString('P456', $output);
+        $this->assertStringContainsString('Similar Red Pedal Bike', $output);
+        $this->assertStringContainsString('0.9235', $output); // Formatted score
+    }
+
+    /**
+     * Test command execution when embedding generation fails.
+     */
+    public function testExecuteEmbeddingFailure(): void
+    {
+        $sampleDescription = 'A red bicycle.';
+        $this->mockVisionService->expects($this->once())
+            ->method('getDescriptionForImage')
+            ->with($this->dummyImagePath, 'Test prompt for embedding failure')
+            ->willReturn($sampleDescription);
+
+        $this->mockEmbeddingGenerator->expects($this->once())
+            ->method('generateQueryEmbedding')
+            ->with($sampleDescription)
+            ->will($this->throwException(new \RuntimeException('Embedding API error')));
+
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath,
+                'preprompt' => 'Test prompt for embedding failure',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        $output = $this->commandTester->getDisplay();
+        $this->assertStringContainsString('[ERROR] Failed to generate embedding for the description: Embedding API error', $output);
+    }
+
+    /**
+     * Test command execution when vector database search fails.
+     */
+    public function testExecuteVectorSearchFailure(): void
+    {
+        $sampleDescription = 'A blue car.';
+        $dummyEmbedding = [0.4, 0.5, 0.6];
+
+        $this->mockVisionService->expects($this->once())
+            ->method('getDescriptionForImage')
+            ->with($this->dummyImagePath, 'Test prompt for vector search failure')
+            ->willReturn($sampleDescription);
+
+        $this->mockEmbeddingGenerator->expects($this->once())
+            ->method('generateQueryEmbedding')
+            ->with($sampleDescription)
+            ->willReturn($dummyEmbedding);
+
+        $this->mockVectorDBService->expects($this->once())
+            ->method('searchSimilarProducts')
+            ->with($dummyEmbedding, 5)
+            ->will($this->throwException(new \RuntimeException('Vector DB error')));
+
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath,
+                'preprompt' => 'Test prompt for vector search failure',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
+        $output = $this->commandTester->getDisplay();
+        $this->assertStringContainsString('[ERROR] Failed to search for similar products: Vector DB error', $output);
+    }
+
+    /**
+     * Test command execution when no similar products are found.
+     */
+    public function testExecuteNoSimilarProductsFound(): void
+    {
+        $sampleDescription = 'A unique widget.';
+        $dummyEmbedding = [0.7, 0.8, 0.9];
+
+        $this->mockVisionService->expects($this->once())
+            ->method('getDescriptionForImage')
+            ->with($this->dummyImagePath, 'Test prompt for no products')
+            ->willReturn($sampleDescription);
+
+        $this->mockEmbeddingGenerator->expects($this->once())
+            ->method('generateQueryEmbedding')
+            ->with($sampleDescription)
+            ->willReturn($dummyEmbedding);
+
+        $this->mockVectorDBService->expects($this->once())
+            ->method('searchSimilarProducts')
+            ->with($dummyEmbedding, 5)
+            ->willReturn([]); // Return an empty array
+
+        $this->commandTester->execute(
+            [
+                'image_path' => $this->dummyImagePath,
+                'preprompt' => 'Test prompt for no products',
+            ],
+            ['decorated' => false]
+        );
+
+        $this->commandTester->assertCommandIsSuccessful();
+        $output = $this->commandTester->getDisplay();
+        $this->assertStringContainsString($sampleDescription, $output);
+        $this->assertStringContainsString('Embedding generated successfully.', $output);
+        $this->assertStringContainsString('Top 5 Similar Products:', $output);
+        $this->assertStringContainsString('No similar products found.', $output);
     }
 
     /**
@@ -81,7 +247,7 @@ class ProcessImageCommandTest extends KernelTestCase
      */
     public function testExecuteWithServiceRuntimeException(): void
     {
-        $this->mockVisionService->expects($this->once()) // Use the renamed mock property
+        $this->mockVisionService->expects($this->once())
             ->method('getDescriptionForImage')
             ->with($this->dummyImagePath, 'Test prompt for service error')
             ->will($this->throwException(new \RuntimeException('Service Error')));
