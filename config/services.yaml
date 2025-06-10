@@ -4,6 +4,12 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    env(OPENAI_API_KEY): '' # Default to empty string, should be set in .env or actual environment
+    env(OPENAI_EMBEDDING_MODEL): 'text-embedding-3-large' # Default model if not set in .env
+    env(MILVUS_HOST): ''
+    env(MILVUS_PORT): '' # Symfony will try to cast to int; factory validates further
+    env(MILVUS_API_KEY): ''
+    env(MILVUS_COLLECTION): 'products' # Default if not set in .env
 
 services:
     # default configuration for services in *this* file
@@ -34,3 +40,30 @@ services:
             $milvus: '@Milvus\Client'
             $collectionName: '%env(MILVUS_COLLECTION)%'
             $dimension: 1536
+
+    # Added for OpenAI client and vision service
+    OpenAI\Client: # The actual client from the library
+        factory: ['OpenAI', 'client']
+        arguments:
+            - '%env(OPENAI_API_KEY)%'
+
+    App\Service\OpenAIClientAdapter:
+        arguments:
+            $adaptee: '@OpenAI\Client' # Inject the actual client here
+
+    # Alias the interface to the adapter for autowiring
+    App\Service\OpenAIClientInterface: '@App\Service\OpenAIClientAdapter'
+
+    App\Service\OpenAIVisionService:
+        # Now autowiring should work with OpenAIClientInterface
+        public: true
+
+    # Configure OpenAIEmbeddingGenerator
+    App\Service\OpenAIEmbeddingGenerator:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface' # Autowire standard HTTP client
+            $apiKey: '%env(OPENAI_API_KEY)%' # Inject API key from environment
+            $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%' # Use env var
+
+    # Alias EmbeddingGeneratorInterface to the concrete implementation
+    App\Service\EmbeddingGeneratorInterface: '@App\Service\OpenAIEmbeddingGenerator'
