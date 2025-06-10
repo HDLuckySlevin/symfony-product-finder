@@ -39,9 +39,15 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     public function __construct(
         HttpClientInterface $httpClient,
-        string $apiKey = '',
-        string $embeddingModel = 'text-embedding-3-large'
+        string $apiKey,
+        string $embeddingModel
     ) {
+        if (empty(trim($apiKey))) {
+            throw new \InvalidArgumentException('OpenAI API key cannot be empty.');
+        }
+        if (empty(trim($embeddingModel))) {
+            throw new \InvalidArgumentException('OpenAI embedding model cannot be empty.');
+        }
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;
         $this->embeddingModel = $embeddingModel;
@@ -202,10 +208,7 @@ class OpenAIEmbeddingGenerator implements EmbeddingGeneratorInterface
      */
     private function generateEmbeddingForText(string $text): array
     {
-        if (empty($this->apiKey)) {
-            // Return mock embedding if no API key is provided
-            return $this->generateMockEmbedding($text);
-        }
+        // API key check is now done in constructor
 
         try {
             // Chunk the text before embedding
