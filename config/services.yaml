@@ -40,7 +40,7 @@ services:
         arguments:
             $apiKey: '%env(OPENAI_API_KEY)%'
 
-    App\Service\OpenAIClientInterface: '@OpenAI\Client'
+    App\Service\OpenAIClientInterface: '@App\Service\OpenAIClientAdapter'
 
     App\Service\OpenAIEmbeddingGenerator:
         arguments:
