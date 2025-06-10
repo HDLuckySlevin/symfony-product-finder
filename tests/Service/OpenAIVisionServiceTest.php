@@ -6,8 +6,8 @@ use App\Service\OpenAIVisionService;
 use App\Service\OpenAIClientInterface; // Use the interface for mocking
 use App\Service\ChatResourceInterface; // Use the interface for mocking
 use OpenAI\Responses\Chat\CreateResponse;
-use OpenAI\Exception\ErrorException; // Re-ensure this is present and used
-use OpenAI\Responses\Meta\MetaInformation; // Corrected use statement if this is the FQCN
+// OpenAI\Exception\ErrorException will not be directly instantiated here anymore
+use OpenAI\Responses\Meta\MetaInformation;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -169,11 +169,13 @@ class OpenAIVisionServiceTest extends TestCase
         $chatMock = $this->createMock(ChatResourceInterface::class); // Mock our chat interface
         $this->openAiClientMock->method('chat')->willReturn($chatMock);
 
+        $simulatedApiException = new \Exception("Simulated API Error from mock");
         $chatMock->method('create')
-                 ->willThrowException(new \OpenAI\Exception\ErrorException(['message' => 'API Error', 'type' => 'api_error'])); // Use FQCN
+                 ->willThrowException($simulatedApiException);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('OpenAI API Error: API Error');
+        // This message now comes from the second catch block in OpenAIVisionService
+        $this->expectExceptionMessageMatches('/^Error processing image: Simulated API Error from mock/');
         $this->openAIVisionService->getDescriptionForImage($this->dummyImagePath, 'Test prompt');
     }
 

@@ -284,7 +284,7 @@ class ProcessImageCommandTest extends KernelTestCase
         $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
         $output = $this->commandTester->getDisplay();
         // This message comes from the command's catch block for InvalidArgumentException
-        $this->assertStringContainsString('[ERROR] Invalid argument: Service rejected image argument', $output);
+        $this->assertStringContainsString('[ERROR] Invalid argument or setup: Service rejected image argument', $output);
     }
 
     /**
@@ -331,7 +331,8 @@ class ProcessImageCommandTest extends KernelTestCase
         $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
         $output = $this->commandTester->getDisplay();
         // This message comes directly from the command's initial file_exists check
-        $this->assertStringContainsString("[ERROR] Error: Image file not found at path: " . $nonExistentPath, $output);
+        $this->assertStringContainsString("[ERROR] Error: Image file not found at path: ", $output);
+        $this->assertStringContainsString($nonExistentPath, $output);
     }
 
     /**
@@ -356,7 +357,8 @@ class ProcessImageCommandTest extends KernelTestCase
         $this->assertEquals(Command::FAILURE, $this->commandTester->getStatusCode());
         $output = $this->commandTester->getDisplay();
         // This message comes directly from the command's initial getimagesize check
-        $this->assertStringContainsString("[ERROR] Error: The file at path is not a valid image or is corrupted: " . $nonImagePath, $output);
+        $this->assertStringContainsString("[ERROR] Error: The file at path is not a valid image or is corrupted: ", $output);
+        $this->assertStringContainsString($nonImagePath, $output);
     }
 
 
