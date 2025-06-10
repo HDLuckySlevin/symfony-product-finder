@@ -74,21 +74,14 @@ class ProcessImageCommandTest extends KernelTestCase
         $sampleDescription = 'A red bicycle parked near a bench.';
         $dummyEmbedding = [0.1, 0.2, 0.3];
 
-        $mockProduct1 = $this->getMockBuilder(\stdClass::class)
-                               ->addMethods(['getId', 'getName', 'getScore'])
-                               ->getMock();
-        $mockProduct1->method('getId')->willReturn('P123');
-        $mockProduct1->method('getName')->willReturn('Awesome Red Bike');
-        $mockProduct1->method('getScore')->willReturn(0.95);
-
-        $mockProduct2 = $this->getMockBuilder(\stdClass::class)
-                               ->addMethods(['getId', 'getName', 'getScore'])
-                               ->getMock();
-        $mockProduct2->method('getId')->willReturn('P456');
-        $mockProduct2->method('getName')->willReturn('Similar Red Pedal Bike');
-        $mockProduct2->method('getScore')->willReturn(0.92345);
-
-        $similarProductsResult = [$mockProduct1, $mockProduct2];
+        // Updated mock result to be an array of associative arrays
+        $similarProductsResult = [
+            ['primary_key' => 'P123', 'title' => 'Awesome Red Bike', 'distance' => 0.95],
+            ['primary_key' => 'P456', 'title' => 'Similar Red Pedal Bike', 'distance' => 0.92345],
+            // Note: The command formats 'distance' or 'score'. Ensure 'distance' is used here for consistency
+            // or that the command correctly falls back to 'score' if that's intended for some mock cases.
+            // The command currently prioritizes 'distance'.
+        ];
 
         $this->mockVisionService->expects($this->once())
             ->method('getDescriptionForImage')

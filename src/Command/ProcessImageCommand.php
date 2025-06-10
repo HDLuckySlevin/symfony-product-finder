@@ -135,12 +135,19 @@ class ProcessImageCommand extends Command
             } else {
                 $tableRows = [];
                 foreach ($similarProducts as $index => $product) {
-                    // Assuming $product is an object with getId(), getName(), getScore()
+                    // $product is now expected to be an associative array
+                    $score = 'N/A';
+                    if (isset($product['distance'])) {
+                        $score = is_float($product['distance']) ? number_format($product['distance'], 4) : $product['distance'];
+                    } elseif (isset($product['score'])) { // Fallback if 'score' is used
+                        $score = is_float($product['score']) ? number_format($product['score'], 4) : $product['score'];
+                    }
+
                     $tableRows[] = [
                         $index + 1,
-                        method_exists($product, 'getId') ? $product->getId() : 'N/A',
-                        method_exists($product, 'getName') ? $product->getName() : 'N/A',
-                        method_exists($product, 'getScore') ? (is_float($product->getScore()) ? number_format($product->getScore(), 4) : $product->getScore()) : 'N/A',
+                        $product['primary_key'] ?? 'N/A',
+                        $product['title'] ?? 'N/A',
+                        $score
                     ];
                 }
                 $io->table(['#', 'ID', 'Product Name', 'Similarity Score'], $tableRows);
