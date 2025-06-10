@@ -52,3 +52,13 @@ services:
     App\Service\OpenAIVisionService:
         # Now autowiring should work with OpenAIClientInterface
         public: true
+
+    # Configure OpenAIEmbeddingGenerator
+    App\Service\OpenAIEmbeddingGenerator:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface' # Autowire standard HTTP client
+            $apiKey: '%env(OPENAI_API_KEY)%' # Inject API key from environment
+            $embeddingModel: 'text-embedding-3-large' # Or make this an env variable too if needed
+
+    # Alias EmbeddingGeneratorInterface to the concrete implementation
+    App\Service\EmbeddingGeneratorInterface: '@App\Service\OpenAIEmbeddingGenerator'
