@@ -38,9 +38,12 @@ class ZillizVectorDBService
      */
     public function __construct(
         MilvusClient $milvus,
-        string $collectionName = 'products',
+        string $collectionName, // Default removed
         int $dimension = 1536
     ) {
+        if (empty(trim($collectionName))) {
+            throw new \InvalidArgumentException('Milvus collection name environment variable (MILVUS_COLLECTION) cannot be empty.');
+        }
         $this->milvus = $milvus;
         $this->collectionName = $collectionName;
         $this->dimension = $dimension;
@@ -265,7 +268,7 @@ class ZillizVectorDBService
                 collectionName: $this->collectionName,
                 vector: $queryEmbedding,
                 outputFields: ["primary_key", "title", "link"],
-                limit: 5,
+                limit: $limit,
             );
 
             return $result->json()['data'] ?? [];
