@@ -63,7 +63,7 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
 
 1. Clone the repository:
    ```
-   git clone git@gitlab.adesso-group.com:Igor.Besel/symfony-product-finder.git
+   git clone git@github.com:iGore/symfony-product-finder.git
    cd symfony-product-finder
    ```
 
