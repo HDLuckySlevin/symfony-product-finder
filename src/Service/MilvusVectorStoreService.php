@@ -47,7 +47,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
         MilvusClient $milvus,
         LoggerInterface $logger,
         string $collectionName = 'default',
-        int $dimension = 512 // Changed default to 512
+        int $dimension = 768 // Reverted default to 768
     ) {
         $this->milvus = $milvus;
         $this->logger = $logger;
@@ -183,7 +183,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
                     'embedding_size' => count($embeddings)
                 ]);
 
-                $response = $this->milvus->vector()->insert(
+                $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
                         'product_id' => $productId,
@@ -191,11 +191,6 @@ class MilvusVectorStoreService implements VectorStoreInterface
                         'vector' => $embeddings, // Vector field named 'vector'
                     ]
                 );
-                $this->logger->debug('Milvus insert response', [
-                    'product_id' => $productId,
-                    'collection_name' => $this->collectionName,
-                    'response' => $response->json(),
-                ]);
                 $insertedCount++;
             }
 
