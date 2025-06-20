@@ -32,19 +32,36 @@ services:
     App\Service\MilvusVectorStoreService:
         arguments:
             $milvus: '@Milvus\Client'
-            $collectionName: '%env(MILVUS_COLLECTION)%'
-            $dimension: 1536
+            $logger: '@Psr\Log\LoggerInterface'
+            $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
+            $dimension: 768 # Reverted to 768 based on Python service log output
 
-    OpenAI\Client:
+    # New Python Embedding Service
+    App\Service\PythonEmbeddingGenerator:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $logger: '@Psr\Log\LoggerInterface'
+            # $mimeTypeGuesser: '@mime_types_default' # Removed as per new approach
+            $embedHost: '%env(APP_EMBED_HOST)%' # Assuming http://localhost or similar
+            $embedPort: '%env(EMBED_PORT)%'
+
+    # Bind the EmbeddingGeneratorInterface to the new PythonEmbeddingGenerator
+    App\Service\EmbeddingGeneratorInterface: '@App\Service\PythonEmbeddingGenerator'
+
+    # OpenAI client and embedding generator are removed as they are replaced.
+    # App\Service\OpenAISearchService might still be needed if it's used for chat completion based on search results.
+    # The README mentions "OpenAI API: For embeddings and chat completions".
+    # The ProductFinderController uses SearchServiceInterface (mapped to OpenAISearchService) to "generateChatCompletion".
+    # So, OpenAISearchService and its related OpenAI\Client should be kept if chat completion is still desired.
+    # For now, I will keep OpenAISearchService and its dependencies.
+    # If OpenAI is NOT used for chat completion anymore, these should be removed.
+
+    OpenAI\Client: # Keep if OpenAISearchService is used
         factory: ['OpenAI', 'client']
         arguments:
             $apiKey: '%env(OPENAI_API_KEY)%'
 
-    App\Service\OpenAIEmbeddingGenerator:
-        arguments:
-            $embeddingModel: '%env(OPENAI_EMBEDDING_MODEL)%'
-
-    App\Service\OpenAISearchService:
+    App\Service\OpenAISearchService: # Keep if chat completion feature is still desired
         arguments:
             $chatModel: '%env(OPENAI_CHAT_MODEL)%'
 

@@ -1,0 +1,1163 @@
+<?xml version="1.0" ?>
+<products>
+    <product>
+        <id>6</id>
+        <name>Google Pixel 8 Pro</name>
+        <sku>GOOPIX8P-128-BLU</sku>
+        <description>Google Pixel 8 Pro is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Google</brand>
+        <category>Smartphones</category>
+        <price>1099.00</price>
+        <image_url>https://example.com/images/pixel-8-pro.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>28</stock>
+        <specifications>
+            <specification name="display">6,7 Zoll LTPO OLED, 2992 x 1344 Pixel</specification>
+            <specification name="processor">Google Tensor G3</specification>
+            <specification name="ram">12GB</specification>
+            <specification name="storage">128GB</specification>
+            <specification name="camera">50MP Hauptkamera, 48MP Ultraweitwinkel, 48MP Tele</specification>
+            <specification name="battery">5050mAh</specification>
+            <specification name="os">Android 14</specification>
+            <specification name="dimensions">162.6 x 76.5 x 8.8 mm</specification>
+            <specification name="weight">213g</specification>
+            <specification name="waterproof">IP68</specification>
+        </specifications>
+        <features>
+            <feature>Face Unlock</feature>
+            <feature>Tensor Sicherheitschip</feature>
+            <feature>5 Jahre Updates</feature>
+            <feature>Wireless Charging</feature>
+            <feature>Always-On Display</feature>
+            <feature>Magic Eraser</feature>
+        </features>
+    </product>
+    <product>
+        <id>7</id>
+        <name>Bose QuietComfort Ultra</name>
+        <sku>BOSEQCULTRA-SIL</sku>
+        <description>Bose QuietComfort Ultra is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Bose</brand>
+        <category>Kopfhörer</category>
+        <price>429.00</price>
+        <image_url>https://example.com/images/bose-qc-ultra.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>40</stock>
+        <specifications>
+            <specification name="type">Over-Ear</specification>
+            <specification name="connectivity">Bluetooth 5.3, Klinke</specification>
+            <specification name="battery">24 Stunden</specification>
+            <specification name="charging">USB-C</specification>
+            <specification name="weight">250g</specification>
+            <specification name="noise_cancelling">Active</specification>
+            <specification name="microphone">Ja</specification>
+        </specifications>
+        <features>
+            <feature>CustomTune Klangkalibrierung</feature>
+            <feature>Multipoint</feature>
+            <feature>Touch-Steuerung</feature>
+            <feature>Transparenzmodus</feature>
+            <feature>Trageerkennung</feature>
+            <feature>Sprachassistent</feature>
+        </features>
+    </product>
+    <product>
+        <id>8</id>
+        <name>Lenovo ThinkPad X1 Carbon Gen 11</name>
+        <sku>LENX1C11-I5-16-512</sku>
+        <description>Lenovo ThinkPad X1 Carbon Gen 11 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Lenovo</brand>
+        <category>Laptops</category>
+        <price>1799.00</price>
+        <image_url>https://example.com/images/thinkpad-x1-carbon.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>18</stock>
+        <specifications>
+            <specification name="display">14 Zoll WUXGA, 1920 x 1200 Pixel</specification>
+            <specification name="processor">Intel Core i5-1335U</specification>
+            <specification name="ram">16GB LPDDR5</specification>
+            <specification name="storage">512GB SSD</specification>
+            <specification name="graphics">Intel Iris Xe</specification>
+            <specification name="battery">57Wh</specification>
+            <specification name="os">Windows 11 Pro</specification>
+            <specification name="ports">2x Thunderbolt 4, 2x USB-A, HDMI, Klinke</specification>
+            <specification name="dimensions">315 x 222 x 15 mm</specification>
+            <specification name="weight">1.12kg</specification>
+        </specifications>
+        <features>
+            <feature>Fingerprint Reader</feature>
+            <feature>Dolby Atmos Lautsprecher</feature>
+            <feature>Backlit Keyboard</feature>
+            <feature>Wi-Fi 6E</feature>
+            <feature>Privacy Guard</feature>
+            <feature>HD Webcam mit IR</feature>
+        </features>
+    </product>
+    <product>
+        <id>9</id>
+        <name>Philips Hue White and Color Ambiance Starter Kit</name>
+        <sku>PHIHUEKIT-E27-4P</sku>
+        <description>Philips Hue White and Color Ambiance Starter Kit is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Philips</brand>
+        <category>Smart Home</category>
+        <price>179.99</price>
+        <image_url>https://example.com/images/philips-hue-kit.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>60</stock>
+        <specifications>
+            <specification name="lamp_type">E27 LED</specification>
+            <specification name="color">16 Mio. Farben</specification>
+            <specification name="connectivity">Zigbee, Bluetooth</specification>
+            <specification name="bridge">Enthalten</specification>
+            <specification name="app">iOS, Android</specification>
+            <specification name="voice_control">Alexa, Google Assistant, Apple HomeKit</specification>
+        </specifications>
+        <features>
+            <feature>Dimmbar</feature>
+            <feature>Zeitschaltpläne</feature>
+            <feature>Fernsteuerung</feature>
+            <feature>Gruppensteuerung</feature>
+            <feature>Geofencing</feature>
+            <feature>Musik-Synchronisation</feature>
+        </features>
+    </product>
+    <product>
+        <id>10</id>
+        <name>Samsung Odyssey G9</name>
+        <sku>SAMODG9-49INCH</sku>
+        <description>Samsung Odyssey G9 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Samsung</brand>
+        <category>Monitore</category>
+        <price>1399.00</price>
+        <image_url>https://example.com/images/samsung-odyssey-g9.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>10</stock>
+        <specifications>
+            <specification name="display">49 Zoll Curved QHD, 5120 x 1440 Pixel</specification>
+            <specification name="refresh_rate">240Hz</specification>
+            <specification name="panel">VA, Quantum Dot</specification>
+            <specification name="response_time">1ms</specification>
+            <specification name="connectivity">2x DisplayPort, HDMI, USB Hub</specification>
+            <specification name="curvature">1000R</specification>
+            <specification name="hdr">HDR1000</specification>
+        </specifications>
+        <features>
+            <feature>G-SYNC Compatible</feature>
+            <feature>Picture-by-Picture</feature>
+            <feature>RGB-Beleuchtung</feature>
+            <feature>Ergonomischer Standfuß</feature>
+            <feature>Eye Saver Mode</feature>
+            <feature>Game Mode</feature>
+        </features>
+    </product>
+    <product>
+        <id>1</id>
+        <name>Samsung Galaxy S23 Ultra</name>
+        <sku>SAMS23U-128-BLK</sku>
+        <description>Samsung Galaxy S23 Ultra is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Samsung</brand>
+        <category>Smartphones</category>
+        <price>1199.99</price>
+        <image_url>https://example.com/images/samsung-s23-ultra.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>42</stock>
+        <specifications>
+            <specification name="display">6,8 Zoll Dynamic AMOLED, 3088 x 1440 Pixel</specification>
+            <specification name="processor">Snapdragon 8 Gen 2</specification>
+            <specification name="ram">12GB</specification>
+            <specification name="storage">256GB</specification>
+            <specification name="camera">200MP Hauptkamera, 12MP Ultraweitwinkel, 10MP Teleobjektiv</specification>
+            <specification name="battery">5000mAh</specification>
+            <specification name="os">Android 13</specification>
+            <specification name="dimensions">163.4 x 78.1 x 8.9 mm</specification>
+            <specification name="weight">233g</specification>
+            <specification name="waterproof">IP68</specification>
+        </specifications>
+        <features>
+            <feature>S Pen integriert</feature>
+            <feature>Schnellladefunktion</feature>
+            <feature>Kabelloses Laden</feature>
+            <feature>5G-fähig</feature>
+            <feature>Ultraschall-Fingerabdrucksensor</feature>
+            <feature>Space Zoom bis zu 100x</feature>
+        </features>
+    </product>
+    <product>
+        <id>2</id>
+        <name>Apple iPhone 15 Pro</name>
+        <sku>APPL15P-256-GLD</sku>
+        <description>Apple iPhone 15 Pro is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Apple</brand>
+        <category>Smartphones</category>
+        <price>1199.00</price>
+        <image_url>https://example.com/images/iphone-15-pro.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>35</stock>
+        <specifications>
+            <specification name="display">6,1 Zoll Super Retina XDR, 2556 x 1179 Pixel</specification>
+            <specification name="processor">A17 Pro Chip</specification>
+            <specification name="ram">8GB</specification>
+            <specification name="storage">256GB</specification>
+            <specification name="camera">48MP Hauptkamera, 12MP Ultraweitwinkel, 12MP Teleobjektiv</specification>
+            <specification name="battery">3274mAh</specification>
+            <specification name="os">iOS 17</specification>
+            <specification name="dimensions">146.6 x 70.6 x 8.25 mm</specification>
+            <specification name="weight">187g</specification>
+            <specification name="waterproof">IP68</specification>
+        </specifications>
+        <features>
+            <feature>Action Button</feature>
+            <feature>Dynamic Island</feature>
+            <feature>ProMotion-Technologie</feature>
+            <feature>MagSafe</feature>
+            <feature>Face ID</feature>
+            <feature>USB-C Anschluss</feature>
+        </features>
+    </product>
+    <product>
+        <id>3</id>
+        <name>Sony WH-1000XM5</name>
+        <sku>SONWH1000XM5-BLK</sku>
+        <description>Sony WH-1000XM5 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Sony</brand>
+        <category>Kopfhörer</category>
+        <price>399.99</price>
+        <image_url>https://example.com/images/sony-wh1000xm5.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>58</stock>
+        <specifications>
+            <specification name="type">Over-Ear</specification>
+            <specification name="connectivity">Bluetooth 5.2, 3.5mm Klinke</specification>
+            <specification name="battery">30 Stunden mit ANC</specification>
+            <specification name="charging">USB-C</specification>
+            <specification name="weight">250g</specification>
+            <specification name="driver">30mm</specification>
+            <specification name="frequency_response">4Hz-40,000Hz</specification>
+            <specification name="impedance">48 Ohm</specification>
+        </specifications>
+        <features>
+            <feature>Adaptive Noise Cancelling</feature>
+            <feature>Multipoint-Verbindung</feature>
+            <feature>Speak-to-Chat</feature>
+            <feature>Touch-Bedienelemente</feature>
+            <feature>Schnellladefunktion</feature>
+            <feature>Trageerkennung</feature>
+        </features>
+    </product>
+    <product>
+        <id>4</id>
+        <name>Dell XPS 15 (2023)</name>
+        <sku>DELLXPS15-i7-32-1TB</sku>
+        <description>Dell XPS 15 (2023) is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Dell</brand>
+        <category>Laptops</category>
+        <price>2499.00</price>
+        <image_url>https://example.com/images/dell-xps-15.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>15</stock>
+        <specifications>
+            <specification name="display">15,6 Zoll 4K OLED, 3840 x 2400 Pixel</specification>
+            <specification name="processor">Intel Core i7-13700H</specification>
+            <specification name="ram">32GB DDR5</specification>
+            <specification name="storage">1TB NVMe SSD</specification>
+            <specification name="graphics">NVIDIA GeForce RTX 4060</specification>
+            <specification name="battery">86Wh</specification>
+            <specification name="os">Windows 11 Pro</specification>
+            <specification name="ports">2x Thunderbolt 4, 1x USB-C 3.2, SD-Kartenleser, Kopfhörerbuchse</specification>
+            <specification name="dimensions">344.4 x 230.1 x 18 mm</specification>
+            <specification name="weight">1.96kg</specification>
+        </specifications>
+        <features>
+            <feature>CNC-gefräste Aluminiumkonstruktion</feature>
+            <feature>Karbonfaser-Handballenauflage</feature>
+            <feature>Präzisions-Touchpad</feature>
+            <feature>Hintergrundbeleuchtete Tastatur</feature>
+            <feature>Windows Hello Gesichtserkennung</feature>
+            <feature>Quad-Lautsprecher mit Waves MaxxAudio</feature>
+        </features>
+    </product>
+    <product>
+        <id>5</id>
+        <name>LG OLED C3 65 Zoll</name>
+        <sku>LGOLED65C3-2023</sku>
+        <description>LG OLED C3 65 Zoll is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>LG</brand>
+        <category>Fernseher</category>
+        <price>2299.00</price>
+        <image_url>https://example.com/images/lg-oled-c3-65.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>22</stock>
+        <specifications>
+            <specification name="display">65 Zoll 4K OLED, 3840 x 2160 Pixel</specification>
+            <specification name="processor">α9 Gen6 AI-Prozessor</specification>
+            <specification name="refresh_rate">120Hz</specification>
+            <specification name="hdr">Dolby Vision IQ, HDR10, HLG</specification>
+            <specification name="audio">2.2-Kanal, 40W, Dolby Atmos</specification>
+            <specification name="smart_tv">webOS 23</specification>
+            <specification name="connectivity">4x HDMI 2.1, 3x USB, Wi-Fi 6, Bluetooth 5.0</specification>
+            <specification name="dimensions">1441 x 830 x 41.1 mm (ohne Standfuß)</specification>
+            <specification name="weight">23.9kg (mit Standfuß)</specification>
+        </specifications>
+        <features>
+            <feature>OLED evo Panel</feature>
+            <feature>G-SYNC und FreeSync Premium</feature>
+            <feature>Filmmaker Mode</feature>
+            <feature>AI Picture Pro</feature>
+            <feature>AI Sound Pro</feature>
+            <feature>Game Optimizer</feature>
+        </features>
+    </product>
+    <product>
+        <id>11</id>
+        <name>Apple MacBook Air M3</name>
+        <sku>APMBAIRM3-16-512</sku>
+        <description>Apple MacBook Air M3 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Apple</brand>
+        <category>Laptops</category>
+        <price>1599.00</price>
+        <image_url>https://example.com/images/macbook-air-m3.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>25</stock>
+        <specifications>
+            <specification name="display">13,6 Zoll Liquid Retina, 2560 x 1664 Pixel</specification>
+            <specification name="processor">Apple M3</specification>
+            <specification name="ram">16GB</specification>
+            <specification name="storage">512GB SSD</specification>
+            <specification name="battery">18h</specification>
+            <specification name="os">macOS Sonoma</specification>
+            <specification name="weight">1.24kg</specification>
+        </specifications>
+        <features>
+            <feature>Touch ID</feature>
+            <feature>MagSafe 3</feature>
+            <feature>Thunderbolt 4</feature>
+            <feature>Wi-Fi 6E</feature>
+            <feature>Backlit Keyboard</feature>
+            <feature>Force Touch Trackpad</feature>
+        </features>
+    </product>
+    <product>
+        <id>12</id>
+        <name>JBL Flip 7</name>
+        <sku>JBLFLIP7-BLK</sku>
+        <description>JBL Flip 7 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>JBL</brand>
+        <category>Lautsprecher</category>
+        <price>129.99</price>
+        <image_url>https://example.com/images/jbl-flip-7.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>80</stock>
+        <specifications>
+            <specification name="type">Bluetooth</specification>
+            <specification name="battery">20h</specification>
+            <specification name="waterproof">IP67</specification>
+            <specification name="weight">540g</specification>
+            <specification name="charging">USB-C</specification>
+        </specifications>
+        <features>
+            <feature>PartyBoost</feature>
+            <feature>Freisprechfunktion</feature>
+            <feature>Mehrere Farben</feature>
+            <feature>Outdoor-tauglich</feature>
+        </features>
+    </product>
+    <product>
+        <id>13</id>
+        <name>Amazon Kindle Paperwhite 11. Gen</name>
+        <sku>KINDLEPW11-8GB</sku>
+        <description>Amazon Kindle Paperwhite 11. Gen is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Amazon</brand>
+        <category>E-Reader</category>
+        <price>149.99</price>
+        <image_url>https://example.com/images/kindle-paperwhite-11.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>120</stock>
+        <specifications>
+            <specification name="display">6,8 Zoll E-Ink</specification>
+            <specification name="storage">8GB</specification>
+            <specification name="waterproof">IPX8</specification>
+            <specification name="battery">bis zu 10 Wochen</specification>
+            <specification name="weight">205g</specification>
+        </specifications>
+        <features>
+            <feature>Verstellbare Farbtemperatur</feature>
+            <feature>Wasserfest</feature>
+            <feature>Bluetooth für Hörbücher</feature>
+            <feature>USB-C Ladeanschluss</feature>
+        </features>
+    </product>
+    <product>
+        <id>14</id>
+        <name>Garmin Forerunner 265</name>
+        <sku>GARFOR265-BLK</sku>
+        <description>Garmin Forerunner 265 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Garmin</brand>
+        <category>Wearables</category>
+        <price>499.00</price>
+        <image_url>https://example.com/images/garmin-forerunner-265.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>33</stock>
+        <specifications>
+            <specification name="display">1,3 Zoll AMOLED</specification>
+            <specification name="battery">bis zu 13 Tage</specification>
+            <specification name="gps">Ja</specification>
+            <specification name="weight">47g</specification>
+            <specification name="waterproof">5 ATM</specification>
+        </specifications>
+        <features>
+            <feature>Musikfunktion</feature>
+            <feature>Herzfrequenzmessung</feature>
+            <feature>VO2max</feature>
+            <feature>Garmin Pay</feature>
+            <feature>Trainingspläne</feature>
+        </features>
+    </product>
+    <product>
+        <id>15</id>
+        <name>Philips Airfryer XXL</name>
+        <sku>PHIAIRFRY-XXL</sku>
+        <description>Philips Airfryer XXL is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Philips</brand>
+        <category>Küchengeräte</category>
+        <price>249.00</price>
+        <image_url>https://example.com/images/philips-airfryer-xxl.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>50</stock>
+        <specifications>
+            <specification name="kapazität">1,4kg</specification>
+            <specification name="leistung">2225W</specification>
+            <specification name="programme">5</specification>
+            <specification name="gewicht">7,99kg</specification>
+        </specifications>
+        <features>
+            <feature>Fettarmes Frittieren</feature>
+            <feature>Spülmaschinenfeste Teile</feature>
+            <feature>Digitales Display</feature>
+            <feature>Warmhaltefunktion</feature>
+        </features>
+    </product>
+    <product>
+        <id>16</id>
+        <name>Logitech MX Master 3S</name>
+        <sku>LOGMXM3S-GRAPH</sku>
+        <description>Logitech MX Master 3S is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Logitech</brand>
+        <category>Mäuse</category>
+        <price>119.99</price>
+        <image_url>https://example.com/images/logitech-mx-master-3s.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>70</stock>
+        <specifications>
+            <specification name="sensor">8K DPI</specification>
+            <specification name="connectivity">Bluetooth, Logi Bolt</specification>
+            <specification name="battery">bis zu 70 Tage</specification>
+            <specification name="gewicht">141g</specification>
+        </specifications>
+        <features>
+            <feature>MagSpeed-Scrollrad</feature>
+            <feature>Flow-Steuerung</feature>
+            <feature>USB-C Schnellladung</feature>
+            <feature>Leise Klicks</feature>
+        </features>
+    </product>
+    <product>
+        <id>17</id>
+        <name>TP-Link Deco X50 Mesh WLAN Set</name>
+        <sku>TPLDECOX50-3P</sku>
+        <description>TP-Link Deco X50 Mesh WLAN Set is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>TP-Link</brand>
+        <category>Netzwerk</category>
+        <price>249.99</price>
+        <image_url>https://example.com/images/tplink-deco-x50.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>45</stock>
+        <specifications>
+            <specification name="wifi">Wi-Fi 6 (AX3000)</specification>
+            <specification name="abdeckung">bis zu 650m²</specification>
+            <specification name="einheiten">3</specification>
+            <specification name="anschlüsse">2x Gigabit LAN pro Einheit</specification>
+        </specifications>
+        <features>
+            <feature>Kindersicherung</feature>
+            <feature>App-Steuerung</feature>
+            <feature>Gastnetzwerk</feature>
+            <feature>Nahtloses Roaming</feature>
+        </features>
+    </product>
+    <product>
+        <id>18</id>
+        <name>Samsung Galaxy Tab S9 FE</name>
+        <sku>SAMTABS9FE-128-GR</sku>
+        <description>Samsung Galaxy Tab S9 FE is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Samsung</brand>
+        <category>Tablets</category>
+        <price>549.00</price>
+        <image_url>https://example.com/images/galaxy-tab-s9-fe.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>38</stock>
+        <specifications>
+            <specification name="display">10,9 Zoll TFT, 2304 x 1440 Pixel</specification>
+            <specification name="processor">Exynos 1380</specification>
+            <specification name="ram">6GB</specification>
+            <specification name="storage">128GB</specification>
+            <specification name="battery">8000mAh</specification>
+            <specification name="os">Android 13</specification>
+        </specifications>
+        <features>
+            <feature>S Pen inklusive</feature>
+            <feature>Wasser- und staubgeschützt (IP68)</feature>
+            <feature>Dolby Atmos Lautsprecher</feature>
+            <feature>Samsung DeX</feature>
+        </features>
+    </product>
+    <product>
+        <id>19</id>
+        <name>Dyson V15 Detect Absolute</name>
+        <sku>DYSONV15-ABS</sku>
+        <description>Dyson V15 Detect Absolute is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Dyson</brand>
+        <category>Haushalt</category>
+        <price>699.00</price>
+        <image_url>https://example.com/images/dyson-v15.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>27</stock>
+        <specifications>
+            <specification name="akku">bis zu 60 Minuten</specification>
+            <specification name="gewicht">3,1kg</specification>
+            <specification name="staubbehälter">0,76l</specification>
+            <specification name="filter">HEPA</specification>
+        </specifications>
+        <features>
+            <feature>Laser-Stauberkennung</feature>
+            <feature>LCD-Anzeige</feature>
+            <feature>Automatische Saugkraftanpassung</feature>
+            <feature>Vielseitiges Zubehör</feature>
+        </features>
+    </product>
+    <product>
+        <id>20</id>
+        <name>Canon EOS R50 Kit</name>
+        <sku>CANONR50-1855</sku>
+        <description>Canon EOS R50 Kit is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Canon</brand>
+        <category>Kameras</category>
+        <price>899.00</price>
+        <image_url>https://example.com/images/canon-eos-r50.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>14</stock>
+        <specifications>
+            <specification name="sensor">24,2 MP APS-C</specification>
+            <specification name="video">4K 30p</specification>
+            <specification name="display">3 Zoll Touchscreen</specification>
+            <specification name="akku">bis zu 370 Aufnahmen</specification>
+            <specification name="gewicht">375g</specification>
+        </specifications>
+        <features>
+            <feature>Dual Pixel Autofokus</feature>
+            <feature>WLAN and Bluetooth</feature>
+            <feature>Vari-Angle Display</feature>
+            <feature>Intervallaufnahme</feature>
+        </features>
+    </product>
+    <product>
+        <id>21</id>
+        <name>Microsoft Surface Pro 9</name>
+        <sku>MSFPRO9-I7-16-512</sku>
+        <description>Microsoft Surface Pro 9 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Microsoft</brand>
+        <category>Tablets</category>
+        <price>1799.00</price>
+        <image_url>https://example.com/images/surface-pro-9.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>19</stock>
+        <specifications>
+            <specification name="display">13 Zoll PixelSense, 2880 x 1920 Pixel</specification>
+            <specification name="processor">Intel Core i7-1255U</specification>
+            <specification name="ram">16GB</specification>
+            <specification name="storage">512GB SSD</specification>
+            <specification name="battery">bis zu 15,5h</specification>
+            <specification name="os">Windows 11</specification>
+        </specifications>
+        <features>
+            <feature>Touchscreen</feature>
+            <feature>Face ID</feature>
+            <feature>Thunderbolt 4</feature>
+            <feature>Abnehmbares Keyboard</feature>
+        </features>
+    </product>
+    <product>
+        <id>22</id>
+        <name>Fossil Gen 6 Smartwatch</name>
+        <sku>FOSGEN6-BLK</sku>
+        <description>Fossil Gen 6 Smartwatch is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Fossil</brand>
+        <category>Wearables</category>
+        <price>299.00</price>
+        <image_url>https://example.com/images/fossil-gen6.jpg</image_url>
+        <rating>4.4</rating>
+        <stock>44</stock>
+        <specifications>
+            <specification name="display">1,28 Zoll AMOLED</specification>
+            <specification name="battery">24h</specification>
+            <specification name="os">Wear OS</specification>
+            <specification name="waterproof">3 ATM</specification>
+        </specifications>
+        <features>
+            <feature>Herzfrequenzmessung</feature>
+            <feature>SpO2-Sensor</feature>
+            <feature>GPS</feature>
+            <feature>Google Assistant</feature>
+        </features>
+    </product>
+    <product>
+        <id>23</id>
+        <name>AEG Lavamat L8FE74485</name>
+        <sku>AEGL8FE74485</sku>
+        <description>AEG Lavamat L8FE74485 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>AEG</brand>
+        <category>Haushalt</category>
+        <price>649.00</price>
+        <image_url>https://example.com/images/aeg-lavamat.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>12</stock>
+        <specifications>
+            <specification name="kapazität">8kg</specification>
+            <specification name="energieeffizienz">A</specification>
+            <specification name="programme">10</specification>
+            <specification name="abmessungen">85 x 60 x 57 cm</specification>
+        </specifications>
+        <features>
+            <feature>ProSteam</feature>
+            <feature>ProSense</feature>
+            <feature>Startzeitvorwahl</feature>
+            <feature>Kindersicherung</feature>
+        </features>
+    </product>
+    <product>
+        <id>24</id>
+        <name>GoPro HERO12 Black</name>
+        <sku>GOPROH12BLK</sku>
+        <description>GoPro HERO12 Black is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>GoPro</brand>
+        <category>Kameras</category>
+        <price>449.00</price>
+        <image_url>https://example.com/images/gopro-hero12.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>32</stock>
+        <specifications>
+            <specification name="video">5,3K 60fps</specification>
+            <specification name="waterproof">10m</specification>
+            <specification name="battery">1720mAh</specification>
+            <specification name="gewicht">153g</specification>
+        </specifications>
+        <features>
+            <feature>HyperSmooth 6.0</feature>
+            <feature>TimeWarp 3.0</feature>
+            <feature>Sprachsteuerung</feature>
+            <feature>Webcam-Modus</feature>
+        </features>
+    </product>
+    <product>
+        <id>25</id>
+        <name>HP ENVY Inspire 7920e</name>
+        <sku>HPENVY7920E</sku>
+        <description>HP ENVY Inspire 7920e is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>HP</brand>
+        <category>Drucker</category>
+        <price>179.00</price>
+        <image_url>https://example.com/images/hp-envy-7920e.jpg</image_url>
+        <rating>4.3</rating>
+        <stock>60</stock>
+        <specifications>
+            <specification name="drucktechnologie">Tintenstrahl</specification>
+            <specification name="funktionen">Drucken, Scannen, Kopieren</specification>
+            <specification name="anschluss">WLAN, USB</specification>
+            <specification name="papierformat">A4</specification>
+        </specifications>
+        <features>
+            <feature>Duplexdruck</feature>
+            <feature>HP+ Smart</feature>
+            <feature>Mobiles Drucken</feature>
+            <feature>Randlosdruck</feature>
+        </features>
+    </product>
+    <product>
+        <id>26</id>
+        <name>Apple AirPods Pro (2. Generation)</name>
+        <sku>AIRPODSPRO2</sku>
+        <description>Apple AirPods Pro (2. Generation) is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Apple</brand>
+        <category>Kopfhörer</category>
+        <price>279.00</price>
+        <image_url>https://example.com/images/airpods-pro-2.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>100</stock>
+        <specifications>
+            <specification name="typ">In-Ear</specification>
+            <specification name="akku">bis zu 6h</specification>
+            <specification name="ladecase">MagSafe</specification>
+            <specification name="gewicht">5,3g pro Ohrhörer</specification>
+        </specifications>
+        <features>
+            <feature>Aktives Noise Cancelling</feature>
+            <feature>Transparenzmodus</feature>
+            <feature>3D-Audio</feature>
+            <feature>Siri Integration</feature>
+        </features>
+    </product>
+    <product>
+        <id>27</id>
+        <name>Philips Sonicare DiamondClean 9000</name>
+        <sku>PHISONIC9000</sku>
+        <description>Philips Sonicare DiamondClean 9000 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Philips</brand>
+        <category>Gesundheit</category>
+        <price>199.00</price>
+        <image_url>https://example.com/images/sonicare-9000.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>55</stock>
+        <specifications>
+            <specification name="putzprogramme">4</specification>
+            <specification name="akku">bis zu 14 Tage</specification>
+            <specification name="ladeart">Glas-Ladestation</specification>
+            <specification name="gewicht">133g</specification>
+        </specifications>
+        <features>
+            <feature>Drucksensor</feature>
+            <feature>Bürstenkopf-Erkennung</feature>
+            <feature>Bluetooth-App</feature>
+            <feature>Reiseetui</feature>
+        </features>
+    </product>
+    <product>
+        <id>28</id>
+        <name>Netatmo Wetterstation</name>
+        <sku>NETATMO-WS</sku>
+        <description>Netatmo Wetterstation is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Netatmo</brand>
+        <category>Smart Home</category>
+        <price>179.99</price>
+        <image_url>https://example.com/images/netatmo-ws.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>36</stock>
+        <specifications>
+            <specification name="sensoren">Innen und Außen</specification>
+            <specification name="verbindung">WLAN</specification>
+            <specification name="app">iOS, Android</specification>
+            <specification name="stromversorgung">USB</specification>
+        </specifications>
+        <features>
+            <feature>CO2-Messung</feature>
+            <feature>Wetterwarnungen</feature>
+            <feature>Sprachsteuerung</feature>
+            <feature>Erweiterbar</feature>
+        </features>
+    </product>
+    <product>
+        <id>29</id>
+        <name>Samsung T7 Shield 2TB</name>
+        <sku>SAMT7SHIELD-2TB</sku>
+        <description>Samsung T7 Shield 2TB is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Samsung</brand>
+        <category>Speicher</category>
+        <price>189.00</price>
+        <image_url>https://example.com/images/samsung-t7-shield.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>77</stock>
+        <specifications>
+            <specification name="kapazität">2TB</specification>
+            <specification name="schnittstelle">USB 3.2 Gen2</specification>
+            <specification name="geschwindigkeit">bis zu 1050 MB/s</specification>
+            <specification name="gewicht">98g</specification>
+            <specification name="schutz">IP65</specification>
+        </specifications>
+        <features>
+            <feature>Stoßfest</feature>
+            <feature>Wasser- und Staubschutz</feature>
+            <feature>Passwortschutz</feature>
+            <feature>Kompatibel mit PC, Mac, Android</feature>
+        </features>
+    </product>
+    <product>
+        <id>30</id>
+        <name>De'Longhi Magnifica S ECAM 22.110.B</name>
+        <sku>DELONGHI-ECAM22110B</sku>
+        <description>De'Longhi Magnifica S ECAM 22.110.B is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>De'Longhi</brand>
+        <category>Küchengeräte</category>
+        <price>349.00</price>
+        <image_url>https://example.com/images/delonghi-magnifica.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>29</stock>
+        <specifications>
+            <specification name="leistung">1450W</specification>
+            <specification name="wassertank">1,8l</specification>
+            <specification name="bohnenbehälter">250g</specification>
+            <specification name="mahlwerk">13-stufig</specification>
+            <specification name="gewicht">9kg</specification>
+        </specifications>
+        <features>
+            <feature>Milchaufschäumer</feature>
+            <feature>Automatische Abschaltung</feature>
+            <feature>2-Tassen-Funktion</feature>
+            <feature>Leicht zu reinigen</feature>
+        </features>
+    </product>
+    <product>
+        <id>31</id>
+        <name>Fitbit Charge 6</name>
+        <sku>FITBITCHARGE6-BLK</sku>
+        <description>Fitbit Charge 6 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Fitbit</brand>
+        <category>Wearables</category>
+        <price>159.00</price>
+        <image_url>https://example.com/images/fitbit-charge-6.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>61</stock>
+        <specifications>
+            <specification name="display">AMOLED Touch</specification>
+            <specification name="battery">bis zu 7 Tage</specification>
+            <specification name="waterproof">50m</specification>
+            <specification name="weight">28g</specification>
+        </specifications>
+        <features>
+            <feature>Herzfrequenzmessung</feature>
+            <feature>GPS</feature>
+            <feature>SpO2-Sensor</feature>
+            <feature>Google Wallet</feature>
+        </features>
+    </product>
+    <product>
+        <id>32</id>
+        <name>WD My Book 8TB</name>
+        <sku>WD-MYBOOK-8TB</sku>
+        <description>WD My Book 8TB is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Western Digital</brand>
+        <category>Speicher</category>
+        <price>199.00</price>
+        <image_url>https://example.com/images/wd-mybook-8tb.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>34</stock>
+        <specifications>
+            <specification name="kapazität">8TB</specification>
+            <specification name="schnittstelle">USB 3.0</specification>
+            <specification name="gewicht">1,0kg</specification>
+        </specifications>
+        <features>
+            <feature>Automatische Backups</feature>
+            <feature>Passwortschutz</feature>
+            <feature>Kompatibel mit Windows und Mac</feature>
+        </features>
+    </product>
+    <product>
+        <id>33</id>
+        <name>Rowenta X-Force Flex 11.60</name>
+        <sku>ROWXFORCE1160</sku>
+        <description>Rowenta X-Force Flex 11.60 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Rowenta</brand>
+        <category>Haushalt</category>
+        <price>299.00</price>
+        <image_url>https://example.com/images/rowenta-xforce.jpg</image_url>
+        <rating>4.4</rating>
+        <stock>21</stock>
+        <specifications>
+            <specification name="akku">45 Minuten</specification>
+            <specification name="gewicht">2,7kg</specification>
+            <specification name="staubbehälter">0,9l</specification>
+        </specifications>
+        <features>
+            <feature>Flex-Gelenk</feature>
+            <feature>LED-Düse</feature>
+            <feature>Tierhaarbürste</feature>
+        </features>
+    </product>
+    <product>
+        <id>34</id>
+        <name>Google Nest Hub 2. Gen</name>
+        <sku>GOONESTHUB2</sku>
+        <description>Google Nest Hub 2. Gen is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Google</brand>
+        <category>Smart Home</category>
+        <price>99.99</price>
+        <image_url>https://example.com/images/google-nest-hub-2.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>48</stock>
+        <specifications>
+            <specification name="display">7 Zoll Touchscreen</specification>
+            <specification name="lautsprecher">Full-Range</specification>
+            <specification name="verbindung">Wi-Fi, Bluetooth</specification>
+        </specifications>
+        <features>
+            <feature>Sprachsteuerung</feature>
+            <feature>Schlaftracking</feature>
+            <feature>Smart Home Steuerung</feature>
+        </features>
+    </product>
+    <product>
+        <id>35</id>
+        <name>ASUS ROG Strix G16</name>
+        <sku>ASUSROG-G16-4060</sku>
+        <description>ASUS ROG Strix G16 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>ASUS</brand>
+        <category>Laptops</category>
+        <price>1799.00</price>
+        <image_url>https://example.com/images/asus-rog-strix-g16.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>17</stock>
+        <specifications>
+            <specification name="display">16 Zoll, 165Hz, 2560 x 1600</specification>
+            <specification name="processor">Intel Core i7-13650HX</specification>
+            <specification name="ram">16GB</specification>
+            <specification name="storage">1TB SSD</specification>
+            <specification name="graphics">NVIDIA RTX 4060</specification>
+            <specification name="os">Windows 11</specification>
+        </specifications>
+        <features>
+            <feature>RGB-Tastatur</feature>
+            <feature>Wi-Fi 6E</feature>
+            <feature>Dolby Atmos</feature>
+        </features>
+    </product>
+    <product>
+        <id>36</id>
+        <name>OnePlus 12</name>
+        <sku>ONEPLUS12-256-BLK</sku>
+        <description>OnePlus 12 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>OnePlus</brand>
+        <category>Smartphones</category>
+        <price>899.00</price>
+        <image_url>https://example.com/images/oneplus-12.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>31</stock>
+        <specifications>
+            <specification name="display">6,8 Zoll AMOLED, 3200 x 1440 Pixel</specification>
+            <specification name="processor">Snapdragon 8 Gen 3</specification>
+            <specification name="ram">12GB</specification>
+            <specification name="storage">256GB</specification>
+            <specification name="camera">50MP + 48MP + 64MP</specification>
+            <specification name="battery">5400mAh</specification>
+            <specification name="os">Android 14</specification>
+        </specifications>
+        <features>
+            <feature>120Hz Display</feature>
+            <feature>SuperVOOC Schnellladen</feature>
+            <feature>5G</feature>
+            <feature>In-Display Fingerabdrucksensor</feature>
+        </features>
+    </product>
+    <product>
+        <id>37</id>
+        <name>AEG VX9-2-ÖKO</name>
+        <sku>AEGVX92OKO</sku>
+        <description>AEG VX9-2-ÖKO is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>AEG</brand>
+        <category>Haushalt</category>
+        <price>249.00</price>
+        <image_url>https://example.com/images/aeg-vx9.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>22</stock>
+        <specifications>
+            <specification name="leistung">850W</specification>
+            <specification name="filter">HEPA 13</specification>
+            <specification name="staubbeutel">5l</specification>
+            <specification name="gewicht">5,8kg</specification>
+        </specifications>
+        <features>
+            <feature>Leise (65dB)</feature>
+            <feature>Nachhaltige Materialien</feature>
+            <feature>Allergikerfreundlich</feature>
+        </features>
+    </product>
+    <product>
+        <id>38</id>
+        <name>Apple Watch Series 9</name>
+        <sku>APPLEWATCH9-41MM</sku>
+        <description>Apple Watch Series 9 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Apple</brand>
+        <category>Wearables</category>
+        <price>449.00</price>
+        <image_url>https://example.com/images/apple-watch-9.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>54</stock>
+        <specifications>
+            <specification name="display">Always-On Retina</specification>
+            <specification name="battery">18h</specification>
+            <specification name="waterproof">50m</specification>
+            <specification name="size">41mm</specification>
+        </specifications>
+        <features>
+            <feature>EKG</feature>
+            <feature>Blutsauerstoffmessung</feature>
+            <feature>Sturzerkennung</feature>
+            <feature>Apple Pay</feature>
+        </features>
+    </product>
+    <product>
+        <id>39</id>
+        <name>Philips Hue Play Lightbar Doppelpack</name>
+        <sku>PHIHUEPLAY-2P</sku>
+        <description>Philips Hue Play Lightbar Doppelpack is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Philips</brand>
+        <category>Smart Home</category>
+        <price>129.99</price>
+        <image_url>https://example.com/images/hue-play.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>40</stock>
+        <specifications>
+            <specification name="lamp_type">LED</specification>
+            <specification name="color">16 Mio. Farben</specification>
+            <specification name="connectivity">Bluetooth, Zigbee</specification>
+            <specification name="set">2 Stück</specification>
+        </specifications>
+        <features>
+            <feature>App-Steuerung</feature>
+            <feature>Sprachsteuerung</feature>
+            <feature>Synchronisation mit Musik/TV</feature>
+        </features>
+    </product>
+    <product>
+        <id>40</id>
+        <name>Canon PIXMA TS8350a</name>
+        <sku>CANONTS8350A</sku>
+        <description>Canon PIXMA TS8350a is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Canon</brand>
+        <category>Drucker</category>
+        <price>179.00</price>
+        <image_url>https://example.com/images/canon-ts8350a.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>27</stock>
+        <specifications>
+            <specification name="drucktechnologie">Tintenstrahl</specification>
+            <specification name="funktionen">Drucken, Scannen, Kopieren</specification>
+            <specification name="anschluss">WLAN, USB, SD-Karte</specification>
+            <specification name="papierformat">A4, A5, B5, 10x15cm</specification>
+        </specifications>
+        <features>
+            <feature>Touchscreen</feature>
+            <feature>Randloser Fotodruck</feature>
+            <feature>Duplexdruck</feature>
+            <feature>Mobile Print</feature>
+        </features>
+    </product>
+    <product>
+        <id>41</id>
+        <name>Dyson Pure Cool Link</name>
+        <sku>DYSON-PURECOOL</sku>
+        <description>Dyson Pure Cool Link is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Dyson</brand>
+        <category>Haushalt</category>
+        <price>499.00</price>
+        <image_url>https://example.com/images/dyson-pure-cool.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>18</stock>
+        <specifications>
+            <specification name="filter">HEPA und Aktivkohle</specification>
+            <specification name="steuerung">App, Fernbedienung</specification>
+            <specification name="gewicht">3,7kg</specification>
+            <specification name="funktionen">Luftreiniger, Ventilator</specification>
+        </specifications>
+        <features>
+            <feature>Automatische Luftqualitätsüberwachung</feature>
+            <feature>App-Steuerung</feature>
+            <feature>Leiser Betrieb</feature>
+            <feature>Schwenkfunktion</feature>
+        </features>
+    </product>
+    <product>
+        <id>42</id>
+        <name>Garmin Edge 1040 Solar</name>
+        <sku>GARMIN-EDGE1040SOL</sku>
+        <description>Garmin Edge 1040 Solar is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Garmin</brand>
+        <category>Sport</category>
+        <price>749.00</price>
+        <image_url>https://example.com/images/garmin-edge-1040.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>12</stock>
+        <specifications>
+            <specification name="display">3,5 Zoll Touch</specification>
+            <specification name="akku">bis zu 45h</specification>
+            <specification name="navigation">Karten, GPS, GLONASS</specification>
+            <specification name="gewicht">133g</specification>
+        </specifications>
+        <features>
+            <feature>Solarladung</feature>
+            <feature>Trainingsanalysen</feature>
+            <feature>Wetterfest</feature>
+            <feature>Strava Live Segmente</feature>
+        </features>
+    </product>
+    <product>
+        <id>43</id>
+        <name>TP-Link Tapo C200</name>
+        <sku>TAPOC200</sku>
+        <description>TP-Link Tapo C200 is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>TP-Link</brand>
+        <category>Smart Home</category>
+        <price>39.99</price>
+        <image_url>https://example.com/images/tapo-c200.jpg</image_url>
+        <rating>4.5</rating>
+        <stock>67</stock>
+        <specifications>
+            <specification name="auflösung">1080p Full HD</specification>
+            <specification name="sichtfeld">360° horizontal, 114° vertikal</specification>
+            <specification name="speicher">microSD bis 128GB</specification>
+            <specification name="nachtmodus">850nm IR bis 8m</specification>
+        </specifications>
+        <features>
+            <feature>Bewegungserkennung</feature>
+            <feature>Nachtsicht</feature>
+            <feature>App-Benachrichtigung</feature>
+            <feature>Zwei-Wege-Audio</feature>
+        </features>
+    </product>
+    <product>
+        <id>44</id>
+        <name>Philips 278E1A</name>
+        <sku>PHI278E1A</sku>
+        <description>Philips 278E1A is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Philips</brand>
+        <category>Monitore</category>
+        <price>299.00</price>
+        <image_url>https://example.com/images/philips-278e1a.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>25</stock>
+        <specifications>
+            <specification name="display">27 Zoll 4K UHD, 3840 x 2160</specification>
+            <specification name="panel">IPS</specification>
+            <specification name="anschlüsse">HDMI, DisplayPort, Audio Out</specification>
+            <specification name="lautsprecher">2x 3W</specification>
+        </specifications>
+        <features>
+            <feature>Ultra Narrow Bezel</feature>
+            <feature>LowBlue Mode</feature>
+            <feature>Flicker-Free</feature>
+            <feature>Multiview</feature>
+        </features>
+    </product>
+    <product>
+        <id>45</id>
+        <name>Lenovo Tab M10 Plus (3. Gen)</name>
+        <sku>LENOTABM10P3</sku>
+        <description>Lenovo Tab M10 Plus (3. Gen) is a high-end device featuring advanced performance, excellent camera capabilities, durability, and long-term software support. It's ideal for tech-savvy users, mobile photographers, and productivity enthusiasts.</description>
+        <brand>Lenovo</brand>
+        <category>Tablets</category>
+        <price>199.00</price>
+        <image_url>https://example.com/images/lenovo-tab-m10-plus.jpg</image_url>
+        <rating>4.4</rating>
+        <stock>39</stock>
+        <specifications>
+            <specification name="display">10,6 Zoll 2K, 2000 x 1200</specification>
+            <specification name="ram">4GB</specification>
+            <specification name="storage">128GB</specification>
+            <specification name="os">Android 12</specification>
+            <specification name="battery">7700mAh</specification>
+        </specifications>
+        <features>
+            <feature>Eye Care Modus</feature>
+            <feature>Kids Space</feature>
+            <feature>Dolby Atmos</feature>
+            <feature>Metallgehäuse</feature>
+        </features>
+    </product>
+</products>
