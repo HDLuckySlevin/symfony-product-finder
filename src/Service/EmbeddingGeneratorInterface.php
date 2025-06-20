@@ -21,12 +21,4 @@ interface EmbeddingGeneratorInterface
      * @return array<int, float> Embedding vector representing the query.
      */
     public function generateQueryEmbedding(string $query): array;
-
-    /**
-     * Generates an embedding vector for the given image URL.
-     *
-     * @param string $imageUrl The URL of the image to generate an embedding for.
-     * @return array<int, float> Embedding vector representing the image.
-     */
-    public function generateImageEmbedding(string $imageUrl): array;
 }

@@ -21,20 +21,14 @@ class MilvusVectorStoreService implements VectorStoreInterface
     private MilvusClient $milvus;
 
     /**
-     * Base name for collections in the vector database
+     * Name of the collection in the vector database
      */
-    private string $collectionNameBase;
-    private string $textCollectionName;
-    private string $imageCollectionName;
+    private string $collectionName;
 
     /**
-     * Dimension of the text vector embeddings
+     * Dimension of the vector embeddings
      */
-    private int $textDimension;
-    /**
-     * Dimension of the image vector embeddings
-     */
-    private int $imageDimension;
+    private int $dimension;
 
     /**
      * Logger for recording operations and errors
@@ -52,17 +46,13 @@ class MilvusVectorStoreService implements VectorStoreInterface
     public function __construct(
         MilvusClient $milvus,
         LoggerInterface $logger,
-        string $collectionNameBase = 'default',
-        int $textDimension = 768, // Default assuming common text model size
-        int $imageDimension = 512 // Default assuming common image model size
+        string $collectionName = 'default',
+        int $dimension = 768 // Default dimension, should match Python service output for text
     ) {
         $this->milvus = $milvus;
         $this->logger = $logger;
-        $this->collectionNameBase = $collectionNameBase;
-        $this->textCollectionName = $collectionNameBase . '_text';
-        $this->imageCollectionName = $collectionNameBase . '_image';
-        $this->textDimension = $textDimension;
-        $this->imageDimension = $imageDimension;
+        $this->collectionName = $collectionName;
+        $this->dimension = $dimension;
     }
 
     /**
@@ -73,36 +63,30 @@ class MilvusVectorStoreService implements VectorStoreInterface
      * 
      * @return bool True if the collection exists or was created successfully, false otherwise
      */
-    public function initializeCollection(): bool // Keep signature for interface compatibility for now
+    public function initializeCollection(): bool
     {
-        return $this->initializeCollections();
-    }
-
-    private function initializeCollections(): bool
-    {
-        $this->logger->info('Initializing Milvus collections', [
-            'base_name' => $this->collectionNameBase,
-            'text_collection' => $this->textCollectionName,
-            'text_dimension' => $this->textDimension,
-            'image_collection' => $this->imageCollectionName,
-            'image_dimension' => $this->imageDimension,
+        $this->logger->info('Initializing Milvus collection', [
+            'collection_name' => $this->collectionName,
+            'dimension' => $this->dimension
         ]);
 
         try {
-            $successText = $this->createCollectionIfNotExists(
-                $this->textCollectionName,
-                $this->textDimension,
-                'text_vector'
-            );
-            $successImage = $this->createCollectionIfNotExists(
-                $this->imageCollectionName,
-                $this->imageDimension,
-                'image_vector'
-            );
-            return $successText && $successImage;
+            $collections = $this->milvus->collections()->list()->json()['data'] ?? [];
+            if (in_array($this->collectionName, $collections)) {
+                $this->logger->info('Collection already exists', [
+                    'collection_name' => $this->collectionName
+                ]);
+                return true;
+            }
+
+            $this->logger->info('Collection does not exist, creating new collection', [
+                'collection_name' => $this->collectionName
+            ]);
+            // Pass the configured dimension of the service to createCollection.
+            return $this->createCollection($this->dimension);
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to initialize one or more Milvus collections', [
-                'base_name' => $this->collectionNameBase,
+            $this->logger->error('Failed to initialize collection', [
+                'collection_name' => $this->collectionName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -111,72 +95,40 @@ class MilvusVectorStoreService implements VectorStoreInterface
     }
 
     /**
-     * LEGACY: Creates the text collection with the given dimension.
-     * Prefer initializeCollection() for creating both text and image collections
-     * with dimensions configured in the service.
+     * Create a new collection in the vector database
      *
-     * @param int $dimension The dimension for the text vector embeddings.
-     * @return bool True if the text collection was created successfully or already existed, false otherwise.
+     * Creates a collection with a primary key field (product_id) and a Float_vector field.
+     *
+     * @param int $dimension The dimension of the vector embeddings
+     * @return bool True if the collection was created successfully, false otherwise
      */
     public function createCollection(int $dimension): bool
     {
-        $this->logger->warning("LEGACY METHOD CALLED: createCollection(int \$dimension). Prefer initializeCollection() for robust setup. Attempting to create/check text collection '{$this->textCollectionName}' with dimension {$dimension}. The configured text dimension is {$this->textDimension}. Consider if this call is appropriate.");
-        // We use the provided dimension for this legacy call, even if it differs from configured textDimension.
-        return $this->createCollectionIfNotExists($this->textCollectionName, $dimension, 'text_vector');
-    }
-
-    /**
-     * Creates a collection if it doesn't exist.
-     *
-     * @param string $collectionName
-     * @param integer $dimension
-     * @param string $vectorFieldName
-     * @return boolean
-     */
-    private function createCollectionIfNotExists(string $collectionName, int $dimension, string $vectorFieldName): bool
-    {
-        $collections = $this->milvus->collections()->list()->json()['data'] ?? [];
-        if (in_array($collectionName, $collections)) {
-            $this->logger->info('Collection already exists', ['collection_name' => $collectionName]);
-            return true;
-        }
-
         $this->logger->info('Creating new Milvus collection', [
-            'collection_name' => $collectionName,
+            'collection_name' => $this->collectionName,
             'dimension' => $dimension,
-            'vector_field_name' => $vectorFieldName,
             'metric_type' => 'COSINE',
-            'primary_field' => 'product_id' // Using 'product_id' for clarity
+            'primary_field' => 'product_id',
+            'vector_field' => 'vector' // Default vector field name
         ]);
 
         try {
-            // The Milvus PHP library's create method might be too simple.
-            // It expects collectionName, dimension, metricType, primaryField, vectorField.
-            // We need to ensure it creates an ID field that is an INT64, and is the primary key.
-            // And a vector field that is FloatVector of the specified dimension.
-            // The library might default primary key to 'id' of type INT64 and autoId=true.
-            // Let's assume 'id' is the primary key name used by the library by default for the primary field.
-            // And 'vector' for the vector field name if not specified.
-            // The library's `create` method has:
-            // collectionName, dimension, metricType = "L2", primaryField = "id", vectorField = "vector", autoId = true, description = ""
-            // So we can override primaryField and vectorField.
             $this->milvus->collections()->create(
-                collectionName: $collectionName,
+                collectionName: $this->collectionName,
                 dimension: $dimension,
-                metricType: "COSINE", // Good for semantic similarity
-                primaryField: "product_id", // This will be our product's own ID
-                vectorField: $vectorFieldName,
-                autoId: false // We will provide the product_id
+                metricType: "COSINE",
+                primaryField: "product_id", // Using product's own ID
+                vectorField: "vector",    // Standard vector field name
+                autoId: false             // We will provide the product_id
             );
-            // We might need to create an index explicitly after creation for performance.
-            // $this->milvus->indexes()->create($collectionName, $vectorFieldName, 'IVF_FLAT', 'L2', ['nlist' => 128]);
-            // For now, focusing on creation. Indexing is an optimization/requirement for search.
 
-            $this->logger->info('Successfully created Milvus collection', ['collection_name' => $collectionName]);
+            $this->logger->info('Successfully created Milvus collection', [
+                'collection_name' => $this->collectionName
+            ]);
             return true;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to create Milvus collection', [
-                'collection_name' => $collectionName,
+                'collection_name' => $this->collectionName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -195,98 +147,63 @@ class MilvusVectorStoreService implements VectorStoreInterface
      */
     public function insertProducts(array $products): bool
     {
-        $this->logger->info('Inserting products into Milvus text and image collections', [
-            'text_collection' => $this->textCollectionName,
-            'image_collection' => $this->imageCollectionName,
+        $this->logger->info('Inserting products into Milvus collection', [
+            'collection_name' => $this->collectionName,
             'product_count' => count($products)
         ]);
 
-        $insertedTextCount = 0;
-        $insertedImageCount = 0;
-        $skippedTextCount = 0;
-        $skippedImageCount = 0;
-        $totalProcessed = 0;
+        $insertedCount = 0;
+        $skippedCount = 0;
 
         try {
             foreach ($products as $product) {
-                $totalProcessed++;
                 $productId = $product->getId();
                 $productName = $product->getName() ?: 'unknown';
+                $embeddings = $product->getEmbeddings(); // Only text embeddings now
 
                 if (!$productId) {
                     $this->logger->warning('Skipping product due to missing product ID.', ['product_name' => $productName]);
-                    $skippedTextCount++;
-                    $skippedImageCount++;
+                    $skippedCount++;
                     continue;
                 }
 
-                // Insert text embeddings
-                $textEmbeddings = $product->getEmbeddings();
-                if (!empty($textEmbeddings)) {
-                    $this->logger->debug('Inserting text embedding into Milvus', [
+                if (empty($embeddings)) {
+                    $this->logger->warning('Skipping product due to missing text embeddings', [
                         'product_id' => $productId,
-                        'product_name' => $productName,
-                        'collection_name' => $this->textCollectionName,
-                        'embedding_size' => count($textEmbeddings)
+                        'product_name' => $productName
                     ]);
-                    $this->milvus->vector()->insert(
-                        collectionName: $this->textCollectionName,
-                        data: [
-                            'product_id' => $productId, // Ensure this matches primaryField
-                            'title' => $productName, // Store title for potential retrieval
-                            'text_vector' => $textEmbeddings,
-                        ]
-                        // dbName parameter might not be needed if using default DB or if client is configured
-                    );
-                    $insertedTextCount++;
-                } else {
-                    $this->logger->warning('Skipping text embedding for product due to missing embeddings', [
-                        'product_id' => $productId, 'product_name' => $productName
-                    ]);
-                    $skippedTextCount++;
+                    $skippedCount++;
+                    continue;
                 }
 
-                // Insert image embeddings
-                $imageEmbeddings = $product->getImageEmbeddings();
-                if (!empty($imageEmbeddings)) {
-                    $this->logger->debug('Inserting image embedding into Milvus', [
+                $this->logger->debug('Inserting product text embedding into Milvus', [
+                    'product_id' => $productId,
+                    'product_name' => $productName,
+                    'collection_name' => $this->collectionName,
+                    'embedding_size' => count($embeddings)
+                ]);
+
+                $this->milvus->vector()->insert(
+                    collectionName: $this->collectionName,
+                    data: [
                         'product_id' => $productId,
-                        'product_name' => $productName,
-                        'collection_name' => $this->imageCollectionName,
-                        'embedding_size' => count($imageEmbeddings)
-                    ]);
-                    $this->milvus->vector()->insert(
-                        collectionName: $this->imageCollectionName,
-                        data: [
-                            'product_id' => $productId, // Ensure this matches primaryField
-                            'title' => $productName, // Store title for potential retrieval
-                            'image_vector' => $imageEmbeddings,
-                        ]
-                    );
-                    $insertedImageCount++;
-                } else {
-                    // This is not necessarily a warning if a product simply has no image
-                    $this->logger->info('No image embedding to insert for product', [
-                        'product_id' => $productId, 'product_name' => $productName
-                    ]);
-                    $skippedImageCount++;
-                }
+                        'title' => $productName,
+                        'vector' => $embeddings, // Vector field named 'vector'
+                    ]
+                );
+                $insertedCount++;
             }
 
-            $this->logger->info('Finished inserting products into Milvus collections', [
-                'processed_products' => $totalProcessed,
-                'text_collection' => $this->textCollectionName,
-                'inserted_text_count' => $insertedTextCount,
-                'skipped_text_count' => $skippedTextCount,
-                'image_collection' => $this->imageCollectionName,
-                'inserted_image_count' => $insertedImageCount,
-                'skipped_image_count' => $skippedImageCount,
+            $this->logger->info('Finished inserting products into Milvus collection', [
+                'collection_name' => $this->collectionName,
+                'inserted_count' => $insertedCount,
+                'skipped_count' => $skippedCount,
             ]);
 
-            return true; // Consider success if no exceptions, even if some were skipped.
+            return true;
         } catch (\Throwable $e) {
-            $this->logger->error('Failed during product insertion into Milvus collections', [
-                'base_collection_name' => $this->collectionNameBase,
+            $this->logger->error('Failed during product insertion into Milvus collection', [
+                'collection_name' => $this->collectionName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'inserted_before_error' => $insertedCount
