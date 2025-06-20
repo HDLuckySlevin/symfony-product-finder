@@ -120,7 +120,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
      */
     public function createCollection(int $dimension): bool
     {
-        $this->logger->warning রবিLEGACY METHOD CALLED: createCollection(int $dimension). Prefer initializeCollection() for robust setup. Attempting to create/check text collection '{$this->textCollectionName}' with dimension {$dimension}. The configured text dimension is {$this->textDimension}. Consider if this call is appropriate.);
+        $this->logger->warning("LEGACY METHOD CALLED: createCollection(int \$dimension). Prefer initializeCollection() for robust setup. Attempting to create/check text collection '{$this->textCollectionName}' with dimension {$dimension}. The configured text dimension is {$this->textDimension}. Consider if this call is appropriate.");
         // We use the provided dimension for this legacy call, even if it differs from configured textDimension.
         return $this->createCollectionIfNotExists($this->textCollectionName, $dimension, 'text_vector');
     }
