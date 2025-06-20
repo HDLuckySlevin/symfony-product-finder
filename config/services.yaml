@@ -42,7 +42,7 @@ services:
         arguments:
             $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
             $logger: '@Psr\Log\LoggerInterface'
-            $mimeTypeGuesser: '@Symfony\Component\Mime\MimeTypes' # Use FQCN for the service
+            $mimeTypeGuesser: '@mime_types_default' # Try another common alias for MimeTypes
             $embedHost: '%env(APP_EMBED_HOST)%' # Assuming http://localhost or similar
             $embedPort: '%env(EMBED_PORT)%'
 
