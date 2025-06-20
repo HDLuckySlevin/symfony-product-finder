@@ -63,24 +63,13 @@ class ImportProductsCommand extends Command
                 $textEmbeddings = $this->embeddingGenerator->generateEmbedding($product);
                 $product->setEmbeddings($textEmbeddings);
 
-                // Generate image embeddings if an image URL is available
-                if ($product->getImageUrl()) {
-                    try {
-                        $imageEmbeddings = $this->embeddingGenerator->generateImageEmbedding($product->getImageUrl());
-                        $product->setImageEmbeddings($imageEmbeddings);
-                        // $io->comment("Generated image embedding for product ID: " . $product->getId());
-                    } catch (\Exception $e) {
-                        $io->warning(sprintf('Could not generate image embedding for product ID %s (URL: %s): %s', $product->getId(), $product->getImageUrl(), $e->getMessage()));
-                    }
-                }
-
                 $productsWithEmbeddings[] = $product;
                 $progressBar->advance();
             }
 
             $progressBar->finish();
             $io->newLine(2);
-            $io->success(sprintf('Generated text and image (where available) embeddings for %d products', count($productsWithEmbeddings)));
+            $io->success(sprintf('Generated text embeddings for %d products', count($productsWithEmbeddings)));
 
             // Initialize Milvus collection
             $io->section('Initializing Milvus collection');

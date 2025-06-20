@@ -103,7 +103,7 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
         $this->logger->debug('Sending text embedding request to ' . $url, ['text_count' => count($texts)]);
 
         try {
-            $response = $this->httpClient->request('GET', $url, [ // As per problem: /text-embedding (GET)
+            $response = $this->httpClient->request('POST', $url, [ // Changed to POST
                 'json' => ['texts' => $texts],
             ]);
 
@@ -132,93 +132,7 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             throw new \RuntimeException('Error generating text embeddings: ' . $e->getMessage(), 0, $e);
         }
     }
-
-    public function generateImageEmbedding(string $imageUrl): array
-    {
-        $this->logger->info('Generating image embedding for URL: ' . $imageUrl);
-        $url = $this->getServiceUrl() . '/image-embedding';
-
-        try {
-            // Download the image content
-            $imageResponse = $this->httpClient->request('GET', $imageUrl);
-            if ($imageResponse->getStatusCode() !== 200) {
-                $this->logger->error('Failed to download image for embedding.', [
-                    'image_url' => $imageUrl,
-                    'status_code' => $imageResponse->getStatusCode(),
-                ]);
-                throw new \RuntimeException('Failed to download image from URL: ' . $imageUrl);
-            }
-            $imageContent = $imageResponse->getContent();
-
-            // Guess mime type and create a temporary file with correct extension
-            // This is important for the multipart/form-data request
-            $tmpFile = tempnam(sys_get_temp_dir(), 'embed_img_');
-            if ($tmpFile === false) {
-                throw new \RuntimeException('Could not create temporary file for image embedding.');
-            }
-
-            // It's better to get the original filename or at least a hint of the extension from the URL if possible
-            // For now, we'll try to guess from content, but this might not be reliable for all python http servers
-            $pathInfo = pathinfo($imageUrl);
-            $originalFilename = $pathInfo['basename'] ?? 'image.tmp';
-            $extension = $pathInfo['extension'] ?? null;
-
-            if (!$extension) {
-                // Fallback to mime type guessing if no extension in URL
-                $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                $mimeType = $finfo->buffer($imageContent); // Get MIME type from content
-                if ($mimeType) {
-                    $mimeTypes = new MimeTypes(); // Instantiate directly
-                    $possibleExtensions = $mimeTypes->getExtensions($mimeType);
-                    $extension = $possibleExtensions[0] ?? null; // Get the first preferred extension
-                }
-            }
-
-            $finalTmpFile = $tmpFile . ($extension ? '.' . $extension : '');
-            rename($tmpFile, $finalTmpFile); // Add extension to temp file
-            file_put_contents($finalTmpFile, $imageContent);
-
-            $formFields = [
-                'file' => \Symfony\Component\Mime\Part\DataPart::fromPath($finalTmpFile, $originalFilename),
-            ];
-            $formData = new \Symfony\Component\Mime\Part\Multipart\FormDataPart($formFields);
-
-            $response = $this->httpClient->request('POST', $url, [
-                'headers' => $formData->getPreparedHeaders()->toArray(),
-                'body' => $formData->bodyToIterable(),
-            ]);
-
-            if ($response->getStatusCode() !== 200) {
-                $this->logger->error('Failed to generate image embedding from Python service.', [
-                    'status_code' => $response->getStatusCode(),
-                    'response' => $response->getContent(false),
-                ]);
-                throw new \RuntimeException('Failed to generate image embedding. Status: ' . $response->getStatusCode());
-            }
-
-            $data = $response->toArray();
-            if (!isset($data['vector']) || !is_array($data['vector'])) {
-                $this->logger->error('Invalid response format from Python image embedding service.', ['response' => $data]);
-                throw new \RuntimeException('Invalid response format from Python image embedding service.');
-            }
-
-            $this->logger->info('Successfully generated image embedding.', ['vector_size' => count($data['vector'])]);
-            return $data['vector'];
-
-        } catch (\Throwable $e) {
-            $this->logger->error('Error generating image embedding: ' . $e->getMessage(), [
-                'exception' => $e,
-                'image_url' => $imageUrl,
-            ]);
-            throw new \RuntimeException('Error generating image embedding: ' . $e->getMessage(), 0, $e);
-        } finally {
-            if (isset($finalTmpFile) && file_exists($finalTmpFile)) {
-                unlink($finalTmpFile);
-            } elseif (isset($tmpFile) && file_exists($tmpFile)) { // In case rename failed
-                unlink($tmpFile);
-            }
-        }
-    }
+    // Removed generateImageEmbedding method
 
     private function getProductTextForEmbedding(Product $product): string
     {

@@ -32,10 +32,9 @@ services:
     App\Service\MilvusVectorStoreService:
         arguments:
             $milvus: '@Milvus\Client'
-            $logger: '@Psr\Log\LoggerInterface' # Already autowired but good to be explicit
-            $collectionNameBase: '%env(MILVUS_COLLECTION)%' # e.g., "products"
-            $textDimension: 768 # Placeholder: Should be configurable, e.g., via env var
-            $imageDimension: 512 # Placeholder: Should be configurable, e.g., via env var
+            $logger: '@Psr\Log\LoggerInterface'
+            $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
+            $dimension: 768 # Placeholder: Should be configurable, e.g., via env var. Represents text embedding dimension.
 
     # New Python Embedding Service
     App\Service\PythonEmbeddingGenerator:

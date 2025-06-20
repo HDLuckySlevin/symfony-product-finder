@@ -83,13 +83,6 @@ class Product
     private ?array $embeddings = null;
 
     /**
-     * Vector embeddings for the product image
-     *
-     * @var array<int, float>|null
-     */
-    private ?array $imageEmbeddings = null;
-
-    /**
      * Get the product ID
      * 
      * @return int|null The product ID or null if not set
@@ -347,25 +340,5 @@ class Product
     public function setEmbeddings(?array $embeddings): void
     {
         $this->embeddings = $embeddings;
-    }
-
-    /**
-     * Get the product image embeddings vector
-     *
-     * @return array<int, float>|null The product image embeddings or null if not set
-     */
-    public function getImageEmbeddings(): ?array
-    {
-        return $this->imageEmbeddings;
-    }
-
-    /**
-     * Set the product image embeddings vector
-     *
-     * @param array<int, float>|null $imageEmbeddings The product image embeddings
-     */
-    public function setImageEmbeddings(?array $imageEmbeddings): void
-    {
-        $this->imageEmbeddings = $imageEmbeddings;
     }
 }
