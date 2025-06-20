@@ -224,8 +224,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
      */
     public function searchSimilarProducts(array $queryEmbedding, int $limit = 5): array
     {
-        $this->logger->info('Searching for similar products in Milvus text collection', [
-            'text_collection' => $this->textCollectionName,
+        $this->logger->info('Searching for similar products in Milvus collection', [
+            'collection_name' => $this->collectionName, // Corrected log key
             'embedding_size' => count($queryEmbedding),
             'limit' => $limit
         ]);
@@ -237,31 +237,31 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
         try {
             $result = $this->milvus->vector()->search(
-                collectionName: $this->textCollectionName,
+                collectionName: $this->collectionName, // Corrected collection name
                 vector: $queryEmbedding,
-                annsField: 'text_vector', // Specify the vector field to search (Milvus term)
+                // annsField: 'text_vector', // Removed: Unknown named parameter
                 limit: $limit,
-                outputFields: ["product_id", "title"] // Ensure these fields exist in the collection
+                outputFields: ["product_id", "title"]
             );
 
             $data = $result->json()['data'] ?? [];
             $resultCount = count($data);
 
-            $this->logger->info('Successfully retrieved similar products from Milvus text collection', [
-                'text_collection' => $this->textCollectionName,
+            $this->logger->info('Successfully retrieved similar products from Milvus collection', [
+                'collection_name' => $this->collectionName, // Corrected log key
                 'result_count' => $resultCount
             ]);
 
             if ($resultCount === 0) {
-                $this->logger->warning('No similar products found in Milvus text collection', [
-                    'text_collection' => $this->textCollectionName
+                $this->logger->warning('No similar products found in Milvus collection', [
+                    'collection_name' => $this->collectionName // Corrected log key
                 ]);
             }
 
             return $data;
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to search for similar products in Milvus text collection', [
-                'text_collection' => $this->textCollectionName,
+            $this->logger->error('Failed to search for similar products in Milvus collection', [
+                'collection_name' => $this->collectionName, // Corrected log key
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
