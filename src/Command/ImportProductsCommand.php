@@ -78,7 +78,8 @@ class ImportProductsCommand extends Command
             if ($result) {
                 $io->success('Successfully initialized Milvus collection');
             } else {
-                $io->warning('Failed to initialize Milvus collection. Using mock mode.');
+                $io->error('Failed to initialize Milvus collection. Halting import.');
+                return Command::FAILURE;
             }
 
             // Insert products into Milvus
