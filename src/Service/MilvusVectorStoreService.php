@@ -108,7 +108,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
             'collection_name' => $this->collectionName,
             'dimension' => $dimension,
             'metric_type' => 'COSINE',
-            'primary_field' => 'product_id',
+            'primary_field' => 'id',
             'vector_field' => 'vector' // Default vector field name
         ]);
 
@@ -117,9 +117,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
                 collectionName: $this->collectionName,
                 dimension: $dimension,
                 metricType: "COSINE",
-                primaryField: "product_id", // Using product's own ID
+                primaryField: "id", // Using product's own ID
                 vectorField: "vector"    // Standard vector field name
-                // autoId parameter removed
             );
 
             $this->logger->info('Successfully created Milvus collection', [
@@ -157,6 +156,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
         try {
             foreach ($products as $product) {
+
                 $productId = $product->getId();
                 $productName = $product->getName() ?: 'unknown';
                 $embeddings = $product->getEmbeddings(); // Only text embeddings now
@@ -170,25 +170,18 @@ class MilvusVectorStoreService implements VectorStoreInterface
                 if (empty($embeddings)) {
                     $this->logger->warning('Skipping product due to missing text embeddings', [
                         'product_id' => $productId,
-                        'product_name' => $productName
+                        'product_name' => $productName,
+                        'embedding_size' => count($product->getEmbeddings())
                     ]);
                     $skippedCount++;
                     continue;
                 }
-
-                $this->logger->debug('Inserting product text embedding into Milvus', [
-                    'product_id' => $productId,
-                    'product_name' => $productName,
-                    'collection_name' => $this->collectionName,
-                    'embedding_size' => count($embeddings)
-                ]);
-
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
-                        'product_id' => $productId,
-                        'title' => $productName,
-                        'vector' => $embeddings, // Vector field named 'vector'
+                        'title' => $product->getName(),
+                        'vector' => $product->getEmbeddings(),
+                        'type' => 'product',
                     ]
                 );
                 $insertedCount++;
@@ -227,7 +220,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
         $this->logger->info('Searching for similar products in Milvus collection', [
             'collection_name' => $this->collectionName, // Corrected log key
             'embedding_size' => count($queryEmbedding),
-            'limit' => $limit
+            'limit' => $limit,
+            'embed' =>$queryEmbedding
         ]);
 
         if (empty($queryEmbedding)) {
@@ -239,9 +233,9 @@ class MilvusVectorStoreService implements VectorStoreInterface
             $result = $this->milvus->vector()->search(
                 collectionName: $this->collectionName, // Corrected collection name
                 vector: $queryEmbedding,
-                // annsField: 'text_vector', // Removed: Unknown named parameter
                 limit: $limit,
-                outputFields: ["product_id", "title"]
+                outputFields: ["id", "title"],
+                dbName: $this->collectionName
             );
 
             $data = $result->json()['data'] ?? [];
@@ -254,7 +248,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
             if ($resultCount === 0) {
                 $this->logger->warning('No similar products found in Milvus collection', [
-                    'collection_name' => $this->collectionName // Corrected log key
+                    'collection_name' => $this->collectionName, // Corrected log key
+                    'infos' => $data
                 ]);
             }
 
