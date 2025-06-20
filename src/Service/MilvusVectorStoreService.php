@@ -118,8 +118,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
                 dimension: $dimension,
                 metricType: "COSINE",
                 primaryField: "product_id", // Using product's own ID
-                vectorField: "vector",    // Standard vector field name
-                autoId: false             // We will provide the product_id
+                vectorField: "vector"    // Standard vector field name
+                // autoId parameter removed
             );
 
             $this->logger->info('Successfully created Milvus collection', [
