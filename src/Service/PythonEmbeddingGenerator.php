@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\Product;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface;
+use Symfony\Component\Mime\MimeTypes; // Import MimeTypes
 
 class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
 {
@@ -13,18 +13,18 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
     private LoggerInterface $logger;
     private string $embedHost;
     private string $embedPort;
-    private MimeTypeGuesserInterface $mimeTypeGuesser;
+    // private MimeTypeGuesserInterface $mimeTypeGuesser; // Removed
 
     public function __construct(
         HttpClientInterface $httpClient,
         LoggerInterface $logger,
-        MimeTypeGuesserInterface $mimeTypeGuesser,
+        // MimeTypeGuesserInterface $mimeTypeGuesser, // Removed
         string $embedHost,
         string $embedPort
     ) {
         $this->httpClient = $httpClient;
         $this->logger = $logger;
-        $this->mimeTypeGuesser = $mimeTypeGuesser;
+        // $this->mimeTypeGuesser = $mimeTypeGuesser; // Removed
         $this->embedHost = $embedHost; // e.g. 'http://localhost'
         $this->embedPort = $embedPort; // e.g. '5000'
 
@@ -164,11 +164,13 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             $extension = $pathInfo['extension'] ?? null;
 
             if (!$extension) {
-                 // Fallback to mime type guessing if no extension in URL
+                // Fallback to mime type guessing if no extension in URL
                 $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                $mimeType = $finfo->buffer($imageContent);
+                $mimeType = $finfo->buffer($imageContent); // Get MIME type from content
                 if ($mimeType) {
-                    $extension = $this->mimeTypeToExtension($mimeType);
+                    $mimeTypes = new MimeTypes(); // Instantiate directly
+                    $possibleExtensions = $mimeTypes->getExtensions($mimeType);
+                    $extension = $possibleExtensions[0] ?? null; // Get the first preferred extension
                 }
             }
 
@@ -244,18 +246,5 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             $chunk .= ' Features: ' . trim($features);
         }
         return $chunk;
-    }
-
-    // Helper to map common mime types to extensions
-    private function mimeTypeToExtension(string $mimeType): ?string
-    {
-        $map = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            'image/webp' => 'webp',
-            // Add more as needed
-        ];
-        return $map[$mimeType] ?? null;
     }
 }
