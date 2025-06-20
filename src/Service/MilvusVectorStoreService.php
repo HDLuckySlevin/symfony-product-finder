@@ -322,10 +322,9 @@ class MilvusVectorStoreService implements VectorStoreInterface
             $result = $this->milvus->vector()->search(
                 collectionName: $this->textCollectionName,
                 vector: $queryEmbedding,
-                vectorField: 'text_vector', // Specify which vector field to search
+                annsField: 'text_vector', // Specify the vector field to search (Milvus term)
                 limit: $limit,
                 outputFields: ["product_id", "title"] // Ensure these fields exist in the collection
-                // dbName: $this->textCollectionName, // Might not be needed
             );
 
             $data = $result->json()['data'] ?? [];
