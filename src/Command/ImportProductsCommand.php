@@ -59,17 +59,17 @@ class ImportProductsCommand extends Command
             $progressBar->start();
 
             foreach ($products as $product) {
-                // Generate embeddings for each field, specification, and feature of the product
-                $embeddings = $this->embeddingGenerator->generateEmbedding($product);
-                $product->setEmbeddings($embeddings);
-                $productsWithEmbeddings[] = $product;
+                // Generate text embeddings for the product
+                $textEmbeddings = $this->embeddingGenerator->generateEmbedding($product);
+                $product->setEmbeddings($textEmbeddings);
 
+                $productsWithEmbeddings[] = $product;
                 $progressBar->advance();
             }
 
             $progressBar->finish();
             $io->newLine(2);
-            $io->success(sprintf('Generated embeddings for %d products (separate embeddings for each field, specification, and feature)', count($productsWithEmbeddings)));
+            $io->success(sprintf('Generated text embeddings for %d products', count($productsWithEmbeddings)));
 
             // Initialize Milvus collection
             $io->section('Initializing Milvus collection');
@@ -78,7 +78,8 @@ class ImportProductsCommand extends Command
             if ($result) {
                 $io->success('Successfully initialized Milvus collection');
             } else {
-                $io->warning('Failed to initialize Milvus collection. Using mock mode.');
+                $io->error('Failed to initialize Milvus collection. Halting import.');
+                return Command::FAILURE;
             }
 
             // Insert products into Milvus
