@@ -34,7 +34,7 @@ interface VectorStoreInterface
      * @param array<int, Product> $products Array of Product objects to insert
      * @return bool True if all insertions were successful, false if any failed
      */
-    public function insertProducts(array $products): bool;
+    public function insertEmbeddings(array $embeddingDataList): bool;
     
     /**
      * Search for products similar to the provided query embedding

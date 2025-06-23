@@ -80,8 +80,6 @@ class Product
      * 
      * @var array<int, float>|null
      */
-    private ?array $embeddings = null;
-
     /**
      * Get the product ID
      * 
@@ -320,25 +318,5 @@ class Product
     public function setStock(?int $stock): void
     {
         $this->stock = $stock;
-    }
-
-    /**
-     * Get the product embeddings vector
-     * 
-     * @return array<int, float>|null The product embeddings or null if not set
-     */
-    public function getEmbeddings(): ?array
-    {
-        return $this->embeddings;
-    }
-
-    /**
-     * Set the product embeddings vector
-     * 
-     * @param array<int, float>|null $embeddings The product embeddings
-     */
-    public function setEmbeddings(?array $embeddings): void
-    {
-        $this->embeddings = $embeddings;
     }
 }

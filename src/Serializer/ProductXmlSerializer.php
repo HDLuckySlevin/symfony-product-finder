@@ -116,6 +116,94 @@ class ProductXmlSerializer
     }
 
     /**
+     * Extracts all meaningful text chunks and image URLs from a product node.
+     *
+     * @param \SimpleXMLElement $productNode The XML node containing product data.
+     * @param string $productId The product ID, to be associated with each chunk.
+     * @param string $productName The product name, to be associated with each chunk.
+     * @return array<int, array<string, mixed>> A list of chunks. Each chunk is an array with
+     *                                          'product_id', 'product_name', 'type', and 'content'.
+     */
+    public function extractTextAndImageChunks(\SimpleXMLElement $productNode, string $productId, string $productName): array
+    {
+        $chunks = [];
+        $processedTexts = []; // To avoid duplicate text entries for the same type
+
+        // Helper to add chunk if content is not empty
+        $addChunk = function ($type, $content, $originalField = null) use (&$chunks, $productId, $productName, &$processedTexts) {
+            $trimmedContent = trim((string)$content);
+            if (!empty($trimmedContent)) {
+                // For generic fields, avoid adding the same text multiple times if it appears in different simple tags
+                // For specific types like 'specification' or 'feature', allow multiple entries as they are distinct items.
+                $isGenericType = !in_array($type, ['specification', 'feature', 'image_url']);
+                $textKey = $isGenericType ? $type . '_' . $trimmedContent : uniqid($type . '_', true);
+
+                if (!isset($processedTexts[$textKey])) {
+                    $chunks[] = [
+                        'product_id' => $productId,
+                        'product_name' => $productName,
+                        'type' => $type,
+                        'content' => $trimmedContent,
+                        'original_field' => $originalField ?? $type,
+                    ];
+                    $processedTexts[$textKey] = true;
+                }
+            }
+        };
+
+        // Process simple top-level elements defined in PROPERTY_MAPPING
+        foreach (self::PROPERTY_MAPPING as $xmlNode => $mapping) {
+            if (isset($productNode->$xmlNode)) {
+                $content = (string)$productNode->$xmlNode;
+                if ($xmlNode === 'image_url') {
+                    if (filter_var($content, FILTER_VALIDATE_URL)) {
+                        $addChunk('image_url', $content, $xmlNode);
+                    }
+                } elseif ($mapping['type'] !== 'skip') { // Add a way to skip certain mapped properties if needed
+                    $addChunk($xmlNode, $content, $xmlNode);
+                }
+            }
+        }
+
+        // Process specifications
+        if (isset($productNode->specifications) && isset($productNode->specifications->specification)) {
+            foreach ($productNode->specifications->specification as $spec) {
+                $name = (string)$spec->attributes()->name;
+                $value = (string)$spec;
+                if (!empty(trim($name)) && !empty(trim($value))) {
+                    $addChunk('specification', $name . ': ' . $value, 'specification_' . $name);
+                }
+            }
+        }
+
+        // Process features
+        if (isset($productNode->features) && isset($productNode->features->feature)) {
+            foreach ($productNode->features->feature as $feature) {
+                $addChunk('feature', (string)$feature, 'feature');
+            }
+        }
+
+        // Process any other direct child elements not in PROPERTY_MAPPING as 'generic'
+        // This makes the parser more dynamic to schema variations
+        foreach ($productNode->children() as $childNode) {
+            $childName = $childNode->getName();
+            if (!isset(self::PROPERTY_MAPPING[$childName]) && $childName !== 'specifications' && $childName !== 'features') {
+                // If the child has its own children, it might be a structured element we don't want as a single text blob.
+                // For now, we only take direct text content of such generic nodes.
+                // More complex recursive parsing could be added here if needed.
+                if ($childNode->count() == 0) { // Only take text if it's a leaf node
+                    $addChunk('generic', (string)$childNode, $childName);
+                } elseif (in_array($childName, ['image', 'imageUrl', 'img_url'])) { // common alternative image tags
+                     if (filter_var((string)$childNode, FILTER_VALIDATE_URL)) {
+                        $addChunk('image_url', (string)$childNode, $childName);
+                    }
+                }
+            }
+        }
+        return $chunks;
+    }
+
+    /**
      * Extract specifications from product node
      * 
      * Parses the specifications section of the XML product node and converts it

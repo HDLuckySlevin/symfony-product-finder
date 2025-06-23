@@ -2,17 +2,26 @@
 
 namespace App\Service;
 
-use App\Entity\Product;
+// Product entity is no longer directly used for generating embeddings here
+// use App\Entity\Product;
 
 interface EmbeddingGeneratorInterface
 {
     /**
-     * Generates an embedding vector for the given product.
+     * Generates an embedding vector for the given text.
      *
-     * @param Product $product The product entity to generate an embedding for.
-     * @return array<int, float> Embedding vector representing the product.
+     * @param string $text The text to generate an embedding for.
+     * @return array<int, float> Embedding vector representing the text.
      */
-    public function generateEmbedding(Product $product): array;
+    public function generateTextEmbedding(string $text): array;
+
+    /**
+     * Generates an embedding vector for the given image URL.
+     *
+     * @param string $imageUrl The URL of the image to generate an embedding for.
+     * @return array<int, float> Embedding vector representing the image.
+     */
+    public function generateImageEmbedding(string $imageUrl): array;
 
     /**
      * Generates an embedding vector for the given search query.
