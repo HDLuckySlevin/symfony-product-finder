@@ -11,13 +11,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use App\Serializer\ProductXmlSerializer; // Moved for correct syntax
 
 #[AsCommand(
     name: 'app:import-products',
     description: 'Import products from XML file, generate embeddings and sync with Milvus',
 )]
-use App\Serializer\ProductXmlSerializer; // Added for injection
-
 class ImportProductsCommand extends Command
 {
     private XmlImportService $xmlImportService;
