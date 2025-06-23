@@ -7,12 +7,17 @@ use App\Entity\Product;
 interface EmbeddingGeneratorInterface
 {
     /**
-     * Generates an embedding vector for the given product.
+     * Generate embeddings for the different parts of a product.
      *
-     * @param Product $product The product entity to generate an embedding for.
-     * @return array<int, float> Embedding vector representing the product.
+     * Each returned item must contain the embedding vector and the type of the
+     * processed chunk (e.g. "specification", "feature", "description", or
+     * "generic").
+     *
+     * @param Product $product The product entity to generate embeddings for.
+     * @return array<int, array{vector: array<int, float>, type: string}> List of
+     *         embeddings with their type.
      */
-    public function generateEmbedding(Product $product): array;
+    public function generateProductEmbeddings(Product $product): array;
 
     /**
      * Generates an embedding vector for the given search query.
