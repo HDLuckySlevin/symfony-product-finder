@@ -52,25 +52,6 @@ class ImportProductsCommand extends Command
             $products = $this->xmlImportService->importFromFile($xmlFile);
             $io->success(sprintf('Successfully imported %d products from XML', count($products)));
 
-            // Generate embeddings
-            $io->section('Generating embeddings');
-            $productsWithEmbeddings = [];
-            $progressBar = $io->createProgressBar(count($products));
-            $progressBar->start();
-
-            foreach ($products as $product) {
-                // Generate text embeddings for the product
-                $textEmbeddings = $this->embeddingGenerator->generateEmbedding($product);
-                $product->setEmbeddings($textEmbeddings);
-
-                $productsWithEmbeddings[] = $product;
-                $progressBar->advance();
-            }
-
-            $progressBar->finish();
-            $io->newLine(2);
-            $io->success(sprintf('Generated text embeddings for %d products', count($productsWithEmbeddings)));
-
             // Initialize Milvus collection
             $io->section('Initializing Milvus collection');
             $result = $this->vectorStoreService->initializeCollection();
@@ -82,20 +63,19 @@ class ImportProductsCommand extends Command
                 return Command::FAILURE;
             }
 
-            // Insert products into Milvus
-            $io->section('Inserting products into Milvus');
-            $result = $this->vectorStoreService->insertProducts($productsWithEmbeddings);
+            // Generate embeddings and insert chunks
+            $io->section('Generating embeddings and inserting into Milvus');
+            $progressBar = $io->createProgressBar(count($products));
+            $progressBar->start();
 
-            if ($result) {
-                $io->success('Successfully inserted products into Milvus');
-            } else {
-                $io->warning('Failed to insert products into Milvus. Using mock mode.');
+            foreach ($products as $product) {
+                $chunks = $this->embeddingGenerator->generateProductEmbeddings($product);
+                $this->vectorStoreService->insertProductChunks($product, $chunks);
+                $progressBar->advance();
             }
 
-            // Each field, specification, and feature of the product is now embedded separately
-            // and stored in the vector database with the product title set as a dynamic field
-
-
+            $progressBar->finish();
+            $io->newLine(2);
             $io->success('Import process completed successfully');
             return Command::SUCCESS;
         } catch (\Exception $e) {

@@ -30,11 +30,21 @@ interface VectorStoreInterface
     
     /**
      * Insert multiple products into the vector database
-     * 
+     *
      * @param array<int, Product> $products Array of Product objects to insert
      * @return bool True if all insertions were successful, false if any failed
      */
     public function insertProducts(array $products): bool;
+
+    /**
+     * Insert all chunk embeddings of a single product.
+     *
+     * @param Product $product The product being processed
+     * @param array<int, array{vector: array<int, float>, type: string}> $chunks
+     *        Embedding data for the product
+     * @return bool True on success, false on failure
+     */
+    public function insertProductChunks(Product $product, array $chunks): bool;
     
     /**
      * Search for products similar to the provided query embedding
