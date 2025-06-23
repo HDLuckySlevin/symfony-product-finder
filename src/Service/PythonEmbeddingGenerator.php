@@ -5,7 +5,9 @@ namespace App\Service;
 use App\Entity\Product;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\Mime\MimeTypes; // Import MimeTypes
+use Symfony\Component\Mime\MimeTypes;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
 {
@@ -186,44 +188,82 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
 
     /**
      * Generates embeddings for a list of image URLs using the Python service.
+     * Each image is downloaded and sent as multipart/form-data.
      *
      * @param array<string> $urls
      * @return array<int, array<float>>
      */
     private function generateImageEmbeddings(array $urls): array
     {
-        $url = $this->getServiceUrl() . '/image-embedding';
-        $this->logger->debug('Sending image embedding request to ' . $url, ['url_count' => count($urls)]);
+        $endpoint = $this->getServiceUrl() . '/image-embedding';
+        $vectors = [];
 
-        try {
-            $response = $this->httpClient->request('POST', $url, [
-                'json' => ['urls' => $urls],
-            ]);
+        foreach ($urls as $imageUrl) {
+            if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+                $this->logger->warning('Skipping invalid image URL for embedding', ['url' => $imageUrl]);
+                continue;
+            }
 
-            if ($response->getStatusCode() !== 200) {
-                $this->logger->error('Failed to generate image embeddings from Python service.', [
-                    'status_code' => $response->getStatusCode(),
-                    'response' => $response->getContent(false),
+            try {
+                $download = $this->httpClient->request('GET', $imageUrl);
+                if ($download->getStatusCode() !== 200) {
+                    $this->logger->error('Failed to download image for embedding', [
+                        'url' => $imageUrl,
+                        'status_code' => $download->getStatusCode(),
+                    ]);
+                    continue;
+                }
+
+                $imageData = $download->getContent();
+                $contentType = $download->getHeaders(false)['content-type'][0] ?? null;
+
+                if (!$contentType) {
+                    $extension = pathinfo(parse_url($imageUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION);
+                    $mimeTypes = new MimeTypes();
+                    $contentType = $mimeTypes->getMimeTypes($extension)[0] ?? 'application/octet-stream';
+                }
+
+                $filename = basename(parse_url($imageUrl, PHP_URL_PATH) ?: 'image');
+                if ($filename === '') {
+                    $filename = 'image';
+                }
+
+                $dataPart = new DataPart($imageData, $filename, $contentType);
+                $formData = new FormDataPart(['file' => $dataPart]);
+
+                $response = $this->httpClient->request('POST', $endpoint, [
+                    'headers' => $formData->getPreparedHeaders()->toArray(),
+                    'body' => $formData->bodyToIterable(),
                 ]);
-                throw new \RuntimeException('Failed to generate image embeddings. Status: ' . $response->getStatusCode());
+
+                if ($response->getStatusCode() !== 200) {
+                    $this->logger->error('Failed to generate image embedding from Python service.', [
+                        'status_code' => $response->getStatusCode(),
+                        'response' => $response->getContent(false),
+                    ]);
+                    continue;
+                }
+
+                $data = $response->toArray(false);
+                if (!isset($data['vector']) || !is_array($data['vector'])) {
+                    $this->logger->error('Invalid response format from Python image embedding service.', [
+                        'response' => $data,
+                    ]);
+                    continue;
+                }
+
+                $vectors[] = $data['vector'];
+
+            } catch (\Throwable $e) {
+                $this->logger->error('Error generating image embedding', [
+                    'exception' => $e,
+                    'url' => $imageUrl,
+                ]);
             }
-
-            $data = $response->toArray();
-            if (!isset($data['vectors']) || !is_array($data['vectors'])) {
-                $this->logger->error('Invalid response format from Python image embedding service.', ['response' => $data]);
-                throw new \RuntimeException('Invalid response format from Python image embedding service.');
-            }
-
-            $this->logger->info('Successfully generated image embeddings.', ['vector_count' => count($data['vectors'])]);
-            return $data['vectors'];
-
-        } catch (\Throwable $e) {
-            $this->logger->error('Error generating image embeddings: ' . $e->getMessage(), [
-                'exception' => $e,
-                'urls' => $urls,
-            ]);
-            throw new \RuntimeException('Error generating image embeddings: ' . $e->getMessage(), 0, $e);
         }
+
+        $this->logger->info('Successfully generated image embeddings.', ['vector_count' => count($vectors)]);
+        return $vectors;
     }
 
     // Removed generateImageEmbedding method
