@@ -5,9 +5,6 @@ namespace App\Service;
 use App\Entity\Product;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\Mime\MimeTypes;
-use Symfony\Component\Mime\Part\DataPart;
-use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
 {
@@ -218,9 +215,8 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
                 $contentType = $download->getHeaders(false)['content-type'][0] ?? null;
 
                 if (!$contentType) {
-                    $extension = pathinfo(parse_url($imageUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION);
-                    $mimeTypes = new MimeTypes();
-                    $contentType = $mimeTypes->getMimeTypes($extension)[0] ?? 'application/octet-stream';
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $contentType = $finfo->buffer($imageData) ?: 'application/octet-stream';
                 }
 
                 $filename = basename(parse_url($imageUrl, PHP_URL_PATH) ?: 'image');
@@ -228,12 +224,16 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
                     $filename = 'image';
                 }
 
-                $dataPart = new DataPart($imageData, $filename, $contentType);
-                $formData = new FormDataPart(['file' => $dataPart]);
+                $boundary = '----pfb' . bin2hex(random_bytes(16));
+                $body = "--$boundary\r\n".
+                        "Content-Disposition: form-data; name=\"file\"; filename=\"$filename\"\r\n".
+                        "Content-Type: $contentType\r\n\r\n".
+                        $imageData."\r\n".
+                        "--$boundary--\r\n";
 
                 $response = $this->httpClient->request('POST', $endpoint, [
-                    'headers' => $formData->getPreparedHeaders()->toArray(),
-                    'body' => $formData->bodyToIterable(),
+                    'headers' => ['Content-Type' => 'multipart/form-data; boundary=' . $boundary],
+                    'body' => $body,
                 ]);
 
                 if ($response->getStatusCode() !== 200) {
@@ -279,12 +279,25 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
         $endpoint = $this->getServiceUrl() . '/image-embedding';
 
         try {
-            $dataPart = new DataPart(file_get_contents($imagePath), basename($imagePath));
-            $formData = new FormDataPart(['file' => $dataPart]);
+            $imageData = file_get_contents($imagePath);
+            if ($imageData === false) {
+                $this->logger->error('Failed to read image file for description', ['path' => $imagePath]);
+                return null;
+            }
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $contentType = $finfo->file($imagePath) ?: 'application/octet-stream';
+
+            $filename = basename($imagePath);
+            $boundary = '----pfb' . bin2hex(random_bytes(16));
+            $body = "--$boundary\r\n".
+                    "Content-Disposition: form-data; name=\"file\"; filename=\"$filename\"\r\n".
+                    "Content-Type: $contentType\r\n\r\n".
+                    $imageData."\r\n".
+                    "--$boundary--\r\n";
 
             $response = $this->httpClient->request('POST', $endpoint, [
-                'headers' => $formData->getPreparedHeaders()->toArray(),
-                'body' => $formData->bodyToIterable(),
+                'headers' => ['Content-Type' => 'multipart/form-data; boundary=' . $boundary],
+                'body' => $body,
             ]);
 
             if ($response->getStatusCode() !== 200) {
