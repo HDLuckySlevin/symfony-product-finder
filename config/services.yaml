@@ -70,6 +70,4 @@ services:
 
     App\Command\ProcessImageCommand:
         arguments:
-            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
-            $embedHost: '%env(APP_EMBED_HOST)%'
-            $embedPort: '%env(EMBED_PORT)%'
+            $embeddingGenerator: '@App\Service\PythonEmbeddingGenerator'

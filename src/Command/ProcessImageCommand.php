@@ -9,9 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\Mime\Part\DataPart;
-use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use App\Service\PythonEmbeddingGenerator;
 
 #[AsCommand(
     name: 'app:process-image',
@@ -19,16 +17,12 @@ use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 )]
 class ProcessImageCommand extends Command
 {
-    private HttpClientInterface $httpClient;
-    private string $embedHost;
-    private string $embedPort;
+    private PythonEmbeddingGenerator $embeddingGenerator;
 
-    public function __construct(HttpClientInterface $httpClient, string $embedHost, string $embedPort)
+    public function __construct(PythonEmbeddingGenerator $embeddingGenerator)
     {
         parent::__construct();
-        $this->httpClient = $httpClient;
-        $this->embedHost = $embedHost;
-        $this->embedPort = $embedPort;
+        $this->embeddingGenerator = $embeddingGenerator;
     }
 
     protected function configure(): void
@@ -47,29 +41,14 @@ class ProcessImageCommand extends Command
             return Command::FAILURE;
         }
 
-        $endpoint = rtrim($this->embedHost, '/') . ':' . $this->embedPort . '/image-embedding';
-
         try {
-            $dataPart = new DataPart(file_get_contents($imagePath), basename($imagePath));
-            $formData = new FormDataPart(['file' => $dataPart]);
+            $description = $this->embeddingGenerator->describeImage($imagePath);
 
-            $response = $this->httpClient->request('POST', $endpoint, [
-                'headers' => $formData->getPreparedHeaders()->toArray(),
-                'body' => $formData->bodyToIterable(),
-            ]);
-
-            if ($response->getStatusCode() !== 200) {
-                $io->error('Failed to process image: HTTP ' . $response->getStatusCode());
-                return Command::FAILURE;
-            }
-
-            $data = $response->toArray(false);
-            if (!isset($data['description'])) {
+            if ($description === null || $description === '') {
                 $io->error('Service response missing description');
                 return Command::FAILURE;
             }
 
-            $description = $data['description'];
             $io->text('Image description: ' . $description);
 
             $application = $this->getApplication();

@@ -266,5 +266,53 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
         return $vectors;
     }
 
+    /**
+     * Sends a local image file to the Python service and returns the generated description.
+     */
+    public function describeImage(string $imagePath): ?string
+    {
+        if (!is_file($imagePath)) {
+            $this->logger->error('Image file not found for description', ['path' => $imagePath]);
+            return null;
+        }
+
+        $endpoint = $this->getServiceUrl() . '/image-embedding';
+
+        try {
+            $dataPart = new DataPart(file_get_contents($imagePath), basename($imagePath));
+            $formData = new FormDataPart(['file' => $dataPart]);
+
+            $response = $this->httpClient->request('POST', $endpoint, [
+                'headers' => $formData->getPreparedHeaders()->toArray(),
+                'body' => $formData->bodyToIterable(),
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Failed to describe image via Python service', [
+                    'status_code' => $response->getStatusCode(),
+                    'response' => $response->getContent(false),
+                ]);
+                return null;
+            }
+
+            $data = $response->toArray(false);
+            if (!isset($data['description'])) {
+                $this->logger->error('Python image embedding service response missing description', [
+                    'response' => $data,
+                ]);
+                return null;
+            }
+
+            return $data['description'];
+
+        } catch (\Throwable $e) {
+            $this->logger->error('Error describing image', [
+                'exception' => $e,
+                'path' => $imagePath,
+            ]);
+            return null;
+        }
+    }
+
     // Removed generateImageEmbedding method
 }
