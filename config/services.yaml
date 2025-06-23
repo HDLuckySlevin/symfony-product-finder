@@ -67,3 +67,9 @@ services:
 
     # Bind the interface to the implementation
     App\Service\SearchServiceInterface: '@App\Service\OpenAISearchService'
+
+    App\Command\ProcessImageCommand:
+        arguments:
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $embedHost: '%env(APP_EMBED_HOST)%'
+            $embedPort: '%env(EMBED_PORT)%'
