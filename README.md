@@ -118,7 +118,8 @@ ddev php bin/console app:test-search "I need a waterproof smartphone with a good
 
 ### Processing an Image
 
-Send an image to the embedding service and search using the generated description:
+Send an image to the embedding service. The returned text description is
+automatically used as the query for `app:test-search`:
 
 ```
 ddev php bin/console app:process-image path/to/image.jpg
