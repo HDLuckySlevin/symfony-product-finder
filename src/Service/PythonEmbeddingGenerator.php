@@ -65,20 +65,71 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
         }
     }
 
-    public function generateEmbedding(Product $product): array
+    public function generateProductEmbeddings(Product $product): array
     {
-        $this->logger->info('Generating text embedding for product', [
+        $this->logger->info('Generating embeddings for product', [
             'product_id' => $product->getId(),
             'product_name' => $product->getName()
         ]);
 
-        $textToEmbed = $this->getProductTextForEmbedding($product);
-        if (empty($textToEmbed)) {
-            $this->logger->warning('No text content found for product to embed.', ['product_id' => $product->getId()]);
-            return [];
+        $texts = [];
+
+        if ($product->getName()) {
+            $texts[] = ['text' => $product->getName(), 'type' => 'generic'];
+        }
+        if ($product->getBrand()) {
+            $texts[] = ['text' => $product->getBrand(), 'type' => 'generic'];
+        }
+        if ($product->getCategory()) {
+            $texts[] = ['text' => $product->getCategory(), 'type' => 'generic'];
+        }
+        if ($product->getDescription()) {
+            $texts[] = ['text' => $product->getDescription(), 'type' => 'description'];
         }
 
-        return $this->generateTextEmbeddings([$textToEmbed])[0] ?? [];
+        $specs = $product->getSpecifications();
+        if (!empty($specs)) {
+            foreach ($specs as $name => $value) {
+                $texts[] = [
+                    'text' => sprintf('Spezifikation – %s: %s', $name, $value),
+                    'type' => 'specification'
+                ];
+            }
+        }
+
+        $features = $product->getFeatures();
+        if (!empty($features)) {
+            foreach ($features as $feature) {
+                $texts[] = ['text' => $feature, 'type' => 'feature'];
+            }
+        }
+
+        $chunks = [];
+
+        if (!empty($texts)) {
+            $embeddings = $this->generateTextEmbeddings(array_column($texts, 'text'));
+            foreach ($embeddings as $index => $vector) {
+                if (!empty($vector)) {
+                    $chunks[] = [
+                        'vector' => $vector,
+                        'type' => $texts[$index]['type'] ?? 'generic'
+                    ];
+                }
+            }
+        }
+
+        // Handle image embedding
+        $imageUrl = $product->getImageUrl();
+        if ($imageUrl && filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            $vectors = $this->generateImageEmbeddings([$imageUrl]);
+            if (!empty($vectors[0])) {
+                $chunks[] = ['vector' => $vectors[0], 'type' => 'image'];
+            }
+        }
+
+        $this->logger->info('Generated embeddings for product chunks', ['chunk_count' => count($chunks)]);
+
+        return $chunks;
     }
 
     public function generateQueryEmbedding(string $query): array
@@ -132,33 +183,48 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             throw new \RuntimeException('Error generating text embeddings: ' . $e->getMessage(), 0, $e);
         }
     }
-    // Removed generateImageEmbedding method
 
-    private function getProductTextForEmbedding(Product $product): string
+    /**
+     * Generates embeddings for a list of image URLs using the Python service.
+     *
+     * @param array<string> $urls
+     * @return array<int, array<float>>
+     */
+    private function generateImageEmbeddings(array $urls): array
     {
-        // This logic is similar to OpenAIEmbeddingGenerator's groupFieldData and getChunk
-        $title = $product->getName() . ' ' . $product->getBrand();
-        $metadata = $product->getCategory() . ' ' . $product->getDescription();
+        $url = $this->getServiceUrl() . '/image-embedding';
+        $this->logger->debug('Sending image embedding request to ' . $url, ['url_count' => count($urls)]);
 
-        $specifications = '';
-        if (!empty($product->getSpecifications())) {
-            foreach ($product->getSpecifications() as $key => $value) {
-                $specifications .= ' ' . $key . ': ' . $value;
+        try {
+            $response = $this->httpClient->request('POST', $url, [
+                'json' => ['urls' => $urls],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Failed to generate image embeddings from Python service.', [
+                    'status_code' => $response->getStatusCode(),
+                    'response' => $response->getContent(false),
+                ]);
+                throw new \RuntimeException('Failed to generate image embeddings. Status: ' . $response->getStatusCode());
             }
-        }
 
-        $features = '';
-        if (!empty($product->getFeatures())) {
-            $features = implode(', ', $product->getFeatures());
-        }
+            $data = $response->toArray();
+            if (!isset($data['vectors']) || !is_array($data['vectors'])) {
+                $this->logger->error('Invalid response format from Python image embedding service.', ['response' => $data]);
+                throw new \RuntimeException('Invalid response format from Python image embedding service.');
+            }
 
-        $chunk = trim($title . ' ' . $metadata);
-        if (!empty($specifications)) {
-            $chunk .= ' Specifications: ' . trim($specifications);
+            $this->logger->info('Successfully generated image embeddings.', ['vector_count' => count($data['vectors'])]);
+            return $data['vectors'];
+
+        } catch (\Throwable $e) {
+            $this->logger->error('Error generating image embeddings: ' . $e->getMessage(), [
+                'exception' => $e,
+                'urls' => $urls,
+            ]);
+            throw new \RuntimeException('Error generating image embeddings: ' . $e->getMessage(), 0, $e);
         }
-        if (!empty($features)) {
-            $chunk .= ' Features: ' . trim($features);
-        }
-        return $chunk;
     }
+
+    // Removed generateImageEmbedding method
 }

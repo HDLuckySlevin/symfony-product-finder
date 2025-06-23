@@ -206,6 +206,65 @@ class MilvusVectorStoreService implements VectorStoreInterface
     }
 
     /**
+     * Insert all chunk embeddings of a single product into the collection.
+     *
+     * @param Product $product
+     * @param array<int, array{vector: array<int, float>, type: string}> $chunks
+     * @return bool
+     */
+    public function insertProductChunks(Product $product, array $chunks): bool
+    {
+        $productId = $product->getId();
+        $productName = $product->getName() ?: 'unknown';
+
+        if (!$productId) {
+            $this->logger->warning('Skipping product due to missing product ID.', [
+                'product_name' => $productName
+            ]);
+            return false;
+        }
+
+        $inserted = 0;
+
+        try {
+            foreach ($chunks as $chunk) {
+                if (empty($chunk['vector'])) {
+                    continue;
+                }
+
+                $this->milvus->vector()->insert(
+                    collectionName: $this->collectionName,
+                    data: [
+                        'product_id' => $productId,
+                        'title' => $productName,
+                        'vector' => $chunk['vector'],
+                        'type' => $chunk['type'] ?? 'generic',
+                    ]
+                );
+
+                $inserted++;
+            }
+
+            $this->logger->info('Inserted product chunks into Milvus collection', [
+                'collection_name' => $this->collectionName,
+                'product_id' => $productId,
+                'chunk_count' => $inserted
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed during product chunk insertion', [
+                'collection_name' => $this->collectionName,
+                'product_id' => $productId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'inserted_before_error' => $inserted
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Search for products similar to the provided query embedding
      * 
      * Performs a vector similarity search in the database using the provided
