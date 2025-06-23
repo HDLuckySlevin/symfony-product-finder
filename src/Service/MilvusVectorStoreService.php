@@ -47,7 +47,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
         MilvusClient $milvus,
         LoggerInterface $logger,
         string $collectionName = 'default',
-        int $dimension = 1536
+        int $dimension = 768 // Reverted default to 768
     ) {
         $this->milvus = $milvus;
         $this->logger = $logger;
@@ -71,7 +71,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
         ]);
 
         try {
-            $collections = $this->milvus->collections()->list()->json()['data'];
+            $collections = $this->milvus->collections()->list()->json()['data'] ?? [];
             if (in_array($this->collectionName, $collections)) {
                 $this->logger->info('Collection already exists', [
                     'collection_name' => $this->collectionName
@@ -82,6 +82,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
             $this->logger->info('Collection does not exist, creating new collection', [
                 'collection_name' => $this->collectionName
             ]);
+            // Pass the configured dimension of the service to createCollection.
             return $this->createCollection($this->dimension);
         } catch (\Throwable $e) {
             $this->logger->error('Failed to initialize collection', [
@@ -95,10 +96,9 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
     /**
      * Create a new collection in the vector database
-     * 
-     * Creates a collection with an id field (primary key), auto_id parameter,
-     * and a Float_vector field with the specified dimension.
-     * 
+     *
+     * Creates a collection with a primary key field (product_id) and a Float_vector field.
+     *
      * @param int $dimension The dimension of the vector embeddings
      * @return bool True if the collection was created successfully, false otherwise
      */
@@ -107,7 +107,9 @@ class MilvusVectorStoreService implements VectorStoreInterface
         $this->logger->info('Creating new Milvus collection', [
             'collection_name' => $this->collectionName,
             'dimension' => $dimension,
-            'metric_type' => 'COSINE'
+            'metric_type' => 'COSINE',
+            'primary_field' => 'id',
+            'vector_field' => 'vector' // Default vector field name
         ]);
 
         try {
@@ -115,8 +117,8 @@ class MilvusVectorStoreService implements VectorStoreInterface
                 collectionName: $this->collectionName,
                 dimension: $dimension,
                 metricType: "COSINE",
-                primaryField: "id",
-                vectorField: "vector"
+                primaryField: "id", // Using product's own ID
+                vectorField: "vector"    // Standard vector field name
             );
 
             $this->logger->info('Successfully created Milvus collection', [
@@ -154,43 +156,46 @@ class MilvusVectorStoreService implements VectorStoreInterface
 
         try {
             foreach ($products as $product) {
-                if (empty($product->getEmbeddings())) {
-                    $this->logger->warning('Skipping product due to missing embeddings', [
-                        'product_id' => $product->getId() ?: 'unknown',
-                        'product_name' => $product->getName() ?: 'unknown'
-                    ]);
+
+                $productId = $product->getId();
+                $productName = $product->getName() ?: 'unknown';
+                $embeddings = $product->getEmbeddings(); // Only text embeddings now
+
+                if (!$productId) {
+                    $this->logger->warning('Skipping product due to missing product ID.', ['product_name' => $productName]);
                     $skippedCount++;
                     continue;
                 }
 
-                $this->logger->debug('Inserting product into Milvus', [
-                    'product_id' => $product->getId(),
-                    'product_name' => $product->getName(),
-                    'embedding_size' => count($product->getEmbeddings())
-                ]);
-
+                if (empty($embeddings)) {
+                    $this->logger->warning('Skipping product due to missing text embeddings', [
+                        'product_id' => $productId,
+                        'product_name' => $productName,
+                        'embedding_size' => count($product->getEmbeddings())
+                    ]);
+                    $skippedCount++;
+                    continue;
+                }
                 $this->milvus->vector()->insert(
                     collectionName: $this->collectionName,
                     data: [
                         'title' => $product->getName(),
                         'vector' => $product->getEmbeddings(),
                         'type' => 'product',
-                    ],
-                    dbName: $this->collectionName,
+                    ]
                 );
-
                 $insertedCount++;
             }
 
-            $this->logger->info('Successfully inserted products into Milvus collection', [
+            $this->logger->info('Finished inserting products into Milvus collection', [
                 'collection_name' => $this->collectionName,
                 'inserted_count' => $insertedCount,
-                'skipped_count' => $skippedCount
+                'skipped_count' => $skippedCount,
             ]);
 
             return true;
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to insert products into Milvus collection', [
+            $this->logger->error('Failed during product insertion into Milvus collection', [
                 'collection_name' => $this->collectionName,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -213,38 +218,45 @@ class MilvusVectorStoreService implements VectorStoreInterface
     public function searchSimilarProducts(array $queryEmbedding, int $limit = 5): array
     {
         $this->logger->info('Searching for similar products in Milvus collection', [
-            'collection_name' => $this->collectionName,
+            'collection_name' => $this->collectionName, // Corrected log key
             'embedding_size' => count($queryEmbedding),
-            'limit' => $limit
+            'limit' => $limit,
+            'embed' =>$queryEmbedding
         ]);
 
+        if (empty($queryEmbedding)) {
+            $this->logger->warning('Search query embedding is empty, returning no results.');
+            return [];
+        }
+
         try {
-            $result = $this->milvus->vector()->search(    
-                collectionName: $this->collectionName,
+            $result = $this->milvus->vector()->search(
+                collectionName: $this->collectionName, // Corrected collection name
                 vector: $queryEmbedding,
                 limit: $limit,
                 outputFields: ["id", "title"],
-                dbName: $this->collectionName,
+                dbName: $this->collectionName
             );
 
             $data = $result->json()['data'] ?? [];
             $resultCount = count($data);
 
-            $this->logger->info('Successfully retrieved similar products from Milvus', [
-                'collection_name' => $this->collectionName,
+            $this->logger->info('Successfully retrieved similar products from Milvus collection', [
+                'collection_name' => $this->collectionName, // Corrected log key
                 'result_count' => $resultCount
             ]);
 
             if ($resultCount === 0) {
                 $this->logger->warning('No similar products found in Milvus collection', [
-                    'collection_name' => $this->collectionName
+                    'collection_name' => $this->collectionName, // Corrected log key
+                    'infos' => $data
                 ]);
             }
 
             return $data;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to search for similar products in Milvus collection', [
-                'collection_name' => $this->collectionName,
+                'collection_name' => $this->collectionName, // Corrected log key
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
