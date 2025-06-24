@@ -67,3 +67,7 @@ services:
 
     # Bind the interface to the implementation
     App\Service\SearchServiceInterface: '@App\Service\OpenAISearchService'
+
+    App\Command\ProcessImageCommand:
+        arguments:
+            $embeddingGenerator: '@App\Service\PythonEmbeddingGenerator'
