@@ -32,7 +32,7 @@ class WebInterfaceController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Missing query'], 400);
         }
 
-        $application = new Application($kernel);
+        $application = new Application();
         $application->setAutoExit(false);
         $command->setApplication($application);
 
@@ -58,7 +58,7 @@ class WebInterfaceController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'No image uploaded'], 400);
         }
 
-        $application = new Application($kernel);
+        $application = new Application();
         $application->setAutoExit(false);
         $application->add($testSearchCommand);
         $processImageCommand->setApplication($application);
