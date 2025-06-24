@@ -34,7 +34,7 @@ services:
             $milvus: '@Milvus\Client'
             $logger: '@Psr\Log\LoggerInterface'
             $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
-            $dimension: 768 # Reverted to 768 based on Python service log output
+            $dimension: 1536 # Reverted to 768 based on Python service log output
 
     # New Python Embedding Service
     App\Service\PythonEmbeddingGenerator:

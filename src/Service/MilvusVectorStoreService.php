@@ -47,7 +47,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
         MilvusClient $milvus,
         LoggerInterface $logger,
         string $collectionName = 'default',
-        int $dimension = 768 // Reverted default to 768
+        int $dimension = 1536 // Reverted default to 768
     ) {
         $this->milvus = $milvus;
         $this->logger = $logger;
