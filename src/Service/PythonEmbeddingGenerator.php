@@ -71,58 +71,45 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             'product_name' => $product->getName()
         ]);
 
-        $texts = [];
+        $parts = [];
 
         if ($product->getName()) {
-            $texts[] = ['text' => $product->getName(), 'type' => 'generic'];
+            $parts[] = $product->getName();
         }
         if ($product->getBrand()) {
-            $texts[] = ['text' => $product->getBrand(), 'type' => 'generic'];
+            $parts[] = 'Brand: ' . $product->getBrand();
         }
         if ($product->getCategory()) {
-            $texts[] = ['text' => $product->getCategory(), 'type' => 'generic'];
+            $parts[] = 'Category: ' . $product->getCategory();
         }
         if ($product->getDescription()) {
-            $texts[] = ['text' => $product->getDescription(), 'type' => 'description'];
+            $parts[] = $product->getDescription();
         }
 
         $specs = $product->getSpecifications();
         if (!empty($specs)) {
             foreach ($specs as $name => $value) {
-                $texts[] = [
-                    'text' => sprintf('Spezifikation – %s: %s', $name, $value),
-                    'type' => 'specification'
-                ];
+                $parts[] = sprintf('%s: %s', $name, $value);
             }
         }
 
         $features = $product->getFeatures();
         if (!empty($features)) {
             foreach ($features as $feature) {
-                $texts[] = ['text' => $feature, 'type' => 'feature'];
+                $parts[] = $feature;
             }
         }
 
+        $text = trim(implode("\n", $parts));
         $chunks = [];
 
-        if (!empty($texts)) {
-            $embeddings = $this->generateTextEmbeddings(array_column($texts, 'text'));
-            foreach ($embeddings as $index => $vector) {
-                if (!empty($vector)) {
-                    $chunks[] = [
-                        'vector' => $vector,
-                        'type' => $texts[$index]['type'] ?? 'generic'
-                    ];
-                }
-            }
-        }
-
-        // Handle image embedding
-        $imageUrl = $product->getImageUrl();
-        if ($imageUrl && filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-            $vectors = $this->generateImageEmbeddings([$imageUrl]);
-            if (!empty($vectors[0])) {
-                $chunks[] = ['vector' => $vectors[0], 'type' => 'image'];
+        if ($text !== '') {
+            $vector = $this->generateTextEmbeddings([$text])[0] ?? [];
+            if (!empty($vector)) {
+                $chunks[] = [
+                    'vector' => $vector,
+                    'type' => 'product',
+                ];
             }
         }
 

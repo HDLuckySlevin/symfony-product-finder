@@ -68,7 +68,7 @@ class TestSearchCommand extends Command
 
             // Filter results to only include products with distance <= 0.5
             $filteredResults = array_filter($results, function($result) {
-                return isset($result['distance']) && $result['distance'] <= 0.5;
+                return isset($result['distance']) && $result['distance'] >= 0.5;
             });
 
             if (empty($filteredResults)) {
