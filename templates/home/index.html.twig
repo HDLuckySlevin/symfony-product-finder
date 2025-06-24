@@ -19,9 +19,13 @@
                             <!-- Chat messages will appear here -->
                         </div>
                         
-                        <div class="input-group">
+                        <div class="input-group mb-2">
                             <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein wasserdichtes Smartphone mit guter Kamera...">
                             <button class="btn btn-primary" id="send-button">Suchen</button>
+                        </div>
+                        <div class="input-group">
+                            <input type="file" id="image-input" class="form-control" accept="image/*">
+                            <button class="btn btn-secondary" id="upload-button">Bild hochladen</button>
                         </div>
                     </div>
                     
@@ -75,6 +79,8 @@
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
+        const imageInput = document.getElementById('image-input');
+        const uploadButton = document.getElementById('upload-button');
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
         
@@ -88,24 +94,45 @@
         
         function searchProducts(query) {
             addMessage('Suche nach passenden Produkten...', false);
-            
-            fetch('/api/products/chat', {
+
+            fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: query })
+                body: JSON.stringify({ query: query })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Add assistant response
-                    addMessage(data.response, false);
-                    
-                    // Display results
-                    if (data.products && data.products.length > 0) {
-                        displayProducts(data.products);
-                    }
+                    addMessage(`<pre>${data.output}</pre>`, false);
+                } else {
+                    addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+            });
+        }
+
+        function searchImage(file) {
+            if (!file) {
+                return;
+            }
+            addMessage('Bild wird verarbeitet...', false);
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/search/image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessage(`<pre>${data.output}</pre>`, false);
                 } else {
                     addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
                 }
@@ -150,6 +177,14 @@
                 addMessage(query, true);
                 userInput.value = '';
                 searchProducts(query);
+            }
+        });
+
+        uploadButton.addEventListener('click', function() {
+            const file = imageInput.files[0];
+            if (file) {
+                searchImage(file);
+                imageInput.value = '';
             }
         });
         
