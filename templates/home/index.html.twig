@@ -27,6 +27,11 @@
                             <input type="file" id="image-input" class="form-control" accept="image/*">
                             <button class="btn btn-secondary" id="upload-button">Bild hochladen</button>
                         </div>
+                        <button class="btn btn-secondary mt-2" id="open-camera-button" style="display: none;">Foto aufnehmen</button>
+                        <div id="camera-container" class="mt-2" style="display: none;">
+                            <video id="video-preview" class="w-100 mb-2" autoplay playsinline></video>
+                            <button class="btn btn-secondary" id="capture-button">Aufnehmen</button>
+                        </div>
                     </div>
                     
                     <div id="results-container" class="mt-4" style="display: none;">
@@ -81,6 +86,18 @@
         const sendButton = document.getElementById('send-button');
         const imageInput = document.getElementById('image-input');
         const uploadButton = document.getElementById('upload-button');
+        const openCameraButton = document.getElementById('open-camera-button');
+        const cameraContainer = document.getElementById('camera-container');
+        const videoPreview = document.getElementById('video-preview');
+        const captureButton = document.getElementById('capture-button');
+        let cameraStream = null;
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+            navigator.mediaDevices.enumerateDevices().then(devices => {
+                if (devices.some(d => d.kind === 'videoinput')) {
+                    openCameraButton.style.display = 'inline-block';
+                }
+            }).catch(() => {});
+        }
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
         
@@ -123,7 +140,7 @@
             addMessage('Bild wird verarbeitet...', false);
 
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', file, file.name || 'upload.png');
 
             fetch('/search/image', {
                 method: 'POST',
@@ -186,6 +203,38 @@
                 searchImage(file);
                 imageInput.value = '';
             }
+        });
+
+        openCameraButton.addEventListener('click', function() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                    cameraStream = stream;
+                    videoPreview.srcObject = stream;
+                    cameraContainer.style.display = 'block';
+                    openCameraButton.style.display = 'none';
+                }).catch(err => {
+                    console.error('Camera error', err);
+                });
+            }
+        });
+
+        captureButton.addEventListener('click', function() {
+            if (!cameraStream) {
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = videoPreview.videoWidth;
+            canvas.height = videoPreview.videoHeight;
+            canvas.getContext('2d').drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                if (blob) {
+                    searchImage(blob);
+                }
+            }, 'image/png');
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+            cameraContainer.style.display = 'none';
+            openCameraButton.style.display = 'inline-block';
         });
         
         userInput.addEventListener('keypress', function(e) {
