@@ -106,7 +106,7 @@ Import sample products from XML:
 ddev php bin/console app:import-products src/DataFixtures/xml/sample_products.xml
 ```
 
-The import process vectorizes both complete products and their individual features/specifications, enabling precise semantic matching.
+The import process vectorizes each product as a single chunk for semantic search.
 
 ### Testing Search
 
