@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class WebInterfaceController extends AbstractController
 {
+    private const MAX_QUERY_LENGTH = 500;
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -27,9 +28,20 @@ class WebInterfaceController extends AbstractController
     public function search(Request $request, TestSearchCommand $command, KernelInterface $kernel): JsonResponse
     {
         $data = json_decode($request->getContent(), true) ?? [];
-        $query = $data['query'] ?? null;
-        if (!$query) {
-            return new JsonResponse(['success' => false, 'message' => 'Missing query'], 400);
+        $query = isset($data['query']) ? trim((string) $data['query']) : '';
+        if ($query === '' || mb_strlen($query) > self::MAX_QUERY_LENGTH) {
+            return new JsonResponse(
+                ['success' => false, 'message' => 'Invalid query'],
+                400
+            );
+        }
+
+        $allowedTypes = ['image/jpeg', 'image/png'];
+        if (!in_array($file->getMimeType(), $allowedTypes, true) || $file->getSize() > 5 * 1024 * 1024) {
+            return new JsonResponse(
+                ['success' => false, 'message' => 'Invalid image file'],
+                400
+            );
         }
 
         $application = new Application();
