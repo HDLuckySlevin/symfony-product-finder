@@ -13,6 +13,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Command\Command;
 use App\Command\TestSearchCommand;
 use App\Command\ProcessImageCommand;
+use App\Command\ProcessAudioCommand;
 use Symfony\Component\Routing\Annotation\Route;
 
 class WebInterfaceController extends AbstractController
@@ -20,6 +21,8 @@ class WebInterfaceController extends AbstractController
     private const MAX_QUERY_LENGTH = 500;
     private const MAX_IMAGE_SIZE = 5242880; // 5 MB
     private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
+    private const MAX_AUDIO_SIZE = 5242880; // 5 MB
+    private const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/webm'];
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -90,6 +93,47 @@ class WebInterfaceController extends AbstractController
 
         if (is_string($imagePath) && file_exists($imagePath)) {
             @unlink($imagePath);
+        }
+
+        return new JsonResponse([
+            'success' => $result === Command::SUCCESS,
+            'output' => $output->fetch(),
+        ]);
+    }
+
+    #[Route('/search/audio', name: 'app_web_search_audio', methods: ['POST'])]
+    public function searchAudio(Request $request, ProcessAudioCommand $processAudioCommand, TestSearchCommand $testSearchCommand, KernelInterface $kernel): JsonResponse
+    {
+        $file = $request->files->get('audio');
+        if (!$file) {
+            return new JsonResponse(['success' => false, 'message' => 'No audio uploaded'], 400);
+        }
+
+        if (!in_array($file->getMimeType(), self::ALLOWED_AUDIO_TYPES, true)) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid audio type'], 400);
+        }
+
+        if ($file->getSize() > self::MAX_AUDIO_SIZE) {
+            return new JsonResponse(['success' => false, 'message' => 'Audio too large'], 400);
+        }
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->add($testSearchCommand);
+        $processAudioCommand->setApplication($application);
+
+        $audioPath = $file->getPathname();
+
+        $input = new ArrayInput([
+            'command' => $processAudioCommand->getName(),
+            'audio' => $audioPath,
+        ]);
+
+        $output = new BufferedOutput();
+        $result = $processAudioCommand->run($input, $output);
+
+        if (is_string($audioPath) && file_exists($audioPath)) {
+            @unlink($audioPath);
         }
 
         return new JsonResponse([

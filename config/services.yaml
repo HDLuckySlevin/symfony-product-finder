@@ -71,3 +71,13 @@ services:
     App\Command\ProcessImageCommand:
         arguments:
             $embeddingGenerator: '@App\Service\PythonEmbeddingGenerator'
+
+    App\Service\OpenAISpeechToTextService:
+        arguments:
+            $model: '%env(OPENAI_STT_MODEL)%'
+
+    App\Service\SpeechToTextServiceInterface: '@App\Service\OpenAISpeechToTextService'
+
+    App\Command\ProcessAudioCommand:
+        arguments:
+            $sttService: '@App\Service\OpenAISpeechToTextService'
