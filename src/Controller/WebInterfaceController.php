@@ -65,18 +65,32 @@ class WebInterfaceController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'No image uploaded'], 400);
         }
 
+        if (!in_array($file->getMimeType(), self::ALLOWED_IMAGE_TYPES, true)) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid image type'], 400);
+        }
+
+        if ($file->getSize() > self::MAX_IMAGE_SIZE) {
+            return new JsonResponse(['success' => false, 'message' => 'Image too large'], 400);
+        }
+
         $application = new Application();
         $application->setAutoExit(false);
         $application->add($testSearchCommand);
         $processImageCommand->setApplication($application);
 
+        $imagePath = $file->getPathname();
+
         $input = new ArrayInput([
             'command' => $processImageCommand->getName(),
-            'image' => $file->getPathname(),
+            'image' => $imagePath,
         ]);
 
         $output = new BufferedOutput();
         $result = $processImageCommand->run($input, $output);
+
+        if (is_string($imagePath) && file_exists($imagePath)) {
+            @unlink($imagePath);
+        }
 
         return new JsonResponse([
             'success' => $result === Command::SUCCESS,
