@@ -22,6 +22,7 @@
                         <div class="input-group mb-2">
                             <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein wasserdichtes Smartphone mit guter Kamera...">
                             <button class="btn btn-primary" id="send-button">Suchen</button>
+                            <button class="btn btn-secondary" id="record-button">Sprache aufnehmen</button>
                         </div>
                         <div class="input-group">
                             <input type="file" id="image-input" class="form-control" accept="image/*">
@@ -84,6 +85,7 @@
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
+        const recordButton = document.getElementById('record-button');
         const imageInput = document.getElementById('image-input');
         const uploadButton = document.getElementById('upload-button');
         const openCameraButton = document.getElementById('open-camera-button');
@@ -91,6 +93,8 @@
         const videoPreview = document.getElementById('video-preview');
         const captureButton = document.getElementById('capture-button');
         let cameraStream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
         if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
             navigator.mediaDevices.enumerateDevices().then(devices => {
                 if (devices.some(d => d.kind === 'videoinput')) {
@@ -168,6 +172,33 @@
                 addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
             });
         }
+
+        function searchAudio(blob) {
+            if (!blob) {
+                return;
+            }
+            addMessage('Audio wird verarbeitet...', false);
+
+            const formData = new FormData();
+            formData.append('audio', blob, 'recording.webm');
+
+            fetch('/search/audio', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessage(`<pre>${data.output}</pre>`, false);
+                } else {
+                    addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+            });
+        }
         
         function displayProducts(products) {
             productResults.innerHTML = '';
@@ -203,6 +234,34 @@
                 addMessage(query, true);
                 userInput.value = '';
                 searchProducts(query);
+            }
+        });
+
+        recordButton.addEventListener('click', function() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                recordButton.textContent = 'Sprache aufnehmen';
+            } else {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                        recordedChunks = [];
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.ondataavailable = e => {
+                            if (e.data.size > 0) {
+                                recordedChunks.push(e.data);
+                            }
+                        };
+                        mediaRecorder.onstop = () => {
+                            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                            searchAudio(blob);
+                            stream.getTracks().forEach(t => t.stop());
+                        };
+                        mediaRecorder.start();
+                        recordButton.textContent = 'Stoppen';
+                    }).catch(err => {
+                        console.error('Audio error', err);
+                    });
+                }
             }
         });
 
