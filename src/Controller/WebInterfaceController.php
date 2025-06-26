@@ -38,12 +38,6 @@ class WebInterfaceController extends AbstractController
             );
         }
 
-        if (!in_array($file->getMimeType(), self::ALLOWED_IMAGE_TYPES, true) || $file->getSize() > self::MAX_IMAGE_SIZE) {
-            return new JsonResponse(
-                ['success' => false, 'message' => 'Invalid image file'],
-                400
-            );
-        }
 
         $application = new Application();
         $application->setAutoExit(false);
