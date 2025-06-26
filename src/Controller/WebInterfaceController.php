@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class WebInterfaceController extends AbstractController
 {
     private const MAX_QUERY_LENGTH = 500;
+    private const MAX_IMAGE_SIZE = 5242880; // 5 MB
+    private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -36,8 +38,7 @@ class WebInterfaceController extends AbstractController
             );
         }
 
-        $allowedTypes = ['image/jpeg', 'image/png'];
-        if (!in_array($file->getMimeType(), $allowedTypes, true) || $file->getSize() > 5 * 1024 * 1024) {
+        if (!in_array($file->getMimeType(), self::ALLOWED_IMAGE_TYPES, true) || $file->getSize() > self::MAX_IMAGE_SIZE) {
             return new JsonResponse(
                 ['success' => false, 'message' => 'Invalid image file'],
                 400
