@@ -108,7 +108,15 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
+
+        function addImageMessage(file) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                addMessage(`<img src="${e.target.result}" class="img-fluid rounded" />`, true);
+            };
+            reader.readAsDataURL(file);
+        }
+
         function searchProducts(query) {
             addMessage('Suche nach passenden Produkten...', false);
 
@@ -137,6 +145,7 @@
             if (!file) {
                 return;
             }
+            addImageMessage(file);
             addMessage('Bild wird verarbeitet...', false);
 
             const formData = new FormData();
