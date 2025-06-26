@@ -22,7 +22,6 @@ class WebInterfaceController extends AbstractController
     private const MAX_IMAGE_SIZE = 5242880; // 5 MB
     private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
     private const MAX_AUDIO_SIZE = 5242880; // 5 MB
-    private const ALLOWED_AUDIO_TYPES = ['audio/mpeg', 'audio/wav', 'audio/webm'];
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -109,7 +108,8 @@ class WebInterfaceController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'No audio uploaded'], 400);
         }
 
-        if (!in_array($file->getMimeType(), self::ALLOWED_AUDIO_TYPES, true)) {
+        $mimeType = $file->getMimeType() ?? '';
+        if (!str_starts_with($mimeType, 'audio/') && $mimeType !== 'video/webm') {
             return new JsonResponse(['success' => false, 'message' => 'Invalid audio type'], 400);
         }
 
