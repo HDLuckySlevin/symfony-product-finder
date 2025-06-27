@@ -197,11 +197,20 @@ class WebInterfaceController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Invalid payload'], 400);
         }
 
+        $this->logger->info('Received request to change embedding model', [
+            'provider' => $provider,
+            'model' => $model,
+        ]);
+
         $data = $embeddingService->changeEmbeddingModel($provider, $model);
+        $this->logger->info('Embedding service responded', ['response' => $data]);
 
         // Drop collection and re-import sample data
-        $vectorStore->dropCollection();
+        $this->logger->info('Dropping Milvus collection before re-import');
+        $dropResult = $vectorStore->dropCollection();
+        $this->logger->info('Milvus dropCollection result', ['success' => $dropResult]);
 
+        $this->logger->info('Starting product re-import after embedding model change');
         $application = new KernelApplication($kernel);
         $application->setAutoExit(false);
         $importCommand->setApplication($application);
@@ -210,8 +219,9 @@ class WebInterfaceController extends AbstractController
             'xml-file' => 'src/DataFixtures/xml/sample_products.xml',
         ]);
         $output = new BufferedOutput();
-        $importCommand->run($input, $output);
-        $this->logger->info('Reimported products after embedding model change', [
+        $exitCode = $importCommand->run($input, $output);
+        $this->logger->info('Finished product re-import', [
+            'exit_code' => $exitCode,
             'import_output' => $output->fetch(),
         ]);
 
