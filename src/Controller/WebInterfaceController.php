@@ -15,6 +15,7 @@ use App\Command\TestSearchCommand;
 use App\Command\ProcessImageCommand;
 use App\Command\ProcessAudioCommand;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 class WebInterfaceController extends AbstractController
 {
@@ -22,6 +23,13 @@ class WebInterfaceController extends AbstractController
     private const MAX_IMAGE_SIZE = 5242880; // 5 MB
     private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
     private const MAX_AUDIO_SIZE = 5242880; // 5 MB
+
+    private LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -105,24 +113,38 @@ class WebInterfaceController extends AbstractController
     {
         $file = $request->files->get('audio');
         if (!$file) {
+            $this->logger->error('No audio uploaded');
             return new JsonResponse(['success' => false, 'message' => 'No audio uploaded'], 400);
         }
 
         $mimeType = $file->getMimeType() ?? '';
         if (!str_starts_with($mimeType, 'audio/') && $mimeType !== 'video/webm') {
+            $this->logger->error('Invalid audio type', ['mime' => $mimeType]);
             return new JsonResponse(['success' => false, 'message' => 'Invalid audio type'], 400);
         }
 
         if ($file->getSize() > self::MAX_AUDIO_SIZE) {
+            $this->logger->error('Uploaded audio too large', ['size' => $file->getSize()]);
             return new JsonResponse(['success' => false, 'message' => 'Audio too large'], 400);
         }
+
+        $this->logger->info('Received audio upload', [
+            'mime' => $mimeType,
+            'size' => $file->getSize(),
+        ]);
+
+        $extension = $file->guessExtension() ?: 'webm';
+        $filename = uniqid('audio_', true) . '.' . $extension;
+        $tempDir = sys_get_temp_dir();
+        $file->move($tempDir, $filename);
+        $audioPath = $tempDir . '/' . $filename;
+
+        $this->logger->debug('Stored uploaded audio', ['path' => $audioPath]);
 
         $application = new Application();
         $application->setAutoExit(false);
         $application->add($testSearchCommand);
         $processAudioCommand->setApplication($application);
-
-        $audioPath = $file->getPathname();
 
         $input = new ArrayInput([
             'command' => $processAudioCommand->getName(),
@@ -131,6 +153,12 @@ class WebInterfaceController extends AbstractController
 
         $output = new BufferedOutput();
         $result = $processAudioCommand->run($input, $output);
+        $commandOutput = $output->fetch();
+
+        $this->logger->info('Finished processing audio', [
+            'exit_code' => $result,
+            'output' => $commandOutput,
+        ]);
 
         if (is_string($audioPath) && file_exists($audioPath)) {
             @unlink($audioPath);
@@ -138,7 +166,7 @@ class WebInterfaceController extends AbstractController
 
         return new JsonResponse([
             'success' => $result === Command::SUCCESS,
-            'output' => $output->fetch(),
+            'output' => $commandOutput,
         ]);
     }
 
