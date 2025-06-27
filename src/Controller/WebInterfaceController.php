@@ -16,6 +16,7 @@ use App\Command\ProcessImageCommand;
 use App\Command\ProcessAudioCommand;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
+use App\Service\PythonEmbeddingService;
 
 class WebInterfaceController extends AbstractController
 {
@@ -170,4 +171,26 @@ class WebInterfaceController extends AbstractController
         ]);
     }
 
+    #[Route('/embedding/active', name: 'app_active_embedding_model', methods: ['GET'])]
+    public function activeEmbeddingModel(PythonEmbeddingService $embeddingService): JsonResponse
+    {
+        $data = $embeddingService->getActiveEmbeddingModel();
+        return new JsonResponse($data);
+    }
+
+    #[Route('/embedding/change', name: 'app_change_embedding_model', methods: ['POST'])]
+    public function changeEmbeddingModel(Request $request, PythonEmbeddingService $embeddingService): JsonResponse
+    {
+        $payload = json_decode($request->getContent(), true) ?? [];
+        $provider = (string)($payload['embedding_provider'] ?? '');
+        $model = (string)($payload['model_name'] ?? '');
+
+        if ($provider === '' || $model === '') {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid payload'], 400);
+        }
+
+        $data = $embeddingService->changeEmbeddingModel($provider, $model);
+        return new JsonResponse($data);
+    }
 }
+

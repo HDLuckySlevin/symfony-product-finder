@@ -5,7 +5,31 @@
 {% block body %}
 <div class="container mt-5">
     <div class="row">
-        <div class="col-md-8 offset-md-2 text-center">
+        <div class="col-md-4 mb-3" id="model-sidebar">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Embedding Modell</h5>
+                    <p>Aktiv: <span id="active-model">-</span></p>
+                    <div class="mb-2">
+                        <select id="embedding-provider" class="form-select">
+                            <option value="openai">OpenAI</option>
+                            <option value="openclip">OpenCLIP</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <select id="model-name" class="form-select">
+                            <option value="text-embedding-ada-002">text-embedding-ada-002</option>
+                            <option value="text-embedding-3-large">text-embedding-3-large</option>
+                            <option value="text-embedding-3-small">text-embedding-3-small</option>
+                            <option value="ViT-L-14">ViT-L-14</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" id="change-model-button">Modell wechseln</button>
+                    <div id="change-result" class="mt-2 small"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-center">
             <h1 class="mb-4">Product-Finder</h1>
             <p class="lead mb-5">Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz. Beschreiben Sie einfach, was Sie suchen, und unser System findet die passenden Produkte für Sie.</p>
             
@@ -111,6 +135,57 @@ sequenceDiagram
         }
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
+        const providerSelect = document.getElementById('embedding-provider');
+        const modelSelect = document.getElementById('model-name');
+        const changeButton = document.getElementById('change-model-button');
+        const activeModel = document.getElementById('active-model');
+        const changeResult = document.getElementById('change-result');
+
+        function updateModelOptions() {
+            if (providerSelect.value === 'openclip') {
+                modelSelect.innerHTML = '<option value="ViT-L-14">ViT-L-14</option>';
+            } else {
+                modelSelect.innerHTML = '<option value="text-embedding-ada-002">text-embedding-ada-002</option>' +
+                    '<option value="text-embedding-3-large">text-embedding-3-large</option>' +
+                    '<option value="text-embedding-3-small">text-embedding-3-small</option>';
+            }
+        }
+
+        function loadActiveModel() {
+            fetch('/embedding/active')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.embedding_provider && data.model_name) {
+                        activeModel.textContent = data.embedding_provider + ' / ' + data.model_name;
+                        providerSelect.value = data.embedding_provider;
+                        updateModelOptions();
+                        modelSelect.value = data.model_name;
+                    }
+                });
+        }
+
+        changeButton.addEventListener('click', function() {
+            const payload = {
+                embedding_provider: providerSelect.value,
+                model_name: modelSelect.value
+            };
+            fetch('/embedding/change', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(data => {
+                changeResult.textContent = 'Aktives Modell: ' + data.embedding_provider + ' / ' + data.model_name;
+                loadActiveModel();
+            })
+            .catch(() => {
+                changeResult.textContent = 'Fehler beim Modellwechsel';
+            });
+        });
+
+        providerSelect.addEventListener('change', updateModelOptions);
+        loadActiveModel();
         
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
@@ -363,6 +438,15 @@ sequenceDiagram
         background-color: #e9ecef;
         color: #212529;
         float: left;
+    }
+
+    #model-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+
+    #change-result {
+        min-height: 1em;
     }
     
     .message p {
