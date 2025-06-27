@@ -1,6 +1,6 @@
 <?php
 
-namespace App\\Service;
+namespace App\Service;
 
 /**
  * Interface for converting speech audio to text.
