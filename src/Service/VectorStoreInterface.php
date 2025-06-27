@@ -45,13 +45,18 @@ interface VectorStoreInterface
      * @return bool True on success, false on failure
      */
     public function insertProductChunks(Product $product, array $chunks): bool;
-    
+
     /**
      * Search for products similar to the provided query embedding
-     * 
+     *
      * @param array<int, float> $queryEmbedding The embedding vector to search with
      * @param int $limit Maximum number of results to return
      * @return array<int, mixed> Array of search results, each containing product information
      */
     public function searchSimilarProducts(array $queryEmbedding, int $limit = 5): array;
+
+    /**
+     * Drop the current collection from the vector store.
+     */
+    public function dropCollection(): bool;
 }
