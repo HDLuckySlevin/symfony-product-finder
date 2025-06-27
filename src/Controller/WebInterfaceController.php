@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Application;
+use Symfony\Bundle\FrameworkBundle\Console\Application as KernelApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Command\Command;
@@ -201,7 +202,7 @@ class WebInterfaceController extends AbstractController
         // Drop collection and re-import sample data
         $vectorStore->dropCollection();
 
-        $application = new Application($kernel);
+        $application = new KernelApplication($kernel);
         $application->setAutoExit(false);
         $importCommand->setApplication($application);
         $input = new ArrayInput([
