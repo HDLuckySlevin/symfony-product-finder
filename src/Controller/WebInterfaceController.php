@@ -221,9 +221,10 @@ class WebInterfaceController extends AbstractController
         $application = new KernelApplication($kernel);
         $application->setAutoExit(false);
         $importCommand->setApplication($application);
+        $xmlPath = $kernel->getProjectDir() . '/src/DataFixtures/xml/sample_products.xml';
         $input = new ArrayInput([
             'command' => $importCommand->getName(),
-            'xml-file' => 'src/DataFixtures/xml/sample_products.xml',
+            'xml-file' => $xmlPath,
         ]);
         $output = new BufferedOutput();
         $exitCode = $importCommand->run($input, $output);
