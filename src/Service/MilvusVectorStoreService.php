@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Product;
 use HelgeSverre\Milvus\Milvus as MilvusClient;
 use Psr\Log\LoggerInterface;
+use App\Service\PythonEmbeddingService;
 
 /**
  * Service for interacting with Milvus vector database
@@ -26,6 +27,11 @@ class MilvusVectorStoreService implements VectorStoreInterface
     private string $collectionName;
 
     /**
+     * Embedding service for dimension and embedding calls
+     */
+    private PythonEmbeddingService $embeddingService;
+
+    /**
      * Dimension of the vector embeddings
      */
     private int $dimension;
@@ -38,21 +44,22 @@ class MilvusVectorStoreService implements VectorStoreInterface
     /**
      * Constructor
      * 
-     * @param MilvusClient $milvus The Milvus client instance
+     * @param MilvusClient $milvus   The Milvus client instance
      * @param LoggerInterface $logger The logger service
+     * @param PythonEmbeddingService $embeddingService Service for embedding API calls
      * @param string $collectionName The name of the collection to use (default: 'default')
-     * @param int $dimension The dimension of the vector embeddings (default: 1536)
      */
     public function __construct(
         MilvusClient $milvus,
         LoggerInterface $logger,
-        string $collectionName = 'default',
-        int $dimension = 1536 // Reverted default to 768
+        PythonEmbeddingService $embeddingService,
+        string $collectionName = 'default'
     ) {
         $this->milvus = $milvus;
         $this->logger = $logger;
+        $this->embeddingService = $embeddingService;
         $this->collectionName = $collectionName;
-        $this->dimension = $dimension;
+        $this->dimension = $this->embeddingService->getVectorDimension();
     }
 
     /**
