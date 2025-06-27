@@ -59,4 +59,10 @@ interface VectorStoreInterface
      * Drop the current collection from the vector store.
      */
     public function dropCollection(): bool;
+
+    /**
+     * Update the expected vector dimension for collection creation.
+     */
+    public function setDimension(int $dimension): void;
 }
+

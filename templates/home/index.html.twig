@@ -140,6 +140,13 @@ sequenceDiagram
         const changeButton = document.getElementById('change-model-button');
         const activeModel = document.getElementById('active-model');
         const changeResult = document.getElementById('change-result');
+        const controls = [sendButton, recordButton, uploadButton, openCameraButton, changeButton, providerSelect, modelSelect];
+        let busy = false;
+
+        function setBusy(state) {
+            busy = state;
+            controls.forEach(el => { if (el) el.disabled = state; });
+        }
 
         function updateModelOptions() {
             if (providerSelect.value === 'openclip') {
@@ -169,6 +176,8 @@ sequenceDiagram
                 embedding_provider: providerSelect.value,
                 model_name: modelSelect.value
             };
+            setBusy(true);
+            changeResult.textContent = 'Modellwechsel läuft...';
             fetch('/embedding/change', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -176,16 +185,23 @@ sequenceDiagram
             })
             .then(r => r.json())
             .then(data => {
-                changeResult.textContent = 'Aktives Modell: ' + data.embedding_provider + ' / ' + data.model_name;
+                if (data.vectors) {
+                    changeResult.textContent = 'Aktives Modell: ' + data.embedding_provider + ' / ' + data.model_name;
+                } else {
+                    changeResult.textContent = 'Modell gewechselt, aber keine Vektoren gefunden';
+                }
+                setBusy(false);
                 loadActiveModel();
             })
             .catch(() => {
                 changeResult.textContent = 'Fehler beim Modellwechsel';
+                setBusy(false);
             });
         });
 
         providerSelect.addEventListener('change', updateModelOptions);
         loadActiveModel();
+        setBusy(false);
         
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');

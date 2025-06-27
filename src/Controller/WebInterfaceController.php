@@ -205,10 +205,17 @@ class WebInterfaceController extends AbstractController
         $data = $embeddingService->changeEmbeddingModel($provider, $model);
         $this->logger->info('Embedding service responded', ['response' => $data]);
 
-        // Drop collection and re-import sample data
+        // Update dimension based on the newly selected model
+        $dimension = $embeddingService->getVectorDimension();
+        $vectorStore->setDimension($dimension);
+
+        // Drop collection and recreate it before re-import
         $this->logger->info('Dropping Milvus collection before re-import');
         $dropResult = $vectorStore->dropCollection();
         $this->logger->info('Milvus dropCollection result', ['success' => $dropResult]);
+
+        $createResult = $vectorStore->createCollection($dimension);
+        $this->logger->info('Milvus createCollection result', ['success' => $createResult]);
 
         $this->logger->info('Starting product re-import after embedding model change');
         $application = new KernelApplication($kernel);
@@ -225,7 +232,18 @@ class WebInterfaceController extends AbstractController
             'import_output' => $output->fetch(),
         ]);
 
-        return new JsonResponse($data);
+        // Verify that vectors exist after import
+        $testVector = $embeddingService->generateQueryEmbedding('test');
+        $checkResults = $vectorStore->searchSimilarProducts($testVector, 1);
+        $hasVectors = count($checkResults) > 0;
+        $this->logger->info('Vector presence check', ['has_vectors' => $hasVectors]);
+        $response = array_merge([
+            'embedding_provider' => $provider,
+            'model_name' => $model,
+            'vectors' => $hasVectors,
+        ], is_array($data) ? $data : []);
+
+        return new JsonResponse($response);
     }
 }
 
