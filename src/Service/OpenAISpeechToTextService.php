@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Service;
+namespace App\Service;
 
-use OpenAI\\Client;
-use Psr\\Log\\LoggerInterface;
+use OpenAI\Client;
+use Psr\Log\LoggerInterface;
 
 /**
  * Service for performing speech-to-text using OpenAI Whisper API.
