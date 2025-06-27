@@ -367,6 +367,11 @@ class PythonEmbeddingService implements EmbeddingGeneratorInterface
     public function changeEmbeddingModel(string $provider, string $modelName): array
     {
         $url = $this->getServiceUrl() . '/changeembeddingmodell';
+        $this->logger->info('Requesting model change from Python service', [
+            'provider' => $provider,
+            'model_name' => $modelName,
+        ]);
+
         try {
             $response = $this->httpClient->request('POST', $url, [
                 'json' => [
