@@ -17,6 +17,8 @@ use App\Command\ProcessAudioCommand;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
 use App\Service\PythonEmbeddingService;
+use App\Service\MilvusVectorStoreService;
+use App\Command\ImportProductsCommand;
 
 class WebInterfaceController extends AbstractController
 {
@@ -179,8 +181,13 @@ class WebInterfaceController extends AbstractController
     }
 
     #[Route('/embedding/change', name: 'app_change_embedding_model', methods: ['POST'])]
-    public function changeEmbeddingModel(Request $request, PythonEmbeddingService $embeddingService): JsonResponse
-    {
+    public function changeEmbeddingModel(
+        Request $request,
+        PythonEmbeddingService $embeddingService,
+        MilvusVectorStoreService $vectorStore,
+        ImportProductsCommand $importCommand,
+        KernelInterface $kernel
+    ): JsonResponse {
         $payload = json_decode($request->getContent(), true) ?? [];
         $provider = (string)($payload['embedding_provider'] ?? '');
         $model = (string)($payload['model_name'] ?? '');
@@ -190,6 +197,23 @@ class WebInterfaceController extends AbstractController
         }
 
         $data = $embeddingService->changeEmbeddingModel($provider, $model);
+
+        // Drop collection and re-import sample data
+        $vectorStore->dropCollection();
+
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+        $importCommand->setApplication($application);
+        $input = new ArrayInput([
+            'command' => $importCommand->getName(),
+            'xml-file' => 'src/DataFixtures/xml/sample_products.xml',
+        ]);
+        $output = new BufferedOutput();
+        $importCommand->run($input, $output);
+        $this->logger->info('Reimported products after embedding model change', [
+            'import_output' => $output->fetch(),
+        ]);
+
         return new JsonResponse($data);
     }
 }
