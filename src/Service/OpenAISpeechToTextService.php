@@ -41,13 +41,6 @@ class OpenAISpeechToTextService implements SpeechToTextServiceInterface
                 'response_format' => 'json',
             ]);
 
-            if (is_array($response) && isset($response['text'])) {
-                $this->logger->info('Received transcription from OpenAI Whisper', [
-                    'length' => strlen($response['text']),
-                ]);
-                return $response['text'];
-            }
-
             if (is_object($response) && isset($response->text)) {
                 $this->logger->info('Received transcription from OpenAI Whisper', [
                     'length' => strlen($response->text),

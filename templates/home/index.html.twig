@@ -86,6 +86,10 @@
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const recordButton = document.getElementById('record-button');
+        const canRecord = typeof MediaRecorder !== 'undefined';
+        if (!canRecord) {
+            recordButton.style.display = 'none';
+        }
         const imageInput = document.getElementById('image-input');
         const uploadButton = document.getElementById('upload-button');
         const openCameraButton = document.getElementById('open-camera-button');
@@ -238,6 +242,10 @@
         });
 
         recordButton.addEventListener('click', function() {
+            if (!canRecord) {
+                alert('Dieser Browser unterstützt keine Audioaufnahme.');
+                return;
+            }
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 recordButton.textContent = 'Sprache aufnehmen';
