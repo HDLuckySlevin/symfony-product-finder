@@ -341,5 +341,58 @@ class PythonEmbeddingService implements EmbeddingGeneratorInterface
         }
     }
 
+    public function getActiveEmbeddingModel(): array
+    {
+        $url = $this->getServiceUrl() . '/activeembeddingmodell';
+        try {
+            $response = $this->httpClient->request('GET', $url);
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Failed to fetch active embedding model', [
+                    'status_code' => $response->getStatusCode(),
+                ]);
+                return [];
+            }
+
+            $data = $response->toArray(false);
+            $this->logger->info('Fetched active embedding model', ['data' => $data]);
+            return $data;
+        } catch (\Throwable $e) {
+            $this->logger->error('Error fetching active embedding model', [
+                'exception' => $e,
+            ]);
+            return [];
+        }
+    }
+
+    public function changeEmbeddingModel(string $provider, string $modelName): array
+    {
+        $url = $this->getServiceUrl() . '/changeembeddingmodell';
+        try {
+            $response = $this->httpClient->request('POST', $url, [
+                'json' => [
+                    'embedding_provider' => $provider,
+                    'model_name' => $modelName,
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Failed to change embedding model', [
+                    'status_code' => $response->getStatusCode(),
+                    'response' => $response->getContent(false),
+                ]);
+                return [];
+            }
+
+            $data = $response->toArray(false);
+            $this->logger->info('Changed embedding model', ['data' => $data]);
+            return $data;
+        } catch (\Throwable $e) {
+            $this->logger->error('Error changing embedding model', [
+                'exception' => $e,
+            ]);
+            return [];
+        }
+    }
+
     // Removed generateImageEmbedding method
 }
