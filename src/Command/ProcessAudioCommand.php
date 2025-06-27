@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\SpeechToTextServiceInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -18,11 +19,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ProcessAudioCommand extends Command
 {
     private SpeechToTextServiceInterface $sttService;
+    private LoggerInterface $logger;
 
-    public function __construct(SpeechToTextServiceInterface $sttService)
+    public function __construct(SpeechToTextServiceInterface $sttService, LoggerInterface $logger)
     {
         parent::__construct();
         $this->sttService = $sttService;
+        $this->logger = $logger;
     }
 
     protected function configure(): void
@@ -35,8 +38,11 @@ class ProcessAudioCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $audioPath = $input->getArgument('audio');
 
+        $this->logger->info('ProcessAudioCommand started', ['path' => $audioPath]);
+
         if (!is_file($audioPath)) {
             $io->error('Audio file not found: ' . $audioPath);
+            $this->logger->error('Audio file not found', ['path' => $audioPath]);
             return Command::FAILURE;
         }
 
@@ -44,9 +50,12 @@ class ProcessAudioCommand extends Command
             $text = $this->sttService->transcribe($audioPath);
 
             if ($text === null || $text === '') {
+                $this->logger->error('Transcription failed or empty');
                 $io->error('Transcription failed or empty');
                 return Command::FAILURE;
             }
+
+            $this->logger->info('Transcription succeeded', ['text' => $text]);
 
             $io->text('Transcribed text: ' . $text);
 
@@ -66,6 +75,7 @@ class ProcessAudioCommand extends Command
 
             return $command->run($testInput, $output);
         } catch (\Throwable $e) {
+            $this->logger->error('Error running ProcessAudioCommand', ['exception' => $e]);
             $io->error('An error occurred: ' . $e->getMessage());
             return Command::FAILURE;
         }
