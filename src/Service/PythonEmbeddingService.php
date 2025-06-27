@@ -6,7 +6,7 @@ use App\Entity\Product;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
+class PythonEmbeddingService implements EmbeddingGeneratorInterface
 {
     private HttpClientInterface $httpClient;
     private LoggerInterface $logger;
@@ -62,6 +62,33 @@ class PythonEmbeddingGenerator implements EmbeddingGeneratorInterface
             ]);
             throw new \RuntimeException('Failed to connect to Python embedding service: ' . $e->getMessage(), 0, $e);
         }
+    }
+
+    public function getVectorDimension(): int
+    {
+        $url = $this->getServiceUrl() . '/dimension';
+        try {
+            $response = $this->httpClient->request('GET', $url);
+            if ($response->getStatusCode() === 200) {
+                $data = $response->toArray(false);
+                if (isset($data['dimension']) && is_numeric($data['dimension'])) {
+                    return (int) $data['dimension'];
+                }
+                $this->logger->warning('Invalid dimension response from embedding service', [
+                    'response' => $data,
+                ]);
+            } else {
+                $this->logger->warning('Unexpected status code when fetching dimension', [
+                    'status_code' => $response->getStatusCode(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to fetch dimension from embedding service', [
+                'exception' => $e,
+            ]);
+        }
+
+        return 1536;
     }
 
     public function generateProductEmbeddings(Product $product): array

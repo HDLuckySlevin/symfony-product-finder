@@ -33,11 +33,11 @@ services:
         arguments:
             $milvus: '@Milvus\Client'
             $logger: '@Psr\Log\LoggerInterface'
+            $embeddingService: '@App\Service\PythonEmbeddingService'
             $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
-            $dimension: 1536 # Reverted to 768 based on Python service log output
 
     # New Python Embedding Service
-    App\Service\PythonEmbeddingGenerator:
+    App\Service\PythonEmbeddingService:
         arguments:
             $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
             $logger: '@Psr\Log\LoggerInterface'
@@ -45,8 +45,8 @@ services:
             $embedHost: '%env(APP_EMBED_HOST)%' # Assuming http://localhost or similar
             $embedPort: '%env(EMBED_PORT)%'
 
-    # Bind the EmbeddingGeneratorInterface to the new PythonEmbeddingGenerator
-    App\Service\EmbeddingGeneratorInterface: '@App\Service\PythonEmbeddingGenerator'
+    # Bind the EmbeddingGeneratorInterface to the PythonEmbeddingService
+    App\Service\EmbeddingGeneratorInterface: '@App\Service\PythonEmbeddingService'
 
     # OpenAI client and embedding generator are removed as they are replaced.
     # App\Service\OpenAISearchService might still be needed if it's used for chat completion based on search results.
@@ -70,7 +70,7 @@ services:
 
     App\Command\ProcessImageCommand:
         arguments:
-            $embeddingGenerator: '@App\Service\PythonEmbeddingGenerator'
+            $embeddingGenerator: '@App\Service\PythonEmbeddingService'
 
     App\Service\OpenAISpeechToTextService:
         arguments:
