@@ -354,4 +354,14 @@ class MilvusVectorStoreService implements VectorStoreInterface
             return false;
         }
     }
+
+    /**
+     * Update the vector dimension used when creating collections.
+     */
+    public function setDimension(int $dimension): void
+    {
+        $this->logger->info('Updating vector dimension', ['old' => $this->dimension, 'new' => $dimension]);
+        $this->dimension = $dimension;
+    }
 }
+
