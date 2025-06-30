@@ -107,7 +107,7 @@ class ProductFinderController extends AbstractController
             // Create user message with query and products
             $productsList = '';
             foreach ($filteredResults as $index => $result) {
-                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
+                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (($result['distance'] ?? 0)) . ")\n";
             }
 
             $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
