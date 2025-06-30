@@ -11,18 +11,10 @@
                     <h5 class="card-title">Embedding Modell</h5>
                     <p>Aktiv: <span id="active-model">-</span></p>
                     <div class="mb-2">
-                        <select id="embedding-provider" class="form-select">
-                            <option value="openai">OpenAI</option>
-                            <option value="openclip">OpenCLIP</option>
-                        </select>
+                        <select id="embedding-provider" class="form-select"></select>
                     </div>
                     <div class="mb-2">
-                        <select id="model-name" class="form-select">
-                            <option value="text-embedding-ada-002">text-embedding-ada-002</option>
-                            <option value="text-embedding-3-large">text-embedding-3-large</option>
-                            <option value="text-embedding-3-small">text-embedding-3-small</option>
-                            <option value="ViT-L-14">ViT-L-14</option>
-                        </select>
+                        <select id="model-name" class="form-select"></select>
                     </div>
                     <button class="btn btn-primary w-100" id="change-model-button">Modell wechseln</button>
                     <div id="change-result" class="mt-2 small"></div>
@@ -148,14 +140,69 @@ sequenceDiagram
             controls.forEach(el => { if (el) el.disabled = state; });
         }
 
-        function updateModelOptions() {
-            if (providerSelect.value === 'openclip') {
-                modelSelect.innerHTML = '<option value="ViT-L-14">ViT-L-14</option>';
-            } else {
-                modelSelect.innerHTML = '<option value="text-embedding-ada-002">text-embedding-ada-002</option>' +
-                    '<option value="text-embedding-3-large">text-embedding-3-large</option>' +
-                    '<option value="text-embedding-3-small">text-embedding-3-small</option>';
+        let availableModels = {};
+
+        function renderProviderOptions() {
+            providerSelect.innerHTML = '';
+            const providers = Object.keys(availableModels);
+            if (providers.length === 0) {
+                providerSelect.innerHTML = '<option disabled selected>no models available</option>';
+                modelSelect.innerHTML = '<option disabled selected>no models available</option>';
+                changeButton.disabled = true;
+                return;
             }
+            providers.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                providerSelect.appendChild(opt);
+            });
+            if (!providers.includes(providerSelect.value)) {
+                providerSelect.value = providers[0];
+            }
+        }
+
+        function renderModelOptions() {
+            modelSelect.innerHTML = '';
+            const models = availableModels[providerSelect.value] || {};
+            const names = Object.keys(models);
+            if (names.length === 0) {
+                modelSelect.innerHTML = '<option disabled selected>no models available</option>';
+                changeButton.disabled = true;
+                return;
+            }
+            names.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                modelSelect.appendChild(opt);
+            });
+            if (!names.includes(modelSelect.value)) {
+                modelSelect.value = names[0];
+            }
+            changeButton.disabled = false;
+        }
+
+        function loadAvailableModels() {
+            fetch('/embedding/models')
+                .then(r => r.json())
+                .then(data => {
+                    availableModels = data || {};
+                    const prevProvider = providerSelect.value;
+                    const prevModel = modelSelect.value;
+                    renderProviderOptions();
+                    renderModelOptions();
+                    if (availableModels[prevProvider] && availableModels[prevProvider][prevModel]) {
+                        providerSelect.value = prevProvider;
+                        renderModelOptions();
+                        modelSelect.value = prevModel;
+                    }
+                })
+                .catch(() => {
+                    availableModels = {};
+                    renderProviderOptions();
+                    renderModelOptions();
+                });
         }
 
         function loadActiveModel() {
@@ -164,9 +211,11 @@ sequenceDiagram
                 .then(data => {
                     if (data.embedding_provider && data.model_name) {
                         activeModel.textContent = data.embedding_provider + ' / ' + data.model_name;
-                        providerSelect.value = data.embedding_provider;
-                        updateModelOptions();
-                        modelSelect.value = data.model_name;
+                        if (availableModels[data.embedding_provider] && availableModels[data.embedding_provider][data.model_name]) {
+                            providerSelect.value = data.embedding_provider;
+                            renderModelOptions();
+                            modelSelect.value = data.model_name;
+                        }
                     }
                 });
         }
@@ -199,9 +248,11 @@ sequenceDiagram
             });
         });
 
-        providerSelect.addEventListener('change', updateModelOptions);
+        providerSelect.addEventListener('change', renderModelOptions);
+        loadAvailableModels();
         loadActiveModel();
         setBusy(false);
+        setInterval(loadAvailableModels, 5000);
         
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
