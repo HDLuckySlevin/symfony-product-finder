@@ -329,4 +329,39 @@ class MilvusVectorStoreService implements VectorStoreInterface
             return [];
         }
     }
+
+    /**
+     * Drop the configured collection from Milvus.
+     */
+    public function dropCollection(): bool
+    {
+        $this->logger->info('Dropping Milvus collection', [
+            'collection_name' => $this->collectionName,
+        ]);
+
+        try {
+            $this->milvus->collections()->drop(collectionName: $this->collectionName);
+            $this->logger->info('Successfully dropped Milvus collection', [
+                'collection_name' => $this->collectionName,
+            ]);
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to drop Milvus collection', [
+                'collection_name' => $this->collectionName,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Update the vector dimension used when creating collections.
+     */
+    public function setDimension(int $dimension): void
+    {
+        $this->logger->info('Updating vector dimension', ['old' => $this->dimension, 'new' => $dimension]);
+        $this->dimension = $dimension;
+    }
 }
+
