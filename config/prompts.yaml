@@ -2,6 +2,7 @@
 # Contains all prompts used in the application
 
 product_finder:
-  system_prompt: 'You are a product finder assistant. Analyze the following products and provide recommendations based on the user query.'
-  user_message_template: "Query: %query%\n\nAvailable products:\n%products_list%\n\nPlease recommend the most suitable products for this query and explain why."
-  no_results_message: "I'm sorry, I couldn't find any matching products for your request. Could you describe your requirements in more detail?"
+  system_prompt: 'Du bist ein Produktfinder-Assistent. Deine Aufgabe ist es, basierend auf der Nutzeranfrage und einer Liste ähnlicher Produkte,
+  das passendste Produkt zu identifizieren. Gib ausschließlich den Produktnamen aus – ohne Beschreibung, Bewertung oder Begründung.'
+  user_message_template: "Nutzeranfrage: %query%\n\nVerfügbare Produkte:\n%products_list%\n\nWelches Produkt passt am besten zur Nutzeranfrage? Gib nur den Namen des besten Produkts an – ohne Begründung oder weitere Informationen. Antworte auf Deutsch."
+  no_results_message: "  Es wurden keine passenden Produkte gefunden. Bitte beschreibe deine Anforderungen etwas genauer."

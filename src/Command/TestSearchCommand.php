@@ -72,11 +72,11 @@ class TestSearchCommand extends Command
             });
 
             if (empty($filteredResults)) {
-                $io->warning('No products found with distance <= 0.5');
+                $io->warning('No products found with similarity <= 0.5');
                 return Command::SUCCESS;
             }
 
-            $io->success(sprintf('Found %d products matching the query with distance <= 0.5', count($filteredResults)));
+            $io->success(sprintf('Found %d products matching the query with similarity <= 0.5', count($filteredResults)));
 
             // Process results using search service
             $io->text('Processing results with OpenAI...');
@@ -91,7 +91,7 @@ class TestSearchCommand extends Command
             // Create user message with query and products
             $productsList = '';
             foreach ($filteredResults as $index => $result) {
-                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (1 - ($result['distance'] ?? 0)) . ")\n";
+                $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (($result['distance'] ?? 0)) . ")\n";
             }
 
             $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
@@ -108,7 +108,7 @@ class TestSearchCommand extends Command
             $recommendation = $this->searchService->generateChatCompletion($messages);
 
             // Display raw results
-            $io->section('Raw search results (distance <= 0.5):');
+            $io->section('Raw search results (similarity <= 0.5):');
             $table = [];
             foreach ($filteredResults as $index => $result) {
                 $table[] = [
@@ -119,7 +119,7 @@ class TestSearchCommand extends Command
                 ];
             }
 
-            $io->table(['#', 'ID', 'Product Name', 'Distance'], $table);
+            $io->table(['#', 'ID', 'Product Name', 'Similarity'], $table);
 
             // Display OpenAI recommendation
             $io->section('OpenAI Recommendation:');
