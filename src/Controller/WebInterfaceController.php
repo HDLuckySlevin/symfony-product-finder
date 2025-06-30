@@ -181,6 +181,13 @@ class WebInterfaceController extends AbstractController
         return new JsonResponse($data);
     }
 
+    #[Route('/embedding/models', name: 'app_available_models', methods: ['GET'])]
+    public function availableModels(PythonEmbeddingService $embeddingService): JsonResponse
+    {
+        $data = $embeddingService->getAvailableModels();
+        return new JsonResponse($data);
+    }
+
     #[Route('/embedding/change', name: 'app_change_embedding_model', methods: ['POST'])]
     public function changeEmbeddingModel(
         Request $request,

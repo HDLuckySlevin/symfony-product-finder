@@ -399,5 +399,28 @@ class PythonEmbeddingService implements EmbeddingGeneratorInterface
         }
     }
 
+    public function getAvailableModels(): array
+    {
+        $url = $this->getServiceUrl() . '/availablemodels';
+        try {
+            $response = $this->httpClient->request('GET', $url);
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Failed to fetch available models', [
+                    'status_code' => $response->getStatusCode(),
+                ]);
+                return [];
+            }
+
+            $data = $response->toArray(false);
+            $this->logger->info('Fetched available models', ['data' => $data]);
+            return $data;
+        } catch (\Throwable $e) {
+            $this->logger->error('Error fetching available models', [
+                'exception' => $e,
+            ]);
+            return [];
+        }
+    }
+
     // Removed generateImageEmbedding method
 }
