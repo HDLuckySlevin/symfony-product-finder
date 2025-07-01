@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Service\PythonEmbeddingService;
+use App\Service\OpenAIEmbeddingService;
 
 #[AsCommand(
     name: 'app:process-image',
@@ -17,9 +17,9 @@ use App\Service\PythonEmbeddingService;
 )]
 class ProcessImageCommand extends Command
 {
-    private PythonEmbeddingService $embeddingGenerator;
+    private OpenAIEmbeddingService $embeddingGenerator;
 
-    public function __construct(PythonEmbeddingService $embeddingGenerator)
+    public function __construct(OpenAIEmbeddingService $embeddingGenerator)
     {
         parent::__construct();
         $this->embeddingGenerator = $embeddingGenerator;
