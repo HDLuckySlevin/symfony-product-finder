@@ -3,7 +3,7 @@
 namespace App\Tests;
 
 use App\Command\ProcessImageCommand;
-use App\Service\PythonEmbeddingService;
+use App\Service\OpenAIEmbeddingService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -16,7 +16,7 @@ class ProcessImageCommandTest extends TestCase
 {
     public function testExecuteRunsSearchCommandWithDescription(): void
     {
-        $generator = $this->createMock(PythonEmbeddingService::class);
+        $generator = $this->createMock(OpenAIEmbeddingService::class);
         $generator->expects($this->once())
             ->method('describeImage')
             ->willReturn('awesome phone');
@@ -55,7 +55,7 @@ class ProcessImageCommandTest extends TestCase
 
     public function testExecuteFailsOnMissingDescription(): void
     {
-        $generator = $this->createMock(PythonEmbeddingService::class);
+        $generator = $this->createMock(OpenAIEmbeddingService::class);
         $generator->method('describeImage')->willReturn(null);
 
         $searchCommand = new class extends Command {

@@ -33,20 +33,18 @@ services:
         arguments:
             $milvus: '@Milvus\Client'
             $logger: '@Psr\Log\LoggerInterface'
-            $embeddingService: '@App\Service\PythonEmbeddingService'
+            $embeddingService: '@App\Service\OpenAIEmbeddingService'
             $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
 
-    # New Python Embedding Service
-    App\Service\PythonEmbeddingService:
+    App\Service\OpenAIEmbeddingService:
         arguments:
-            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            $client: '@OpenAI\Client'
             $logger: '@Psr\Log\LoggerInterface'
-            # $mimeTypeGuesser: '@mime_types_default' # Removed as per new approach
-            $embedHost: '%env(APP_EMBED_HOST)%' # Assuming http://localhost or similar
-            $embedPort: '%env(EMBED_PORT)%'
+            $embeddingModel: '%env(OPENAI_MODEL)%'
+            $imageModel: '%env(OPENAI_MODEL_IMAGE)%'
+            $debugVectors: '%env(bool:DEBUG_VECTORS)%'
 
-    # Bind the EmbeddingGeneratorInterface to the PythonEmbeddingService
-    App\Service\EmbeddingGeneratorInterface: '@App\Service\PythonEmbeddingService'
+    App\Service\EmbeddingGeneratorInterface: '@App\Service\OpenAIEmbeddingService'
 
     # OpenAI client and embedding generator are removed as they are replaced.
     # App\Service\OpenAISearchService might still be needed if it's used for chat completion based on search results.
@@ -70,7 +68,7 @@ services:
 
     App\Command\ProcessImageCommand:
         arguments:
-            $embeddingGenerator: '@App\Service\PythonEmbeddingService'
+            $embeddingGenerator: '@App\Service\OpenAIEmbeddingService'
 
     App\Service\OpenAISpeechToTextService:
         arguments:

@@ -17,7 +17,7 @@ use App\Command\ProcessImageCommand;
 use App\Command\ProcessAudioCommand;
 use Symfony\Component\Routing\Annotation\Route;
 use Psr\Log\LoggerInterface;
-use App\Service\PythonEmbeddingService;
+use App\Service\OpenAIEmbeddingService;
 use App\Service\MilvusVectorStoreService;
 use App\Command\ImportProductsCommand;
 
@@ -175,14 +175,14 @@ class WebInterfaceController extends AbstractController
     }
 
     #[Route('/embedding/active', name: 'app_active_embedding_model', methods: ['GET'])]
-    public function activeEmbeddingModel(PythonEmbeddingService $embeddingService): JsonResponse
+    public function activeEmbeddingModel(OpenAIEmbeddingService $embeddingService): JsonResponse
     {
         $data = $embeddingService->getActiveEmbeddingModel();
         return new JsonResponse($data);
     }
 
     #[Route('/embedding/models', name: 'app_available_models', methods: ['GET'])]
-    public function availableModels(PythonEmbeddingService $embeddingService): JsonResponse
+    public function availableModels(OpenAIEmbeddingService $embeddingService): JsonResponse
     {
         $data = $embeddingService->getAvailableModels();
         return new JsonResponse($data);
@@ -191,7 +191,7 @@ class WebInterfaceController extends AbstractController
     #[Route('/embedding/change', name: 'app_change_embedding_model', methods: ['POST'])]
     public function changeEmbeddingModel(
         Request $request,
-        PythonEmbeddingService $embeddingService,
+        OpenAIEmbeddingService $embeddingService,
         MilvusVectorStoreService $vectorStore,
         ImportProductsCommand $importCommand,
         KernelInterface $kernel
