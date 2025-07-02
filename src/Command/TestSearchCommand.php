@@ -40,25 +40,35 @@ class TestSearchCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('query', InputArgument::REQUIRED, 'Natural language search query');
+            ->addArgument('query', InputArgument::REQUIRED, 'Natural language search query')
+            ->addOption('simple', null, null, 'Reduce output to the similarity table and recommendation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $query = $input->getArgument('query');
+        $simple = (bool) $input->getOption('simple');
 
-        $io->title('Testing product search');
-        $io->section('Search query: ' . $query);
+        if (!$simple) {
+            $io->title('Testing product search');
+            $io->section('Search query: ' . $query);
+        }
 
         try {
             // Generate embedding for the query
-            $io->text('Generating embedding for the query...');
+            if (!$simple) {
+                $io->text('Generating embedding for the query...');
+            }
             $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($query);
-            $io->success('Successfully generated embedding for the query');
+            if (!$simple) {
+                $io->success('Successfully generated embedding for the query');
+            }
 
             // Search for similar products
-            $io->text('Searching for similar products...');
+            if (!$simple) {
+                $io->text('Searching for similar products...');
+            }
             $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
 
             if (empty($results)) {
@@ -76,10 +86,14 @@ class TestSearchCommand extends Command
                 return Command::SUCCESS;
             }
 
-            $io->success(sprintf('Found %d products matching the query with similarity <= 0.5', count($filteredResults)));
+            if (!$simple) {
+                $io->success(sprintf('Found %d products matching the query with similarity <= 0.5', count($filteredResults)));
+            }
 
             // Process results using search service
-            $io->text('Processing results with OpenAI...');
+            if (!$simple) {
+                $io->text('Processing results with OpenAI...');
+            }
 
             // Create system prompt that acts as a product finder
             $systemPromptContent = $this->promptService->getPrompt('product_finder', 'system_prompt');
@@ -108,7 +122,9 @@ class TestSearchCommand extends Command
             $recommendation = $this->searchService->generateChatCompletion($messages);
 
             // Display raw results
-            $io->section('Raw search results (similarity <= 0.5):');
+            if (!$simple) {
+                $io->section('Raw search results (similarity <= 0.5):');
+            }
             $table = [];
             foreach ($filteredResults as $index => $result) {
                 $table[] = [
@@ -122,7 +138,9 @@ class TestSearchCommand extends Command
             $io->table(['#', 'ID', 'Product Name', 'Similarity'], $table);
 
             // Display OpenAI recommendation
-            $io->section('OpenAI Recommendation:');
+            if (!$simple) {
+                $io->section('OpenAI Recommendation:');
+            }
             $io->writeln($recommendation);
 
             return Command::SUCCESS;

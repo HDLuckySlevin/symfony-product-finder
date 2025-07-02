@@ -60,6 +60,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $command->getName(),
             'query' => $query,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
@@ -97,6 +98,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $processImageCommand->getName(),
             'image' => $imagePath,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
@@ -153,6 +155,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $processAudioCommand->getName(),
             'audio' => $audioPath,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
