@@ -17,19 +17,22 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
     private string $embeddingModel;
     private string $imageModel;
     private bool $debugVectors;
+    private string $imageDescriptionPrompt;
 
     public function __construct(
         Client $client,
         LoggerInterface $logger,
         string $embeddingModel = 'text-embedding-3-small',
         string $imageModel = 'gpt-4o',
-        bool $debugVectors = false
+        bool $debugVectors = false,
+        string $imageDescriptionPrompt = null
     ) {
         $this->client = $client;
         $this->logger = $logger;
         $this->embeddingModel = $embeddingModel;
         $this->imageModel = $imageModel;
         $this->debugVectors = $debugVectors;
+        $this->imageDescriptionPrompt = $imageDescriptionPrompt;
     }
 
     public function getActiveEmbeddingModel(): array
@@ -64,8 +67,7 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
         try {
             $response = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
-                'input' => $texts,
-                'extra_body' => ['embedding_types' => ['mean']],
+                'input' => $texts
             ]);
 
             $vectors = [];
@@ -92,7 +94,7 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 [
                     'role' => 'user',
                     'content' => [
-                        ['type' => 'text', 'text' => 'Beschreibe ausschließlich das sichtbare physische Produkt auf dem Bild sachlich und vollständig. Gib alle sichtbaren Merkmale wie Produktform, Farbe, Kameraanordnung, Materialien, Knöpfe, Logos und sichtbare Inhalte auf dem Display an. Wenn ein Logo sichtbar ist, nenne die zugehörige Marke, sofern sie durch Form, Farbe oder Gestaltung eindeutig erkennbar ist. Verwende keine unsicheren Begriffe wie „möglicherweise“ oder „könnte“. Nutze die Markenzuordnung nur, wenn diese auf dem Bild visuell eindeutig ist, z. B. bei einem „G“-Logo für Google oder einem Apfel-Logo für Apple.Beschreibe den Bildschirminhalt nur, wenn er sichtbar ist. Verwende klare, einfache Sätze.Beende die Beschreibung mit den Feldern: Produkt-Kategorie: [z. B. Smartphone] Produkt-Name: [Marke + Modell, falls eindeutig sichtbar, sonst: „nicht erkennbar'],
+                        ['type' => 'text', 'text' => $this->imageDescriptionPrompt],
                         ['type' => 'image_url', 'image_url' => ['url' => 'data:image/jpeg;base64,' . $data, 'detail' => 'high']],
                     ],
                 ],
@@ -108,8 +110,7 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
 
             $embed = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
-                'input' => [$description],
-                'extra_body' => ['embedding_types' => ['mean']],
+                'input' => [$description]
             ]);
 
             $vector = $embed->embeddings[0]->embedding ?? [];
