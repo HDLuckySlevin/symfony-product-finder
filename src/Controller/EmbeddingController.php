@@ -25,7 +25,10 @@ class EmbeddingController extends AbstractController
     public function textEmbedding(Request $request): JsonResponse
     {
         $payload = json_decode($request->getContent(), true) ?? [];
-        $texts = (array)($payload['texts'] ?? []);
+        $texts = array_map('strval', (array)($payload['texts'] ?? []));
+        if ($texts === [] || $texts === [""]) {
+            return new JsonResponse(['error' => 'No texts provided'], 400);
+        }
         try {
             $vectors = $this->service->createTextEmbeddings($texts);
             return new JsonResponse(['vectors' => $vectors]);
