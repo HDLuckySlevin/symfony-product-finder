@@ -8,18 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Console\Application as KernelApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Command\Command;
 use App\Command\TestSearchCommand;
 use App\Command\ProcessImageCommand;
 use App\Command\ProcessAudioCommand;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Psr\Log\LoggerInterface;
-use App\Service\PythonEmbeddingService;
-use App\Service\MilvusVectorStoreService;
-use App\Command\ImportProductsCommand;
 
 class WebInterfaceController extends AbstractController
 {
@@ -60,6 +56,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $command->getName(),
             'query' => $query,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
@@ -97,6 +94,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $processImageCommand->getName(),
             'image' => $imagePath,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
@@ -153,6 +151,7 @@ class WebInterfaceController extends AbstractController
         $input = new ArrayInput([
             'command' => $processAudioCommand->getName(),
             'audio' => $audioPath,
+            '--simple' => true,
         ]);
 
         $output = new BufferedOutput();
@@ -174,84 +173,5 @@ class WebInterfaceController extends AbstractController
         ]);
     }
 
-    #[Route('/embedding/active', name: 'app_active_embedding_model', methods: ['GET'])]
-    public function activeEmbeddingModel(PythonEmbeddingService $embeddingService): JsonResponse
-    {
-        $data = $embeddingService->getActiveEmbeddingModel();
-        return new JsonResponse($data);
-    }
-
-    #[Route('/embedding/models', name: 'app_available_models', methods: ['GET'])]
-    public function availableModels(PythonEmbeddingService $embeddingService): JsonResponse
-    {
-        $data = $embeddingService->getAvailableModels();
-        return new JsonResponse($data);
-    }
-
-    #[Route('/embedding/change', name: 'app_change_embedding_model', methods: ['POST'])]
-    public function changeEmbeddingModel(
-        Request $request,
-        PythonEmbeddingService $embeddingService,
-        MilvusVectorStoreService $vectorStore,
-        ImportProductsCommand $importCommand,
-        KernelInterface $kernel
-    ): JsonResponse {
-        $payload = json_decode($request->getContent(), true) ?? [];
-        $provider = (string)($payload['embedding_provider'] ?? '');
-        $model = (string)($payload['model_name'] ?? '');
-
-        if ($provider === '' || $model === '') {
-            return new JsonResponse(['success' => false, 'message' => 'Invalid payload'], 400);
-        }
-
-        $this->logger->info('Received request to change embedding model', [
-            'provider' => $provider,
-            'model' => $model,
-        ]);
-
-        $data = $embeddingService->changeEmbeddingModel($provider, $model);
-        $this->logger->info('Embedding service responded', ['response' => $data]);
-
-        // Update dimension based on the newly selected model
-        $dimension = $embeddingService->getVectorDimension();
-        $vectorStore->setDimension($dimension);
-
-        // Drop collection and recreate it before re-import
-        $this->logger->info('Dropping Milvus collection before re-import');
-        $dropResult = $vectorStore->dropCollection();
-        $this->logger->info('Milvus dropCollection result', ['success' => $dropResult]);
-
-        $createResult = $vectorStore->createCollection($dimension);
-        $this->logger->info('Milvus createCollection result', ['success' => $createResult]);
-
-        $this->logger->info('Starting product re-import after embedding model change');
-        $application = new KernelApplication($kernel);
-        $application->setAutoExit(false);
-        $importCommand->setApplication($application);
-        $xmlPath = $kernel->getProjectDir() . '/src/DataFixtures/xml/sample_products.xml';
-        $input = new ArrayInput([
-            'command' => $importCommand->getName(),
-            'xml-file' => $xmlPath,
-        ]);
-        $output = new BufferedOutput();
-        $exitCode = $importCommand->run($input, $output);
-        $this->logger->info('Finished product re-import', [
-            'exit_code' => $exitCode,
-            'import_output' => $output->fetch(),
-        ]);
-
-        // Verify that vectors exist after import
-        $testVector = $embeddingService->generateQueryEmbedding('test');
-        $checkResults = $vectorStore->searchSimilarProducts($testVector, 1);
-        $hasVectors = count($checkResults) > 0;
-        $this->logger->info('Vector presence check', ['has_vectors' => $hasVectors]);
-        $response = array_merge([
-            'embedding_provider' => $provider,
-            'model_name' => $model,
-            'vectors' => $hasVectors,
-        ], is_array($data) ? $data : []);
-
-        return new JsonResponse($response);
-    }
 }
 

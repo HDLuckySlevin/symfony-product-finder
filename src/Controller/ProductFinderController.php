@@ -10,9 +10,12 @@ use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+
 
 class ProductFinderController extends AbstractController
 {
@@ -59,7 +62,7 @@ class ProductFinderController extends AbstractController
      * @return JsonResponse JSON response with product recommendations, no-results message, or error details.
      */
     #[Route('/api/products/chat', name: 'api_products_chat', methods: ['POST'])]
-    public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
+    public function chatSearch(#[MapRequestPayload] ChatRequestDto $chatRequest, InputInterface $input, OutputInterface $output): JsonResponse
     {
         $message = $chatRequest->message;
 

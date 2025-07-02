@@ -30,13 +30,16 @@ class ProcessAudioCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('audio', InputArgument::REQUIRED, 'Path to the audio file');
+        $this
+            ->addArgument('audio', InputArgument::REQUIRED, 'Path to the audio file')
+            ->addOption('simple', null, null, 'Reduce output of the underlying search command');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $audioPath = $input->getArgument('audio');
+        $simple = (bool) $input->getOption('simple');
 
         $this->logger->info('ProcessAudioCommand started', ['path' => $audioPath]);
 
@@ -57,7 +60,9 @@ class ProcessAudioCommand extends Command
 
             $this->logger->info('Transcription succeeded', ['text' => $text]);
 
-            $io->text('Transcribed text: ' . $text);
+            if (!$simple) {
+                $io->text('Transcribed text: ' . $text);
+            }
 
             $application = $this->getApplication();
             if (!$application) {
@@ -70,6 +75,9 @@ class ProcessAudioCommand extends Command
                 'command' => 'app:test-search',
                 'query' => $text,
             ];
+            if ($simple) {
+                $arguments['--simple'] = true;
+            }
             $testInput = new ArrayInput($arguments);
             $testInput->setInteractive(false);
 
