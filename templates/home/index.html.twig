@@ -131,7 +131,7 @@ sequenceDiagram
         function addImageMessage(file) {
             const reader = new FileReader();
             reader.onload = e => {
-                addMessage(`<img src="${e.target.result}" class="img-fluid rounded" />`, true);
+                addMessage(`<img src="${e.target.result}" class="img-fluid w-150p rounded" />`, true);
             };
             reader.readAsDataURL(file);
         }
@@ -373,9 +373,12 @@ sequenceDiagram
         float: left;
     }
 
-    
-    .message p {
+        .message p {
         margin: 0;
+    }
+
+    .w-150p {
+        width: 150px;
     }
 </style>
 {% endblock %}
