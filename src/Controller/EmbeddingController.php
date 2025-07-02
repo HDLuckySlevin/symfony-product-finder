@@ -55,7 +55,7 @@ class EmbeddingController extends AbstractController
         }
     }
 
-    #[Route('/activeembeddingmodell', methods: ['GET'])]
+    #[Route('/activeembeddingmodel', methods: ['GET'])]
     public function activeEmbeddingModel(): JsonResponse
     {
         return new JsonResponse($this->service->getActiveEmbeddingModel());
