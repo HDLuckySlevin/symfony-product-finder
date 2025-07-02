@@ -12,13 +12,9 @@ use App\Service\VectorStoreInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 
 
 class ProductFinderController extends AbstractController
@@ -111,13 +107,10 @@ class ProductFinderController extends AbstractController
                 'content' => $systemPromptContent
             ];
 
-            $io = new SymfonyStyle($input, $output);
             // Create user message with query and products
             $productsList = '';
             foreach ($filteredResults as $index => $result) {
                 $productsList .= ($index + 1) . ". " . ($result['title'] ?? 'Unknown product') . " (Similarity: " . (($result['distance'] ?? 0)) . ")\n";
-                $io->title('filtered Results');
-                $io->section('Results query: ' . $result);
             }
 
             $userMessageContent = $this->promptService->getPrompt('product_finder', 'user_message_template', [
