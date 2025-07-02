@@ -135,7 +135,6 @@ Access the chat interface at `https://symfony-product-finder.ddev.site/` to sear
 
 The application exposes a small API for generating embeddings directly:
 
-- `GET /activeembeddingmodell` – returns the active embedding provider and model.
 - `GET /dimension` – returns the vector dimension of the current model.
 - `POST /text-embedding` – send `{ "texts": ["hello"] }` and receive embedding vectors.
 - `POST /image-embedding` – upload an image file to receive a description and vector.
