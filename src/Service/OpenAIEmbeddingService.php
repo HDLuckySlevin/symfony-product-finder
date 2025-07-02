@@ -35,13 +35,6 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
         $this->imageDescriptionPrompt = $imageDescriptionPrompt;
     }
 
-    public function getActiveEmbeddingModel(): array
-    {
-        return [
-            'embedding_provider' => 'openai',
-            'model_name' => $this->embeddingModel,
-        ];
-    }
 
     public function getVectorDimension(): int
     {
