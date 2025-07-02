@@ -46,6 +46,10 @@ class EmbeddingController extends AbstractController
         if (!$file instanceof UploadedFile) {
             return new JsonResponse(['error' => 'Missing file'], 400);
         }
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+               if (!in_array($file->getMimeType(), $allowedMimeTypes, true)) {
+                   return new JsonResponse(['error' => 'Invalid file type. Only images are allowed.'], 400);
+        }
         try {
             $result = $this->service->describeImageFile($file);
             return new JsonResponse($result);
