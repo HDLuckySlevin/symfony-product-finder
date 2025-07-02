@@ -4,23 +4,7 @@
 
 {% block body %}
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-4 mb-3" id="model-sidebar">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Embedding Modell</h5>
-                    <p>Aktiv: <span id="active-model">-</span></p>
-                    <div class="mb-2">
-                        <select id="embedding-provider" class="form-select"></select>
-                    </div>
-                    <div class="mb-2">
-                        <select id="model-name" class="form-select"></select>
-                    </div>
-                    <button class="btn btn-primary w-100" id="change-model-button">Modell wechseln</button>
-                    <div id="change-result" class="mt-2 small"></div>
-                </div>
-            </div>
-        </div>
+    <div class="row justify-content-center">
         <div class="col-md-8 text-center">
             <h1 class="mb-4">Product-Finder</h1>
             <p class="lead mb-5">Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz. Beschreiben Sie einfach, was Sie suchen, und unser System findet die passenden Produkte für Sie.</p>
@@ -127,132 +111,14 @@ sequenceDiagram
         }
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
-        const providerSelect = document.getElementById('embedding-provider');
-        const modelSelect = document.getElementById('model-name');
-        const changeButton = document.getElementById('change-model-button');
-        const activeModel = document.getElementById('active-model');
-        const changeResult = document.getElementById('change-result');
-        const controls = [sendButton, recordButton, uploadButton, openCameraButton, changeButton, providerSelect, modelSelect];
+        const controls = [sendButton, recordButton, uploadButton, openCameraButton];
         let busy = false;
 
         function setBusy(state) {
             busy = state;
             controls.forEach(el => { if (el) el.disabled = state; });
         }
-
-        let availableModels = {};
-
-        function renderProviderOptions() {
-            providerSelect.innerHTML = '';
-            const providers = Object.keys(availableModels);
-            if (providers.length === 0) {
-                providerSelect.innerHTML = '<option disabled selected>no models available</option>';
-                modelSelect.innerHTML = '<option disabled selected>no models available</option>';
-                changeButton.disabled = true;
-                return;
-            }
-            providers.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.textContent = p;
-                providerSelect.appendChild(opt);
-            });
-            if (!providers.includes(providerSelect.value)) {
-                providerSelect.value = providers[0];
-            }
-        }
-
-        function renderModelOptions() {
-            modelSelect.innerHTML = '';
-            const models = availableModels[providerSelect.value] || {};
-            const names = Object.keys(models);
-            if (names.length === 0) {
-                modelSelect.innerHTML = '<option disabled selected>no models available</option>';
-                changeButton.disabled = true;
-                return;
-            }
-            names.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.textContent = m;
-                modelSelect.appendChild(opt);
-            });
-            if (!names.includes(modelSelect.value)) {
-                modelSelect.value = names[0];
-            }
-            changeButton.disabled = false;
-        }
-
-        function loadAvailableModels() {
-            fetch('/embedding/models')
-                .then(r => r.json())
-                .then(data => {
-                    availableModels = data || {};
-                    const prevProvider = providerSelect.value;
-                    const prevModel = modelSelect.value;
-                    renderProviderOptions();
-                    renderModelOptions();
-                    if (availableModels[prevProvider] && availableModels[prevProvider][prevModel]) {
-                        providerSelect.value = prevProvider;
-                        renderModelOptions();
-                        modelSelect.value = prevModel;
-                    }
-                })
-                .catch(() => {
-                    availableModels = {};
-                    renderProviderOptions();
-                    renderModelOptions();
-                });
-        }
-
-        function loadActiveModel() {
-            fetch('/embedding/active')
-                .then(r => r.json())
-                .then(data => {
-                    if (data.embedding_provider && data.model_name) {
-                        activeModel.textContent = data.embedding_provider + ' / ' + data.model_name;
-                        if (availableModels[data.embedding_provider] && availableModels[data.embedding_provider][data.model_name]) {
-                            providerSelect.value = data.embedding_provider;
-                            renderModelOptions();
-                            modelSelect.value = data.model_name;
-                        }
-                    }
-                });
-        }
-
-        changeButton.addEventListener('click', function() {
-            const payload = {
-                embedding_provider: providerSelect.value,
-                model_name: modelSelect.value
-            };
-            setBusy(true);
-            changeResult.textContent = 'Modellwechsel läuft...';
-            fetch('/embedding/change', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.vectors) {
-                    changeResult.textContent = 'Aktives Modell: ' + data.embedding_provider + ' / ' + data.model_name;
-                } else {
-                    changeResult.textContent = 'Modell gewechselt, aber keine Vektoren gefunden';
-                }
-                setBusy(false);
-                loadActiveModel();
-            })
-            .catch(() => {
-                changeResult.textContent = 'Fehler beim Modellwechsel';
-                setBusy(false);
-            });
-        });
-
-        providerSelect.addEventListener('change', renderModelOptions);
-        loadAvailableModels();
-        loadActiveModel();
         setBusy(false);
-        setInterval(loadAvailableModels, 5000);
         
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
@@ -507,14 +373,6 @@ sequenceDiagram
         float: left;
     }
 
-    #model-sidebar {
-        position: sticky;
-        top: 20px;
-    }
-
-    #change-result {
-        min-height: 1em;
-    }
     
     .message p {
         margin: 0;
