@@ -74,10 +74,12 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
 
 3. Configure environment variables in `.env.local`:
    ```
-   OPENAI_API_KEY=your_openai_api_key
-   OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-   OPENAI_CHAT_MODEL=gpt-3.5-turbo
-   MILVUS_API_KEY=your_milvus_api_key
+  OPENAI_API_KEY=your_openai_api_key
+  OPENAI_MODEL=text-embedding-3-small
+  OPENAI_MODEL_IMAGE=gpt-4o
+  OPENAI_CHAT_MODEL=gpt-3.5-turbo
+  DEBUG_VECTORS=false
+  MILVUS_API_KEY=your_milvus_api_key
    MILVUS_HOST=your_milvus_endpoint
    MILVUS_PORT=443
    MILVUS_COLLECTION=products
@@ -128,6 +130,15 @@ ddev php bin/console app:process-image path/to/image.jpg
 ### Web Interface
 
 Access the chat interface at `https://symfony-product-finder.ddev.site/` to search for products using natural language.
+
+### Embedding API
+
+The application exposes a small API for generating embeddings directly:
+
+- `GET /dimension` – returns the vector dimension of the current model.
+- `POST /text-embedding` – send `{ "texts": ["hello"] }` and receive embedding vectors.
+- `POST /image-embedding` – upload an image file to receive a description and vector.
+- `GET /healthstatus` – simple health check of the embedding service.
 
 ## Customization
 

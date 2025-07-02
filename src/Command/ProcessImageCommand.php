@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Service\PythonEmbeddingService;
+use App\Service\OpenAIEmbeddingService;
 
 #[AsCommand(
     name: 'app:process-image',
@@ -17,9 +17,9 @@ use App\Service\PythonEmbeddingService;
 )]
 class ProcessImageCommand extends Command
 {
-    private PythonEmbeddingService $embeddingGenerator;
+    private OpenAIEmbeddingService $embeddingGenerator;
 
-    public function __construct(PythonEmbeddingService $embeddingGenerator)
+    public function __construct(OpenAIEmbeddingService $embeddingGenerator)
     {
         parent::__construct();
         $this->embeddingGenerator = $embeddingGenerator;
@@ -28,13 +28,15 @@ class ProcessImageCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('image', InputArgument::REQUIRED, 'Path to the image file');
+            ->addArgument('image', InputArgument::REQUIRED, 'Path to the image file')
+            ->addOption('simple', null, null, 'Reduce output of the underlying search command');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $imagePath = $input->getArgument('image');
+        $simple = (bool) $input->getOption('simple');
 
         if (!is_file($imagePath)) {
             $io->error('Image file not found: ' . $imagePath);
@@ -49,7 +51,9 @@ class ProcessImageCommand extends Command
                 return Command::FAILURE;
             }
 
-            $io->text('Image description: ' . $description);
+            if (!$simple) {
+                $io->text('Image description: ' . $description);
+            }
 
             $application = $this->getApplication();
             if (!$application) {
@@ -62,6 +66,9 @@ class ProcessImageCommand extends Command
                 'command' => 'app:test-search',
                 'query' => $description,
             ];
+            if ($simple) {
+                $arguments['--simple'] = true;
+            }
             $testInput = new ArrayInput($arguments);
             $testInput->setInteractive(false);
 
