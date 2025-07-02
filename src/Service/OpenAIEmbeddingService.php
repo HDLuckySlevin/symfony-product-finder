@@ -79,6 +79,9 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
         }
     }
 
+    /**
+     * @return array{description: string, vector: array<float>, provider: string}
+     */
     public function describeImageFile(UploadedFile $file): array
     {
         try {
@@ -88,7 +91,10 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                     'role' => 'user',
                     'content' => [
                         ['type' => 'text', 'text' => $this->imageDescriptionPrompt],
-                        ['type' => 'image_url', 'image_url' => ['url' => 'data:image/jpeg;base64,' . $data, 'detail' => 'high']],
+                        [
+                            'type' => 'image_url',
+                            'image_url' => ['url' => 'data:image/jpeg;base64,' . $data, 'detail' => 'high']
+                        ],
                     ],
                 ],
             ];
@@ -99,14 +105,20 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 'max_tokens' => 300,
             ]);
 
-            $description = trim($response->choices[0]->message->content ?? '');
+            if (empty($response->choices) || !$response->choices[0]->message->content) {
+                throw new \RuntimeException('OpenAI returned empty response');
+            }
+            $description = trim($response->choices[0]->message->content);
 
             $embed = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
                 'input' => [$description]
             ]);
 
-            $vector = $embed->embeddings[0]->embedding ?? [];
+            if (empty($embed->embeddings)) {
+                throw new \RuntimeException('OpenAI returned empty embeddings');
+            }
+            $vector = $embed->embeddings[0]->embedding;
 
             if ($this->debugVectors) {
                 $this->logger->info(json_encode($vector));

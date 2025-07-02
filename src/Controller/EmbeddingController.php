@@ -24,7 +24,11 @@ class EmbeddingController extends AbstractController
     #[Route('/text-embedding', methods: ['POST'])]
     public function textEmbedding(Request $request): JsonResponse
     {
-        $payload = json_decode($request->getContent(), true) ?? [];
+        $payload = json_decode($request->getContent(), true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new JsonResponse(['error' => 'Invalid JSON payload'], 400);
+        }
+        $payload = $payload ?? [];
         $texts = array_map('strval', (array)($payload['texts'] ?? []));
         if ($texts === [] || $texts === [""]) {
             return new JsonResponse(['error' => 'No texts provided'], 400);
@@ -47,8 +51,8 @@ class EmbeddingController extends AbstractController
             return new JsonResponse(['error' => 'Missing file'], 400);
         }
         $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-               if (!in_array($file->getMimeType(), $allowedMimeTypes, true)) {
-                   return new JsonResponse(['error' => 'Invalid file type. Only images are allowed.'], 400);
+        if (!in_array($file->getMimeType(), $allowedMimeTypes, true)) {
+            return new JsonResponse(['error' => 'Invalid file type. Only images are allowed.'], 400);
         }
         try {
             $result = $this->service->describeImageFile($file);
