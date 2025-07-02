@@ -8,18 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Console\Application as KernelApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Command\Command;
 use App\Command\TestSearchCommand;
 use App\Command\ProcessImageCommand;
 use App\Command\ProcessAudioCommand;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Psr\Log\LoggerInterface;
-use App\Service\OpenAIEmbeddingService;
-use App\Service\MilvusVectorStoreService;
-use App\Command\ImportProductsCommand;
 
 class WebInterfaceController extends AbstractController
 {
