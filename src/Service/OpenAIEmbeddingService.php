@@ -92,7 +92,7 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 [
                     'role' => 'user',
                     'content' => [
-                        ['type' => 'text', 'text' => 'Beschreibe sachlich das sichtbare Produkt auf dem Bild.'],
+                        ['type' => 'text', 'text' => 'Beschreibe ausschließlich das sichtbare physische Produkt auf dem Bild sachlich und vollständig. Gib alle sichtbaren Merkmale wie Produktform, Farbe, Kameraanordnung, Materialien, Knöpfe, Logos und sichtbare Inhalte auf dem Display an. Wenn ein Logo sichtbar ist, nenne die zugehörige Marke, sofern sie durch Form, Farbe oder Gestaltung eindeutig erkennbar ist. Verwende keine unsicheren Begriffe wie „möglicherweise“ oder „könnte“. Nutze die Markenzuordnung nur, wenn diese auf dem Bild visuell eindeutig ist, z. B. bei einem „G“-Logo für Google oder einem Apfel-Logo für Apple.Beschreibe den Bildschirminhalt nur, wenn er sichtbar ist. Verwende klare, einfache Sätze.Beende die Beschreibung mit den Feldern: Produkt-Kategorie: [z. B. Smartphone] Produkt-Name: [Marke + Modell, falls eindeutig sichtbar, sonst: „nicht erkennbar'],
                         ['type' => 'image_url', 'image_url' => ['url' => 'data:image/jpeg;base64,' . $data, 'detail' => 'high']],
                     ],
                 ],

@@ -4,5 +4,5 @@
 product_finder:
   system_prompt: 'Du bist ein Produktfinder-Assistent. Deine Aufgabe ist es, basierend auf der Nutzeranfrage und einer Liste ähnlicher Produkte,
   das passendste Produkt zu identifizieren. Gib ausschließlich den Produktnamen aus – ohne Beschreibung, Bewertung oder Begründung.'
-  user_message_template: "Nutzeranfrage: %query%\n\nVerfügbare Produkte:\n%products_list%\n\nWelches Produkt passt am besten zur Nutzeranfrage? Gib nur den Namen des besten Produkts an – ohne Begründung oder weitere Informationen. Antworte auf Deutsch."
+  user_message_template: "Nutzeranfrage: %query%\n\nVerfügbare Produkte:\n%products_list%\n\nWelches Produkt passt am besten zur Nutzeranfrage? Gib nur den Namen des besten Produkts an – ohne Begründung oder weitere Informationen. Antworte auf Deutsch. Beachte immer den Similarity-Score und die beschreibung. Wenn es offensichtlich ein Apple-Phone sein sollte, macht es keinen Sinn ein Samsung-Phone zu empfehlen, außer es gibt in den verfügbaren Produkten nicht das richtige Modell/Marke"
   no_results_message: "  Es wurden keine passenden Produkte gefunden. Bitte beschreibe deine Anforderungen etwas genauer."
