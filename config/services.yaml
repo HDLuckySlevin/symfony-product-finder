@@ -43,6 +43,7 @@ services:
             $embeddingModel: '%env(OPENAI_MODEL)%'
             $imageModel: '%env(OPENAI_MODEL_IMAGE)%'
             $debugVectors: '%env(bool:DEBUG_VECTORS)%'
+            $imageDescriptionPrompt: '%env(IMAGE_DESCRIPTION_PROMPT)%'
 
     App\Service\EmbeddingGeneratorInterface: '@App\Service\OpenAIEmbeddingService'
 
