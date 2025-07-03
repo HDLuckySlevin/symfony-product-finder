@@ -72,7 +72,7 @@ class ApiSearchController extends AbstractController
             return new ChatResponseDto(true, $query, null, $noResultsMessage, []);
         }
 
-        $filteredResults = array_filter($results, static fn($r) => isset($r['distance']) && $r['distance'] <= 0.5);
+        $filteredResults = array_filter($results, static fn($r) => isset($r['distance']) && $r['distance'] >= 0.5);
 
         $this->logger->debug('Filtered results', [
             'count' => count($filteredResults),
