@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
 class ApiSearchController extends AbstractController
 {
@@ -123,6 +124,23 @@ class ApiSearchController extends AbstractController
     }
 
     #[Route('/api/search/text', name: 'api_search_text', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/search/text',
+        summary: 'Search for products using a text query',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ChatRequestDto')
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Search results and recommendation',
+                content: new OA\JsonContent(ref: '#/components/schemas/ChatResponseDto')
+            ),
+            new OA\Response(response: 400, description: 'Invalid request')
+        ],
+        tags: ['Search API']
+    )]
     public function searchText(#[MapRequestPayload] ChatRequestDto $chatRequest): JsonResponse
     {
         $query = $chatRequest->message;
@@ -137,6 +155,31 @@ class ApiSearchController extends AbstractController
     }
 
     #[Route('/api/search/image', name: 'api_search_image', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/search/image',
+        summary: 'Search using an uploaded image',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'image', type: 'string', format: 'binary')
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Search results and recommendation',
+                content: new OA\JsonContent(ref: '#/components/schemas/ChatResponseDto')
+            ),
+            new OA\Response(response: 400, description: 'Invalid request')
+        ],
+        tags: ['Search API']
+    )]
     public function searchImage(Request $request): JsonResponse
     {
         /** @var UploadedFile|null $file */
@@ -164,6 +207,32 @@ class ApiSearchController extends AbstractController
     }
 
     #[Route('/api/search/audio', name: 'api_search_audio', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/search/audio',
+        summary: 'Search using an uploaded audio file',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'audio', type: 'string', format: 'binary')
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Search results and recommendation',
+                content: new OA\JsonContent(ref: '#/components/schemas/ChatResponseDto')
+            ),
+            new OA\Response(response: 400, description: 'Invalid request'),
+            new OA\Response(response: 500, description: 'Transcription failed')
+        ],
+        tags: ['Search API']
+    )]
     public function searchAudio(Request $request): JsonResponse
     {
         /** @var UploadedFile|null $file */
