@@ -110,6 +110,32 @@ ddev php bin/console app:import-products src/DataFixtures/xml/sample_products.xm
 
 The import process vectorizes each product as a single chunk for semantic search.
 
+### Importing a Single Product via API
+
+A single product can also be submitted as JSON and will be vectorized in the same way. Send a `POST` request to `/api/products` with the product data:
+
+```json
+{
+  "id": 6,
+  "title": "Google Pixel 8 Pro",
+  "sku": "GOOPIX8P-128-BLU",
+  "description": "...",
+  "brand": "Google",
+  "category": "Smartphones",
+  "price": 1099.00,
+  "image_url": "https://example.com/images/pixel-8-pro.jpg",
+  "rating": 4.7,
+  "stock": 28,
+  "specifications": {
+    "display": "6,7 Zoll LTPO OLED, 2992 x 1344 Pixel",
+    "processor": "Google Tensor G3"
+  },
+  "features": ["Face Unlock", "Wireless Charging"]
+}
+```
+
+The endpoint creates one chunk for the product, vectorizes it and stores it in the database. It responds with `200 OK` on success or an error message if something goes wrong.
+
 ### Testing Search
 
 Try the natural language search:
