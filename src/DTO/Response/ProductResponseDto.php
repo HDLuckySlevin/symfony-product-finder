@@ -2,6 +2,16 @@
 
 namespace App\DTO\Response;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'ProductResponseDto',
+    properties: [
+        new OA\Property(property: 'id', type: 'string', nullable: true),
+        new OA\Property(property: 'title', type: 'string', nullable: true),
+        new OA\Property(property: 'distance', type: 'number', format: 'float', nullable: true)
+    ]
+)]
 class ProductResponseDto implements \JsonSerializable
 {
     public readonly ?string $id;
