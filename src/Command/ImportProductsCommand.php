@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:import-products',
-    description: 'Import products from XML file, generate embeddings and sync with Milvus',
+    description: 'Import products from XML file, generate embeddings and sync with Zilliz',
 )]
 class ImportProductsCommand extends Command
 {
@@ -52,19 +52,19 @@ class ImportProductsCommand extends Command
             $products = $this->xmlImportService->importFromFile($xmlFile);
             $io->success(sprintf('Successfully imported %d products from XML', count($products)));
 
-            // Initialize Milvus collection
-            $io->section('Initializing Milvus collection');
+            // Initialize Zilliz collection
+            $io->section('Initializing Zilliz collection');
             $result = $this->vectorStoreService->initializeCollection();
 
             if ($result) {
-                $io->success('Successfully initialized Milvus collection');
+                $io->success('Successfully initialized Zilliz collection');
             } else {
-                $io->error('Failed to initialize Milvus collection. Halting import.');
+                $io->error('Failed to initialize Zilliz collection. Halting import.');
                 return Command::FAILURE;
             }
 
             // Generate embeddings and insert chunks
-            $io->section('Generating embeddings and inserting into Milvus');
+            $io->section('Generating embeddings and inserting into Zilliz');
             $progressBar = $io->createProgressBar(count($products));
             $progressBar->start();
 

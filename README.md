@@ -1,22 +1,22 @@
 # Product Finder with GenAI and Symfony
 
-This Symfony application enables natural language product search through AI-powered semantic understanding. It imports product data from XML, vectorizes product attributes using OpenAI embeddings, and stores them in Milvus vector database for efficient similarity search.
+This Symfony application enables natural language product search through AI-powered semantic understanding. It imports product data from XML, vectorizes product attributes using OpenAI embeddings, and stores them in a Zilliz vector database for efficient similarity search.
 
 ## Features
 
 - Import electronic products from XML files
 - Vectorize product properties with OpenAI Embeddings
-- Store and search products in Milvus vector database
+- Store and search products in Zilliz vector database
 - Natural language product search via API
 - Web interface with DeepChat for intuitive user interaction
 - Flexible configuration for API keys and endpoints
 
 ## Technical Stack
 
-- **Symfony 6.4**: Core application framework
-- **PHP 8.2+**: Required runtime
+- **Symfony 5.4**: Core application framework
+- **PHP 7.4-8.1**: Supported runtime
 - **OpenAI API**: For embeddings and chat completions
-- **Milvus**: Vector database for similarity search
+- **Zilliz**: Vector database for similarity search
 - **DDEV**: Local development environment
 - **Gitpod**: Cloud development environment
 
@@ -33,7 +33,7 @@ The application follows a service-oriented architecture with key components orga
 2. **Services**:
    - `XmlImportService`: Parses XML files and extracts product data
    - `OpenAIEmbeddingGenerator`: Generates vector embeddings using OpenAI
-   - `MilvusVectorStoreService`: Manages vector database interactions
+   - `ZillizVectorStoreService`: Manages vector database interactions
    - `OpenAISearchService`: Generates natural language recommendations
    - `PromptService`: Manages prompts for OpenAI chat models
 
@@ -44,7 +44,7 @@ The application follows a service-oriented architecture with key components orga
 
 1. User submits natural language query
 2. Query is vectorized using OpenAI embeddings
-3. Vector search finds similar products in Milvus
+3. Vector search finds similar products in Zilliz
 4. Results are filtered by relevance threshold (distance ≤ 0.5)
 5. OpenAI generates natural language recommendations based on results
 6. User receives product recommendations and matching products
@@ -55,7 +55,7 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
 
 ### Prerequisites
 
-- PHP 8.2 or higher
+- PHP 7.4 or higher (up to 8.1)
 - Composer
 - DDEV (recommended for local development)
 
@@ -79,8 +79,8 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
   OPENAI_MODEL_IMAGE=gpt-4o
   OPENAI_CHAT_MODEL=gpt-3.5-turbo
   DEBUG_VECTORS=false
-  MILVUS_API_KEY=your_milvus_api_key
-   MILVUS_HOST=your_milvus_endpoint
+  MILVUS_API_KEY=your_zilliz_api_key
+   MILVUS_HOST=your_zilliz_endpoint
    MILVUS_PORT=443
    MILVUS_COLLECTION=products
    ```
@@ -146,7 +146,7 @@ The application exposes a small API for generating embeddings directly:
 
 - **Custom XML Format**: Modify `XmlImportService.php` to support different XML structures
 - **Alternative Embedding Providers**: Implement `EmbeddingGeneratorInterface` to use different vector providers
-- **Vector Database Configuration**: Customize `MilvusVectorStoreService.php` for specific vector storage needs
+- **Vector Database Configuration**: Customize `ZillizVectorStoreService.php` for specific vector storage needs
 
 ## Development
 
