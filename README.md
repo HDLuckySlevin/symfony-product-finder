@@ -140,6 +140,18 @@ The application exposes a small API for generating embeddings directly:
 - `POST /image-embedding` – upload an image file to receive a description and vector.
 - `GET /healthstatus` – simple health check of the embedding service.
 
+### Search API
+
+Product search can also be accessed via JSON endpoints which mirror the
+functionality of the web interface:
+
+- `POST /api/search/text` – send `{ "message": "smartphone" }` and receive search
+  results.
+- `POST /api/search/image` – upload an image file (field name `image`) to search
+  based on its description.
+- `POST /api/search/audio` – upload an audio file (field name `audio`) which is
+  transcribed and used as the search query.
+
 ## Customization
 
 ### Extending the Application
