@@ -139,19 +139,25 @@ sequenceDiagram
         function searchProducts(query) {
             addMessage('Suche nach passenden Produkten...', false);
 
-            fetch('/search', {
+            fetch('/api/search/text', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ query: query })
+                body: JSON.stringify({ message: query })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    addMessage(`<pre>${data.output}</pre>`, false);
+                    if (data.response) {
+                        addMessage(data.response, false);
+                    }
+                    if (Array.isArray(data.products)) {
+                        displayProducts(data.products);
+                    }
                 } else {
-                    addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+                    addMessage(msg, false);
                 }
             })
             .catch(error => {
@@ -170,16 +176,22 @@ sequenceDiagram
             const formData = new FormData();
             formData.append('image', file, file.name || 'upload.png');
 
-            fetch('/search/image', {
+            fetch('/api/search/image', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    addMessage(`<pre>${data.output}</pre>`, false);
+                    if (data.response) {
+                        addMessage(data.response, false);
+                    }
+                    if (Array.isArray(data.products)) {
+                        displayProducts(data.products);
+                    }
                 } else {
-                    addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+                    addMessage(msg, false);
                 }
             })
             .catch(error => {
@@ -197,16 +209,22 @@ sequenceDiagram
             const formData = new FormData();
             formData.append('audio', blob, 'recording.webm');
 
-            fetch('/search/audio', {
+            fetch('/api/search/audio', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    addMessage(`<pre>${data.output}</pre>`, false);
+                    if (data.response) {
+                        addMessage(data.response, false);
+                    }
+                    if (Array.isArray(data.products)) {
+                        displayProducts(data.products);
+                    }
                 } else {
-                    addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+                    addMessage(msg, false);
                 }
             })
             .catch(error => {
@@ -223,7 +241,7 @@ sequenceDiagram
                 productCard.className = 'col-md-6 mb-4';
                 
                 const productName = product.title || 'Unbekanntes Produkt';
-                const productId = product.primary_key || 'N/A';
+                const productId = product.id || 'N/A';
                 const score = product.distance ? (product.distance * 100).toFixed(1) + '%' : 'N/A';
                 
                 productCard.innerHTML = `

@@ -2,6 +2,22 @@
 
 namespace App\DTO\Response;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: 'ChatResponseDto',
+    properties: [
+        new OA\Property(property: 'success', type: 'boolean'),
+        new OA\Property(property: 'query', type: 'string', nullable: true),
+        new OA\Property(property: 'message', type: 'string', nullable: true),
+        new OA\Property(property: 'response', type: 'string', nullable: true),
+        new OA\Property(
+            property: 'products',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/ProductResponseDto')
+        )
+    ]
+)]
 readonly class ChatResponseDto implements \JsonSerializable
 {
     public bool $success;
