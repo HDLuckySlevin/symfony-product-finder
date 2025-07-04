@@ -282,11 +282,35 @@ class MilvusVectorStoreService implements VectorStoreInterface
         ]);
 
         try {
-            $this->milvus->vector()->delete(
-                collectionName: $this->collectionName,
-                filter: 'product_id == ' . $productId,
+            $response = $this->milvus->vector()->query(
+                $this->collectionName,
+                'product_id == ' . $productId
             );
 
+            $results = $response->json();
+            //$this->logger->debug('Milvus query result', ['raw' => $results]);
+
+            $ids = array_column($results['data'] ?? [], 'id');
+
+            if (empty($ids)) {
+                $this->logger->info('No vectors found to delete', [
+                    'collection' => $this->collectionName,
+                    'product_id' => $productId
+                ]);
+                return true;
+            }
+
+            $deleteResponse = $this->milvus->vector()->delete(
+                $ids,
+                $this->collectionName,
+            );
+
+            $this->logger->info('Deleted vectors', [
+                'collection' => $this->collectionName,
+                'product_id' => $productId,
+                'deleted_ids' => $ids,
+                'milvus_response' => $deleteResponse->json()
+            ]);
             return true;
         } catch (\Throwable $e) {
             $this->logger->error('Failed to delete product vectors', [
