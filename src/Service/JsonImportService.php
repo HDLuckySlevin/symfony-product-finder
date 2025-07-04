@@ -49,6 +49,18 @@ class JsonImportService
 
     private function validateProduct(Product $product): void
     {
+        $missing = [];
+        if ($product->getId() === null) {
+            $missing[] = 'id';
+        }
+        $name = $product->getName();
+        if ($name === null || $name === '') {
+            $missing[] = 'name';
+        }
+        if ($missing !== []) {
+            throw new \RuntimeException('Required fields missing: ' . implode(', ', $missing));
+        }
+
         $violations = $this->validator->validate($product);
         if (count($violations) > 0) {
             throw new \RuntimeException($this->formatViolations($violations));
