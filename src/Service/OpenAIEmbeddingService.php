@@ -150,11 +150,18 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
         if ($product->getDescription()) {
             $parts[] = $product->getDescription();
         }
-        foreach ($product->getSpecifications() as $name => $value) {
-            $parts[] = sprintf('%s: %s', $name, $value);
+        $specifications = $product->getSpecifications();
+        if (is_array($specifications)) {
+            foreach ($specifications as $name => $value) {
+                $parts[] = sprintf('%s: %s', $name, $value);
+            }
         }
-        foreach ($product->getFeatures() as $feature) {
-            $parts[] = $feature;
+
+        $features = $product->getFeatures();
+        if (is_array($features)) {
+            foreach ($features as $feature) {
+                $parts[] = $feature;
+            }
         }
 
         $text = trim(implode("\n", $parts));
