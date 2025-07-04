@@ -44,6 +44,9 @@ class ProductImportController extends AbstractController
             $this->vectorStoreService->initializeCollection();
 
             $chunks = $this->embeddingGenerator->generateProductEmbeddings($product);
+            if ($product->getId() !== null) {
+                $this->vectorStoreService->deleteProductVectors($product->getId());
+            }
             $this->vectorStoreService->insertProductChunks($product, $chunks);
 
             return new JsonResponse(['success' => true]);

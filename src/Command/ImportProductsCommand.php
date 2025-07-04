@@ -70,6 +70,9 @@ class ImportProductsCommand extends Command
 
             foreach ($products as $product) {
                 $chunks = $this->embeddingGenerator->generateProductEmbeddings($product);
+                if ($product->getId() !== null) {
+                    $this->vectorStoreService->deleteProductVectors($product->getId());
+                }
                 $this->vectorStoreService->insertProductChunks($product, $chunks);
                 $progressBar->advance();
             }
