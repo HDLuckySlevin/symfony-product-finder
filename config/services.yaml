@@ -20,21 +20,17 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Factory\MilvusClientFactory: ~
-
-    Milvus\Client:
-        factory: ['@App\Factory\MilvusClientFactory', 'create']
+    App\Service\ZillizVectorStoreService:
         arguments:
-            $token: '%env(MILVUS_TOKEN)%'
-            $host: '%env(MILVUS_HOST)%'
-            $port: '%env(int:MILVUS_PORT)%'
-
-    App\Service\MilvusVectorStoreService:
-        arguments:
-            $milvus: '@Milvus\Client'
+            $httpClient: '@Symfony\Contracts\HttpClient\HttpClientInterface'
             $logger: '@Psr\Log\LoggerInterface'
             $embeddingService: '@App\Service\OpenAIEmbeddingService'
-            $collectionName: '%env(MILVUS_COLLECTION)%' # e.g., "products"
+            $apiKey: '%env(MILVUS_API_KEY)%'
+            $host: '%env(MILVUS_HOST)%'
+            $port: '%env(int:MILVUS_PORT)%'
+            $collectionName: '%env(MILVUS_COLLECTION)%'
+
+    App\Service\VectorStoreInterface: '@App\Service\ZillizVectorStoreService'
 
     App\Service\OpenAIEmbeddingService:
         arguments:

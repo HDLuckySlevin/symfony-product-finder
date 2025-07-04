@@ -48,7 +48,7 @@
                 <h3>Wie funktioniert es?</h3>
                 <p>Der Product-Finder kombiniert künstliche Intelligenz mit einer Vektor-Datenbank, um Ihre Suche komfortabel zu gestalten.</p>
                 <ol class="text-start">
-                    <li><strong>Import &amp; Vektorisierung:</strong> Produktdaten werden aus XML-Dateien eingelesen und als Vektoren in Milvus gespeichert.</li>
+                    <li><strong>Import &amp; Vektorisierung:</strong> Produktdaten werden aus XML-Dateien eingelesen und als Vektoren in Zilliz gespeichert.</li>
                     <li><strong>Anfrage stellen:</strong> Geben Sie Ihre Wünsche per Text, Sprache oder Bild ein.</li>
                     <li><strong>Semantische Suche:</strong> Die Anfrage wird vektorisiert und mit den Produkten abgeglichen.</li>
                     <li><strong>Antwort generieren:</strong> OpenAI fasst die Resultate zusammen und erstellt Empfehlungen.</li>
@@ -60,13 +60,13 @@ sequenceDiagram
     actor Nutzer
     participant UI as Weboberfläche
     participant API as Controller
-    participant Milvus
+    participant Zilliz
     participant OpenAI
     Nutzer->>UI: Anfrage/ Bild/ Audio
     UI->>API: Anfrage senden
     API->>OpenAI: Embedding erstellen
-    API->>Milvus: Produkte suchen
-    Milvus-->>API: Liste
+    API->>Zilliz: Produkte suchen
+    Zilliz-->>API: Liste
     API->>OpenAI: Empfehlung generieren
     OpenAI-->>API: Antwort
     API-->>UI: Ergebnisse
