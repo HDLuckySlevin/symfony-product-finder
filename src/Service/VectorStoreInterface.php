@@ -47,6 +47,11 @@ interface VectorStoreInterface
     public function insertProductChunks(Product $product, array $chunks): bool;
 
     /**
+     * Delete all vectors belonging to the given product ID.
+     */
+    public function deleteProductVectors(int $productId): bool;
+
+    /**
      * Search for products similar to the provided query embedding
      *
      * @param array<int, float> $queryEmbedding The embedding vector to search with

@@ -272,6 +272,35 @@ class MilvusVectorStoreService implements VectorStoreInterface
     }
 
     /**
+     * Delete all vectors that belong to the given product ID.
+     */
+    public function deleteProductVectors(int $productId): bool
+    {
+        $this->logger->info('Deleting existing vectors for product', [
+            'collection_name' => $this->collectionName,
+            'product_id' => $productId,
+        ]);
+
+        try {
+            $this->milvus->vector()->delete(
+                collectionName: $this->collectionName,
+                filter: 'product_id == ' . $productId,
+            );
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to delete product vectors', [
+                'collection_name' => $this->collectionName,
+                'product_id' => $productId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
      * Search for products similar to the provided query embedding
      * 
      * Performs a vector similarity search in the database using the provided
