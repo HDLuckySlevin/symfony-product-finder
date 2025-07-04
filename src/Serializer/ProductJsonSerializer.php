@@ -40,6 +40,13 @@ class ProductJsonSerializer
         foreach (self::PROPERTY_MAPPING as $key => $config) {
             if (array_key_exists($key, $data)) {
                 $value = $data[$key];
+                $method = $config['method'];
+
+                if ($value === null) {
+                    $product->$method(null);
+                    continue;
+                }
+
                 switch ($config['type']) {
                     case 'int':
                         $value = (int) $value;
@@ -52,13 +59,18 @@ class ProductJsonSerializer
                         $value = (string) $value;
                         break;
                 }
-                $method = $config['method'];
+
                 $product->$method($value);
             }
         }
 
-        $specifications = [];
-        if (isset($data['specifications']) && is_array($data['specifications'])) {
+        $specifications = null;
+        if (
+            isset($data['specifications']) &&
+            is_array($data['specifications']) &&
+            !array_is_list($data['specifications'])
+        ) {
+            $specifications = [];
             foreach ($data['specifications'] as $name => $value) {
                 $specifications[(string) $name] = (string) $value;
             }
