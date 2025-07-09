@@ -135,6 +135,7 @@ A single product can also be submitted as JSON and will be vectorized in the sam
 ```
 
 The endpoint creates one chunk for the product, vectorizes it and stores it in the database. It responds with `200 OK` on success or an error message if something goes wrong.
+If a product with the same `id` already exists in Milvus, the old vectors are removed before the new ones are stored. This ensures that re-importing the same product replaces the existing entry instead of creating duplicates.
 
 ### Testing Search
 
