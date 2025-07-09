@@ -56,4 +56,21 @@ class ProductImportController extends AbstractController
             return new JsonResponse(['message' => $e->getMessage()], 500);
         }
     }
+
+    #[Route('/api/products/{id}', name: 'api_products_delete', methods: ['DELETE'])]
+    public function deleteProduct(int $id): JsonResponse
+    {
+        if (empty($id) || $id < 1) {
+            return new JsonResponse(['message' => 'ID is empty or negative'], 400);
+        }
+
+        try {
+            $this->vectorStoreService->deleteProductVectors($id);
+            return new JsonResponse(['success' => true]);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse(['message' => $e->getMessage()], 400);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['message' => $e->getMessage()], 500);
+        }
+    }
 }
