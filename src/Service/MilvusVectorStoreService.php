@@ -272,6 +272,59 @@ class MilvusVectorStoreService implements VectorStoreInterface
     }
 
     /**
+     * Delete all vectors that belong to the given product ID.
+     */
+    public function deleteProductVectors(int $productId): bool
+    {
+        $this->logger->info('Deleting existing vectors for product', [
+            'collection_name' => $this->collectionName,
+            'product_id' => $productId,
+        ]);
+
+        try {
+            $response = $this->milvus->vector()->query(
+                $this->collectionName,
+                'product_id == ' . $productId
+            );
+
+            $results = $response->json();
+            //$this->logger->debug('Milvus query result', ['raw' => $results]);
+
+            $ids = array_column($results['data'] ?? [], 'id');
+
+            if (empty($ids)) {
+                $this->logger->info('No vectors found to delete', [
+                    'collection' => $this->collectionName,
+                    'product_id' => $productId
+                ]);
+                return true;
+            }
+
+            $deleteResponse = $this->milvus->vector()->delete(
+                $ids,
+                $this->collectionName,
+            );
+
+            $this->logger->info('Deleted vectors', [
+                'collection' => $this->collectionName,
+                'product_id' => $productId,
+                'deleted_ids' => $ids,
+                'milvus_response' => $deleteResponse->json()
+            ]);
+            return true;
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to delete product vectors', [
+                'collection_name' => $this->collectionName,
+                'product_id' => $productId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
      * Search for products similar to the provided query embedding
      * 
      * Performs a vector similarity search in the database using the provided
