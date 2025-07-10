@@ -30,9 +30,9 @@ class ApiKeySubscriber implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        $providedKey = $request->headers->get('X-API-Key') ?? $request->query->get('api_key');
+        $providedKey = $request->headers->get('X-API-Key');
 
-        if ($this->apiKey === '' || $providedKey !== $this->apiKey) {
+        if ($providedKey !== $this->apiKey) {
             $event->setResponse(new JsonResponse(['message' => 'Invalid API key'], 401));
         }
     }
