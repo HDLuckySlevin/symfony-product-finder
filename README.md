@@ -79,6 +79,7 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
   OPENAI_MODEL_IMAGE=gpt-4o
   OPENAI_CHAT_MODEL=gpt-3.5-turbo
   DEBUG_VECTORS=false
+  APP_API_KEY=choose_a_secret_key
   MILVUS_API_KEY=your_milvus_api_key
    MILVUS_HOST=your_milvus_endpoint
    MILVUS_PORT=443
@@ -157,6 +158,10 @@ ddev php bin/console app:process-image path/to/image.jpg
 ### Web Interface
 
 Access the chat interface at `https://symfony-product-finder.ddev.site/` to search for products using natural language.
+
+### API Authentication
+
+All API endpoints require an `X-API-Key` header containing the value of `APP_API_KEY` defined in your environment. Requests without a valid key will be rejected with `401 Unauthorized`.
 
 ### Embedding API
 
