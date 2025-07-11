@@ -162,6 +162,7 @@ Access the chat interface at `https://symfony-product-finder.ddev.site/` to sear
 ### API Authentication
 
 All API endpoints require an `X-API-Key` header containing the value of `APP_API_KEY` defined in your environment. Requests without a valid key will be rejected with `401 Unauthorized`.
+When you open the web interface at `/`, the application issues the API key as an HTTP-only cookie so that subsequent AJAX requests can access the protected API without exposing the key in the browser.
 
 ### Embedding API
 

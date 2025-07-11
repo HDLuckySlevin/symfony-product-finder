@@ -26,6 +26,16 @@ services:
     App\EventSubscriber\ApiKeySubscriber:
         arguments:
             $apiKey: '%app.api_key%'
+            $cookieName: 'api_key'
+            $excludedPaths:
+                - '/'
+                - '/search'
+                - '/search/image'
+                - '/search/audio'
+
+    App\Controller\WebInterfaceController:
+        arguments:
+            $apiKey: '%app.api_key%'
 
     Milvus\Client:
         factory: ['@App\Factory\MilvusClientFactory', 'create']
