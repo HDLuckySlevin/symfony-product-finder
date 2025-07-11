@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -25,15 +26,21 @@ class WebInterfaceController extends AbstractController
     private const MAX_AUDIO_SIZE = 5242880; // 5 MB
 
     private LoggerInterface $logger;
+    private string $apiKey;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $apiKey)
     {
         $this->logger = $logger;
+        $this->apiKey = $apiKey;
     }
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
-        return $this->render('home/index.html.twig');
+        $response = $this->render('home/index.html.twig');
+        $cookie = Cookie::create('api_key', $this->apiKey)
+            ->withHttpOnly(true);
+        $response->headers->setCookie($cookie);
+        return $response;
     }
 
     #[Route('/search', name: 'app_web_search', methods: ['POST'])]
