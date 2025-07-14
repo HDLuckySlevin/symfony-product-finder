@@ -251,9 +251,17 @@ class ApiSearchController extends AbstractController
             $this->logger->error('Unable to create temp file for audio');
             return new JsonResponse(['success' => false, 'message' => 'Could not create temp file'], 500);
         }
-        $file->move(dirname($temp), basename($temp));
-        $text = $this->sttService->transcribe($temp);
-        @unlink($temp);
+        $extension = $file->guessExtension() ?: $file->getClientOriginalExtension();
+        if ($extension === '') {
+            $extension = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
+        }
+        $tempPath = $extension !== '' ? $temp . '.' . $extension : $temp;
+        rename($temp, $tempPath);
+        $file->move(dirname($tempPath), basename($tempPath));
+        $this->logger->debug('Saved audio file', ['path' => $tempPath, 'extension' => $extension]);
+
+        $text = $this->sttService->transcribe($tempPath);
+        @unlink($tempPath);
         if ($text === null || $text === '') {
             $this->logger->warning('Transcription failed');
             return new JsonResponse(['success' => false, 'message' => 'Transcription failed'], 500);

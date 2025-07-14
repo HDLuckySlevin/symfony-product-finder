@@ -34,6 +34,10 @@ class OpenAISpeechToTextService implements SpeechToTextServiceInterface
                 'path' => $audioPath,
                 'size' => filesize($audioPath),
             ]);
+            $this->logger->debug('Audio file details', [
+                'mime' => mime_content_type($audioPath) ?: 'unknown',
+                'extension' => pathinfo($audioPath, PATHINFO_EXTENSION),
+            ]);
 
             $response = $this->client->audio()->transcribe([
                 'model' => $this->model,
@@ -52,8 +56,10 @@ class OpenAISpeechToTextService implements SpeechToTextServiceInterface
             return null;
         } catch (\Throwable $e) {
             $this->logger->error('Error during OpenAI Whisper transcription', [
-                'exception' => $e,
+                'message' => $e->getMessage(),
+                'path' => $audioPath,
             ]);
+            $this->logger->debug('Whisper exception', ['exception' => $e]);
             return null;
         }
     }
