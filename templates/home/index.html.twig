@@ -55,23 +55,29 @@
                     <li><strong>Ergebnisse anzeigen:</strong> Passende Produkte erscheinen im Chat.</li>
                 </ol>
                 <div class="mt-4">
-                    <pre class="mermaid">
+                <pre class="mermaid">
 sequenceDiagram
     actor Nutzer
     participant UI as Weboberfläche
-    participant API as Controller
+    participant API as Such-API
+    participant STT as Speech-to-Text
+    participant Embed as Embedding-Service
     participant Milvus
     participant OpenAI
-    Nutzer->>UI: Anfrage/ Bild/ Audio
+    Nutzer->>UI: Text / Bild / Audio
     UI->>API: Anfrage senden
-    API->>OpenAI: Embedding erstellen
+    API->>STT: Audio transkribieren
+    STT-->>API: Text
+    API->>Embed: Embedding erzeugen
+    Embed->>OpenAI: Anfrage
+    Embed-->>API: Vektor
     API->>Milvus: Produkte suchen
-    Milvus-->>API: Liste
+    Milvus-->>API: Ähnliche Produkte
     API->>OpenAI: Empfehlung generieren
     OpenAI-->>API: Antwort
     API-->>UI: Ergebnisse
     UI-->>Nutzer: Produkte anzeigen
-                    </pre>
+                </pre>
                 </div>
             </div>
         </div>
