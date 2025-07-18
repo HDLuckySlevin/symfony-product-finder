@@ -353,7 +353,7 @@ class MilvusVectorStoreService implements VectorStoreInterface
                 collectionName: $this->collectionName, // Corrected collection name
                 vector: $queryEmbedding,
                 limit: $limit,
-                outputFields: ["id", "title"],
+                outputFields: ["product_id", "title"],
                 dbName: $this->collectionName
             );
 
