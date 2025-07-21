@@ -43,7 +43,7 @@ class ProductResponseDto implements \JsonSerializable
     public static function fromArray(array $data): self
     {
         return new self(
-            $data['id'] ?? null,
+            $data['product_id'] ?? null,
             $data['title'] ?? null,
             $data['distance'] ?? null
         );
