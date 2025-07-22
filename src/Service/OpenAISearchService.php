@@ -4,6 +4,7 @@ namespace App\Service;
 
 use OpenAI\Client;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Service for generating search results using OpenAI's Chat API
@@ -29,6 +30,11 @@ class OpenAISearchService implements SearchServiceInterface
     private LoggerInterface $logger;
 
     /**
+     * Request stack for accessing the session
+     */
+    private RequestStack $requestStack;
+
+    /**
      * Constructor
      * 
      * @param Client $client The OpenAI API client
@@ -36,12 +42,14 @@ class OpenAISearchService implements SearchServiceInterface
      * @param string $chatModel The chat model to use (default: 'gpt-3.5-turbo')
      */
     public function __construct(
-        Client $client, 
+        Client $client,
         LoggerInterface $logger,
+        RequestStack $requestStack,
         string $chatModel = 'gpt-3.5-turbo'
     ) {
         $this->client = $client;
         $this->logger = $logger;
+        $this->requestStack = $requestStack;
         $this->chatModel = $chatModel;
     }
 
@@ -61,9 +69,13 @@ class OpenAISearchService implements SearchServiceInterface
         ]);
 
         try {
+            $session = $this->requestStack->getSession();
+            /** @var array<int, array{role:string, content:string}> $history */
+            $history = $session->get('conversation_history', []);
+
             $requestOptions = array_merge([
                 'model' => $this->chatModel,
-                'messages' => $messages,
+                'messages' => array_merge($history, $messages),
             ], $options);
 
             $response = $this->client->chat()->create($requestOptions);
@@ -73,6 +85,19 @@ class OpenAISearchService implements SearchServiceInterface
                 $this->logger->debug('Successfully received chat completion from OpenAI for search', [
                     'content_length' => strlen($content)
                 ]);
+
+                // update conversation history in session
+                foreach ($messages as $msg) {
+                    if ($msg['role'] !== 'system') {
+                        $history[] = [
+                            'role' => $msg['role'],
+                            'content' => $msg['content'],
+                        ];
+                    }
+                }
+                $history[] = ['role' => 'assistant', 'content' => $content];
+                $session->set('conversation_history', $history);
+
                 return $content;
             } else {
                 $this->logger->error('Invalid response format from OpenAI client', [
