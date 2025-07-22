@@ -182,8 +182,10 @@ functionality of the web interface:
   results.
 - `POST /api/search/image` – upload an image file (field name `image`) to search
   based on its description.
-- `POST /api/search/audio` – upload an audio file (field name `audio`) which is
-  transcribed and used as the search query.
+- `POST /api/search/audio` – upload an audio file (field name `audio`) which is transcribed and used as the search query.
+
+Further examples are available in [docs/API.md](docs/API.md). A sanitized Postman collection can be found in [docs/api/postman_collection.json](docs/api/postman_collection.json).
+
 
 ## Customization
 

@@ -30,6 +30,20 @@ class ProductImportController extends AbstractController
     }
 
     #[Route('/api/products', name: 'api_products_import', methods: ['POST'])]
+    /**
+     * Upload a single product definition as JSON and store its vectors.
+     *
+     * Example request body:
+     * ```json
+     * {
+     *   "id": 2,
+     *   "name": "Example Phone",
+     *   "sku": "XYZ-12345"
+     * }
+     * ```
+     *
+     * Returns `{ "success": true }` on success.
+     */
     public function importProduct(Request $request): JsonResponse
     {
         $payload = json_decode($request->getContent(), true);
@@ -58,6 +72,13 @@ class ProductImportController extends AbstractController
     }
 
     #[Route('/api/products/{id}', name: 'api_products_delete', methods: ['DELETE'])]
+    /**
+     * Remove a product from the vector store.
+     *
+     * Example: `DELETE /api/products/1`
+     *
+     * Returns `{ "success": true }` when the vectors were deleted.
+     */
     public function deleteProduct(int $id): JsonResponse
     {
         if (empty($id) || $id < 1) {
