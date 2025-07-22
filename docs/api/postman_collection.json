@@ -1,0 +1,77 @@
+{
+    "info": {
+        "_postman_id": "5a7b44e7-b828-4d58-831b-9665566aeda2",
+        "name": "Product Search API - Frontend Integration",
+        "description": "Test API endpoints exactly how the frontend uses them.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "5792580"
+    },
+    "item": [
+        {
+            "name": "Text Search (via frontend)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"message\": \"smartphone\"\n}",
+                    "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{base_url}}/api/search/text" }
+            },
+            "response": []
+        },
+        {
+            "name": "Image Upload (via frontend)",
+            "request": {
+                "method": "POST",
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [ { "key": "image", "type": "file" } ]
+                },
+                "url": { "raw": "{{base_url}}/api/search/image" }
+            },
+            "response": []
+        },
+        {
+            "name": "Audio Upload (via frontend)",
+            "request": {
+                "method": "POST",
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [ { "key": "audio", "type": "file" } ]
+                },
+                "url": { "raw": "{{base_url}}/api/search/audio" }
+            },
+            "response": []
+        },
+        {
+            "name": "Product Upload",
+            "request": {
+                "method": "POST",
+                "header": [ { "key": "x-api-key", "value": "<API_KEY>" } ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{...product json...}",
+                    "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{base_url}}/api/products" }
+            },
+            "response": []
+        },
+        {
+            "name": "Product Delete",
+            "request": {
+                "method": "DELETE",
+                "url": { "raw": "{{base_url}}/api/products/1" }
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        { "key": "base_url", "value": "https://example.com" },
+        { "key": "x-api-key", "value": "<API_KEY>" }
+    ]
+}
