@@ -41,6 +41,10 @@
                             <!-- Product results will appear here -->
                         </div>
                     </div>
+                    <div id="history-container" class="mt-4" style="display: none;">
+                        <h3>Suchverlauf</h3>
+                        <ul id="search-history-list" class="list-group text-start"></ul>
+                    </div>
                 </div>
             </div>
             
@@ -115,10 +119,31 @@ sequenceDiagram
                 }
             }).catch(() => {});
         }
+        sessionStorage.clear();
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
+        const historyContainer = document.getElementById('history-container');
+        const historyList = document.getElementById('search-history-list');
         const controls = [sendButton, recordButton, uploadButton, openCameraButton];
         let busy = false;
+
+        function renderHistory(items) {
+            historyList.innerHTML = '';
+            items.forEach(text => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = text;
+                historyList.appendChild(li);
+            });
+            historyContainer.style.display = items.length ? 'block' : 'none';
+        }
+
+        function addToHistory(entry) {
+            const history = JSON.parse(sessionStorage.getItem('searchHistory') || '[]');
+            history.push(entry);
+            sessionStorage.setItem('searchHistory', JSON.stringify(history));
+            renderHistory(history);
+        }
 
         function setBusy(state) {
             busy = state;
@@ -143,6 +168,7 @@ sequenceDiagram
         }
 
         function searchProducts(query) {
+            addToHistory(query);
             addMessage('Suche nach passenden Produkten...', false);
 
             fetch('/api/search/text', {
@@ -176,6 +202,7 @@ sequenceDiagram
             if (!file) {
                 return;
             }
+            addToHistory('Bildsuche');
             addImageMessage(file);
             addMessage('Bild wird verarbeitet...', false);
 
@@ -210,6 +237,7 @@ sequenceDiagram
             if (!blob) {
                 return;
             }
+            addToHistory('Audiosuche');
             addMessage('Audio wird verarbeitet...', false);
 
             const formData = new FormData();
@@ -361,6 +389,7 @@ sequenceDiagram
         
         // Initial message
         addMessage('Hallo! Wie kann ich Ihnen bei der Suche nach passenden Produkten helfen?', false);
+        renderHistory(JSON.parse(sessionStorage.getItem('searchHistory') || '[]'));
     });
 </script>
 <style>
