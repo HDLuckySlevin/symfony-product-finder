@@ -9,6 +9,7 @@ use App\Service\EmbeddingGeneratorInterface;
 use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
 use App\Service\VectorStoreInterface;
+use App\Service\SearchHistoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,17 +24,20 @@ class ProductFinderController extends AbstractController
     private VectorStoreInterface $vectorStoreService;
     private PromptServiceInterface $promptService;
     private SearchServiceInterface $searchService;
+    private SearchHistoryService $historyService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
         VectorStoreInterface $vectorStoreService,
         SearchServiceInterface $searchService,
-        PromptServiceInterface $promptService
+        PromptServiceInterface $promptService,
+        SearchHistoryService $historyService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
         $this->searchService = $searchService;
         $this->promptService = $promptService;
+        $this->historyService = $historyService;
     }
 
 
@@ -79,10 +83,16 @@ class ProductFinderController extends AbstractController
 
         // Use message directly as search query
         $searchQuery = $message;
+        $combinedQuery = $searchQuery;
+        if ($chatRequest->use_history) {
+            $historyString = implode(' ', $this->historyService->getHistory());
+            $combinedQuery = trim($historyString . ' ' . $searchQuery);
+        }
 
         try {
             // Generate embedding for the query
-            $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($searchQuery);
+            $queryEmbedding = $this->embeddingGenerator->generateQueryEmbedding($combinedQuery);
+            $this->historyService->addQuery($searchQuery);
 
             // Search for similar products
             $results = $this->vectorStoreService->searchSimilarProducts($queryEmbedding, 3);
