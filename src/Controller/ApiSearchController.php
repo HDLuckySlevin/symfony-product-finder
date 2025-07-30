@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\Request\ChatRequestDto;
+use App\DTO\Request\HistoryChatRequestDto;
 use App\DTO\Response\ChatResponseDto;
 use App\DTO\Response\ProductResponseDto;
 use App\Service\EmbeddingGeneratorInterface;
@@ -264,6 +265,60 @@ class ApiSearchController extends AbstractController
         $this->logger->debug('Transcribed audio', ['text' => $text]);
         $vector = $this->embeddingGenerator->generateQueryEmbedding($text);
         $response = $this->runSearch($vector, $text);
+        return $this->json($response);
+    }
+
+    #[Route('/api/search/text-with-history', name: 'api_search_text_with_history', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/search/text-with-history',
+        summary: 'Search for products using a text query and chat history',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/HistoryChatRequestDto')
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Search results and recommendation',
+                content: new OA\JsonContent(ref: '#/components/schemas/ChatResponseDto')
+            ),
+            new OA\Response(response: 400, description: 'Invalid request')
+        ],
+        tags: ['Search API']
+    )]
+    public function searchTextWithHistory(#[MapRequestPayload] HistoryChatRequestDto $chatRequest): JsonResponse
+    {
+        $query = $chatRequest->message;
+        if ($query === '') {
+            $this->logger->warning('Text search with empty query');
+            return new JsonResponse(['success' => false, 'message' => 'Message parameter is required'], 400);
+        }
+        $this->logger->info('Text search with history request', ['query' => $query]);
+
+        $history = $chatRequest->history ?? [];
+        $historyString = '';
+        foreach ($history as $message) {
+            $historyString .= $message['role'] . ': ' . $message['content'] . "\n";
+        }
+
+        $systemPromptContent = $this->promptService->getPrompt('product_finder', 'history_search_prompt');
+
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => $systemPromptContent,
+            ],
+            [
+                'role' => 'user',
+                'content' => "Chatverlauf:\n" . $historyString . "\nLetzte Benutzeranfrage: " . $query,
+            ],
+        ];
+
+        $refinedQuery = $this->searchService->generateChatCompletion($messages);
+        $this->logger->info('Refined query', ['query' => $refinedQuery]);
+
+        $vector = $this->embeddingGenerator->generateQueryEmbedding($refinedQuery);
+        $response = $this->runSearch($vector, $refinedQuery);
         return $this->json($response);
     }
 }

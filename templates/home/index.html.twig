@@ -22,6 +22,7 @@
                         <div class="input-group mb-2">
                             <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein wasserdichtes Smartphone mit guter Kamera...">
                             <button class="btn btn-primary" id="send-button">Suchen</button>
+                            <button class="btn btn-info" id="history-search-button">History Search</button>
                             <button class="btn btn-secondary" id="record-button">Sprache aufnehmen</button>
                         </div>
                         <div class="input-group">
@@ -94,6 +95,7 @@ sequenceDiagram
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
+        const historySearchButton = document.getElementById('history-search-button');
         const recordButton = document.getElementById('record-button');
         const canRecord = typeof MediaRecorder !== 'undefined';
         if (!canRecord) {
@@ -117,7 +119,7 @@ sequenceDiagram
         }
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
-        const controls = [sendButton, recordButton, uploadButton, openCameraButton];
+        const controls = [sendButton, historySearchButton, recordButton, uploadButton, openCameraButton];
         let busy = false;
 
         function setBusy(state) {
@@ -125,6 +127,8 @@ sequenceDiagram
             controls.forEach(el => { if (el) el.disabled = state; });
         }
         setBusy(false);
+
+        let chatHistory = [];
         
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
@@ -132,6 +136,7 @@ sequenceDiagram
             messageDiv.innerHTML = `<p>${content}</p>`;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatHistory.push({ role: isUser ? 'user' : 'system', content: content });
         }
 
         function addImageMessage(file) {
@@ -238,6 +243,36 @@ sequenceDiagram
                 addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
             });
         }
+
+        function historySearch(query) {
+            addMessage('Führe eine erweiterte Suche mit deinem Suchverlauf durch...', false);
+
+            fetch('/api/search/text-with-history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: query, history: chatHistory })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.response) {
+                        addMessage(data.response, false);
+                    }
+                    if (Array.isArray(data.products)) {
+                        displayProducts(data.products);
+                    }
+                } else {
+                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+                    addMessage(msg, false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
+            });
+        }
         
         function displayProducts(products) {
             productResults.innerHTML = '';
@@ -273,6 +308,15 @@ sequenceDiagram
                 addMessage(query, true);
                 userInput.value = '';
                 searchProducts(query);
+            }
+        });
+
+        historySearchButton.addEventListener('click', function() {
+            const query = userInput.value.trim();
+            if (query) {
+                addMessage(query, true);
+                userInput.value = '';
+                historySearch(query);
             }
         });
 
