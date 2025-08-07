@@ -1,0 +1,163 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Product Finder - Chat{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">Product-Finder</h1>
+                <p class="lead mb-4">Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz.</p>
+
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <h2 class="mb-3">Wie kann ich Ihnen helfen?</h2>
+                        <p>Formulieren Sie Ihre Anfrage in natürlicher Sprache:</p>
+
+                        <div class="chat-container mb-4">
+                            <div id="chat-messages" class="chat-messages mb-3"></div>
+
+                            <div id="loading-indicator" class="text-muted mb-2" style="display: none;">
+                                ⏳ Bitte warten – der Produktassistent denkt nach...
+                            </div>
+
+
+                        </div>
+                        <div class="">
+                            <div class="input-group">
+                                <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein Smartphone mit guter Kamera" autocomplete="off">
+                                <button class="btn btn-primary" id="send-button">Senden</button>
+                                <button class="btn btn-secondary" id="record-button">🎤</button>
+                            </div>
+                            <div class="text-muted mt-2" style="font-size: 0.9em;">(Sprachfunktion in Vorbereitung)</div>
+                            <form id="reset-form" method="post" action="{{ path('rag_chat_reset') }}" class="mt-3">
+                                <button type="submit" class="btn btn-outline-danger">Konversation zurücksetzen</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-muted small">Thread-ID: <code>{{ app.session.get('rag_thread_id') }}</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const recordButton = document.getElementById('record-button');
+            const loadingIndicator = document.getElementById('loading-indicator');
+
+            function appendMessage(content, role) {
+                const msg = document.createElement('div');
+                msg.classList.add('message', role === 'user' ? 'user-message' : 'system-message');
+                msg.innerHTML = `<p class="text-start">${content}</p>`;
+                chatMessages.appendChild(msg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function setLoading(state) {
+                sendButton.disabled = state;
+                recordButton.disabled = state;
+                loadingIndicator.style.display = state ? 'block' : 'none';
+            }
+
+            function sendMessage(content) {
+                appendMessage(content, 'user');
+                setLoading(true);
+
+                fetch("{{ path('rag_chat_send') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ message: content })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.answer) {
+                            appendMessage(data.answer, 'assistant');
+                        } else {
+                            appendMessage('❌ Fehler: ' + (data.error || 'Unbekannter Fehler'), 'assistant');
+                        }
+                    })
+                    .catch(() => {
+                        appendMessage('❌ Ein technischer Fehler ist aufgetreten.', 'assistant');
+                    })
+                    .finally(() => setLoading(false));
+            }
+
+            sendButton.addEventListener('click', () => {
+                const text = userInput.value.trim();
+                if (text) {
+                    userInput.value = '';
+                    sendMessage(text);
+                }
+            });
+
+            userInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendButton.click();
+                }
+            });
+
+            // Sprachaufnahme vorbereitet, aber noch nicht aktiv
+            recordButton.addEventListener('click', () => {
+                alert('Sprachaufnahme folgt demnächst.');
+            });
+
+            // Begrüßungsnachricht beim Laden anzeigen
+            appendMessage(
+                'Hallo! Ich bin Ihr KI-gestützter Produktassistent. Beschreiben Sie einfach, was Sie suchen – z. B. "wasserdichtes Smartphone mit langer Akkulaufzeit" – und ich finde passende Produkte für Sie.',
+                'assistant'
+            );
+        });
+    </script>
+    <style>
+        .chat-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 10px 15px;
+            border-radius: 1rem;
+            max-width: 75%;
+            display: inline-block;
+            clear: both;
+            text-align: left;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            float: right;
+        }
+
+        .system-message {
+            background-color: #e9ecef;
+            color: #212529;
+            float: left;
+        }
+        p {
+            margin-bottom: 0rem;
+        }
+        .controlling-wrapper {
+            background-color: white;
+        }
+    </style>
+{% endblock %}

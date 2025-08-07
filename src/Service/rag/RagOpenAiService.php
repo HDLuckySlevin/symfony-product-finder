@@ -17,7 +17,7 @@ class RagOpenAiService
     {
         $this->client = $client;
         $this->apiKey = $_ENV['OPENAI_API_KEY'];
-        $this->baseUrl = rtrim($_ENV['OPENAI_API_BASE'], '/');
+        $this->baseUrl = rtrim($_ENV['OPENAI_API_BASE_RAG'], '/');
         $this->assistantId = $_ENV['OPENAI_ASSISTANT_ID'];
     }
 
