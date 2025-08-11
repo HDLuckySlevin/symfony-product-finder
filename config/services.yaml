@@ -102,3 +102,8 @@ services:
             $apiBase: '%env(string:OPENAI_API_BASE)%'
             $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
+            $logger: '@monolog.logger.streaming'
+
+    App\Controller\rag\response\ChatController:
+        arguments:
+            $logger: '@monolog.logger.streaming'

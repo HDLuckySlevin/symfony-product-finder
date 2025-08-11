@@ -53,6 +53,8 @@
         .msg { padding: .75rem 1rem; border-radius: 12px; margin: .5rem 0; white-space: pre-wrap; display: inline-block; max-width: 80%; }
         .user { background: #007bff; color: #fff; float: right; clear: both; }
         .bot  { background: #e9ecef; color: #212529; float: left; clear: both; }
+        .cursor { display: inline-block; width: 0.6em; opacity: 0.7; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0.1; } }
     </style>
 
     <script>
@@ -67,14 +69,20 @@
         const loadingIndicator = document.getElementById('loadingIndicator');
         const toggleStatsBtn = document.getElementById('toggleStatsBtn');
 
+        let autoScroll = true;
+        function isAtBottom() {
+            const threshold = 10;
+            return historyEl.scrollTop + historyEl.clientHeight >= historyEl.scrollHeight - threshold;
+        }
+        historyEl.addEventListener('scroll', () => { autoScroll = isAtBottom(); });
+
         function addMsg(text, who) {
             const div = document.createElement('div');
             div.className = 'msg ' + (who === 'user' ? 'user' : 'bot');
             div.textContent = text;
             historyEl.appendChild(div);
-            historyEl.scrollTop = historyEl.scrollHeight;
+            if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
         }
-
         function setStats(stats) {
             if (!stats) return;
             if (typeof stats.tokens_query === 'number') statTokens.textContent = stats.tokens_query;
@@ -83,57 +91,82 @@
             if (typeof stats.duration_ms === 'number') statTime.textContent = stats.duration_ms;
             if (typeof stats.ping_ms === 'number') statPing.textContent = stats.ping_ms >= 0 ? stats.ping_ms : 'n/a';
         }
-
-        async function parseJsonSafe(res) {
-            const ct = res.headers.get('content-type') || '';
-            const txt = await res.text();
-            if (!ct.includes('application/json')) {
-                throw new Error('Server lieferte kein JSON (' + ct + '). Erste 160 Zeichen: ' + txt.slice(0,160));
-            }
-            return JSON.parse(txt);
-        }
-
         async function refreshPing() {
             try {
                 const res = await fetch('{{ path("rag_response_ping") }}');
                 const j = await res.json();
-                if (j && j.ok && typeof j.ping_ms === 'number') {
-                    statPing.textContent = j.ping_ms >= 0 ? j.ping_ms : 'n/a';
-                }
-            } catch (_) { /* ignore ping errors */ }
+                if (j && j.ok && typeof j.ping_ms === 'number') statPing.textContent = j.ping_ms >= 0 ? j.ping_ms : 'n/a';
+            } catch (_) {}
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             errorEl.classList.add('d-none');
-
             const message = document.getElementById('message').value.trim();
             if (message) addMsg(message, 'user');
-
             const fd = new FormData(form);
             try {
                 loadingIndicator.classList.remove('d-none');
-                const res  = await fetch('{{ path("rag_response_chat_send") }}', {
-                    method: 'POST',
-                    body: fd
-                });
-                const data = await parseJsonSafe(res);
-                if (!data.ok) {
-                    if (data.insufficient_quota) {
-                        errorEl.textContent = 'OpenAI-Budget überschritten (insufficient_quota). Bitte Limits/Abrechnung prüfen.';
-                    } else {
-                        errorEl.textContent = data.error || 'Unbekannter Fehler';
+                const res = await fetch('{{ path("rag_response_chat_send_stream") }}', { method: 'POST', body: fd, headers: { 'Accept': 'text/event-stream' } });
+                if (!res.ok || !res.body) throw new Error('Streaming nicht verfügbar');
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot';
+                const textNode = document.createTextNode('');
+                const cursorSpan = document.createElement('span');
+                cursorSpan.className = 'cursor';
+                cursorSpan.textContent = '▌';
+                botDiv.appendChild(textNode);
+                botDiv.appendChild(cursorSpan);
+                historyEl.appendChild(botDiv);
+                if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let doneStats = null;
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
+                    let idx;
+                    while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                        const rawEvt = buffer.slice(0, idx);
+                        buffer = buffer.slice(idx + 2);
+                        const lines = rawEvt.split('\n');
+                        let ev = null; let dataStr = '';
+                        for (const line of lines) {
+                            if (!line) continue;
+                            if (line.startsWith('event:')) ev = line.slice(6).trim();
+                            else if (line.startsWith('data:')) {
+                                const part = line.slice(5).trim();
+                                if (part && part !== 'null') dataStr += (dataStr ? '\n' : '') + part;
+                            }
+                        }
+                        if (!ev) continue;
+                        let payload = {};
+                        try { payload = dataStr ? JSON.parse(dataStr) : {}; } catch { payload = {}; }
+                        if (ev === 'meta' && typeof payload.ping_ms === 'number') {
+                            statPing.textContent = payload.ping_ms >= 0 ? payload.ping_ms : 'n/a';
+                        } else if (ev === 'delta') {
+                            const t = payload.text || '';
+                            textNode.data += t;
+                            if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
+                        } else if (ev === 'error') {
+                            errorEl.textContent = payload.insufficient_quota ? 'OpenAI-Budget überschritten (insufficient_quota). Bitte Limits/Abrechnung prüfen.' : (payload.message || 'Unbekannter Fehler');
+                            errorEl.classList.remove('d-none');
+                        } else if (ev === 'done') {
+                            doneStats = payload.stats || null;
+                            try { cursorSpan.remove(); } catch {}
+                        }
                     }
-                    errorEl.classList.remove('d-none');
-                } else {
-                    let text = (data.answer || '').trim();
-                    if (!text) {
-                        text = 'Ich habe deine Anfrage nicht richtig verstanden. Bitte stelle deine Anfrage erneut. Entschuldige die Unannehmlichkeiten.';
-                    }
-                    addMsg(text, 'bot');
-                    setStats(data.stats);
-                    form.reset();
                 }
+                if (!textNode.data.trim()) {
+                    textNode.data = 'Ich habe deine Anfrage nicht richtig verstanden. Bitte stelle deine Anfrage erneut. Entschuldige die Unannehmlichkeiten.';
+                    try { cursorSpan.remove(); } catch {}
+                }
+                if (doneStats) setStats(doneStats);
+                form.reset();
             } catch (err) {
                 errorEl.textContent = err.message;
                 errorEl.classList.remove('d-none');
@@ -142,27 +175,16 @@
             }
         });
 
+        refreshPing();
+        setInterval(refreshPing, 5000);
+        document.getElementById('statsCollapse')?.addEventListener('shown.bs.collapse', () => { toggleStatsBtn.textContent = 'Statistiken verbergen'; });
+        document.getElementById('statsCollapse')?.addEventListener('hidden.bs.collapse', () => { toggleStatsBtn.textContent = 'Statistiken anzeigen'; });
         document.getElementById('resetBtn').addEventListener('click', async () => {
             try {
                 const res = await fetch('{{ path("rag_response_chat_reset") }}', { method: 'POST' });
                 const j = await res.json();
-                if (j.ok) {
-                    historyEl.innerHTML = '';
-                    setStats({ tokens_query: 0, tokens_answer: 0, tokens_session: 0, duration_ms: 0, ping_ms: 0 });
-                }
+                if (j.ok) { historyEl.innerHTML = ''; setStats({ tokens_query: 0, tokens_answer: 0, tokens_session: 0, duration_ms: 0, ping_ms: 0 }); }
             } catch (_) {}
         });
-
-        // Optional: Toggle button text
-        document.getElementById('statsCollapse')?.addEventListener('shown.bs.collapse', () => {
-            toggleStatsBtn.textContent = 'Statistiken verbergen';
-        });
-        document.getElementById('statsCollapse')?.addEventListener('hidden.bs.collapse', () => {
-            toggleStatsBtn.textContent = 'Statistiken anzeigen';
-        });
-
-        // Start periodic ping refresh every 5 seconds even without messages
-        refreshPing();
-        setInterval(refreshPing, 5000);
     </script>
 {% endblock %}

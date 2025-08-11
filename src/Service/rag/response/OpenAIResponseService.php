@@ -65,72 +65,17 @@ final class OpenAIResponseService
         ?string $previousResponseId = null,    // resp_... (für Mehr-Turn)
         ?array $extra = null                   // optionale Payload-Overrides
     ): array {
-        $model = $model ?: $this->defaultModel;
-
-        // --- Content bauen (Text + optional Bild als data URL) ---
-        $content = [['type' => 'input_text', 'text' => $userText]];
-        if ($image) {
-            $mime = $image->getMimeType() ?: 'application/octet-stream';
-            if (!in_array($mime, ['image/png','image/jpeg','image/webp'], true)) {
-                throw new \InvalidArgumentException('Unsupported image type.');
-            }
-            $maxBytes = 8 * 1024 * 1024;
-            if ($image->getSize() > $maxBytes) {
-                throw new \InvalidArgumentException('Image too large (max 8 MB).');
-            }
-            $b64 = base64_encode((string) file_get_contents($image->getPathname()));
-            $dataUrl = sprintf('data:%s;base64,%s', $mime, $b64);
-            $content[] = ['type' => 'input_image', 'image_url' => $dataUrl];
-        }
-
-        $payload = [
-            'model' => 'gpt-5-mini',
-            'prompt' => [
-                'id'        => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',
-                'variables' => ['customer_name' => 'Kunde'],
-            ],
-            'input' => [[
-                'role'    => 'user',
-                'content' => $content,
-            ]],
-            'tools' => [[
-                'type'             => 'file_search',
-                'vector_store_ids' => $this->vectorStoreIds,
-                'max_num_results'  => 20,
-            ]],
-            'tool_choice' => 'auto', // wichtig bei file_search
-        ];
-
-        // Prompt einfügen, falls übergeben
-        if (!empty($prompt['id'])) {
-            $payload['prompt'] = ['id' => (string) $prompt['id']];
-            if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
-                $payload['prompt']['variables'] = $prompt['variables'];
-            }
-            if (!empty($prompt['version'])) {
-                $payload['prompt']['version'] = (string) $prompt['version'];
-            }
-        }
-
-        // previous_response_id für Multi-Turn setzen (optional)
-        if (!empty($previousResponseId)) {
-            $payload['previous_response_id'] = $previousResponseId;
-        }
-
-        // optionale Overrides mergen (z. B. metadata) – KEINE nicht unterstützten Felder wie temperature/top_p hinzufügen
-        if ($extra) {
-            $payload = array_replace_recursive($payload, $extra);
-        }
+        $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
 
         // --- Logging & Request ---
         $t0 = microtime(true);
         $this->logDebug('openai.request', [
             'endpoint' => '/responses',
-            'model' => $model,
+            'model' => $payload['model'] ?? null,
             'has_prompt' => isset($payload['prompt']),
             'prev_id' => $payload['previous_response_id'] ?? null,
             'vector_store_ids' => $this->vectorStoreIds,
-            'has_image' => (bool) $image,
+            'has_image' => !empty($payload['input'][0]['content']) && count($payload['input'][0]['content']) > 1,
             'payload' => $this->redact($payload),
         ]);
 
@@ -172,6 +117,161 @@ final class OpenAIResponseService
         }
 
         return $decoded;
+    }
+
+    public function createResponseStream(
+        string $userText,
+        ?UploadedFile $image = null,
+        ?string $model = null,
+        ?array $prompt = null,
+        ?string $previousResponseId = null,
+        ?array $extra = null,
+        callable $onEvent = null
+    ): void {
+        $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
+        $payload['stream'] = true;
+
+        $this->logDebug('stream.request', [
+            'endpoint' => '/responses',
+            'model' => $payload['model'] ?? null,
+            'payload' => $this->redact($payload),
+        ]);
+
+        $headers = $this->authHeaders();
+        $headers['Accept'] = 'text/event-stream';
+        $response = $this->httpClient->request('POST', $this->apiBase . '/responses', [
+            'headers' => $headers,
+            'json'    => $payload,
+            // timeout 0 disables idle timeout while streaming
+            'timeout' => 0,
+            'buffer'  => false,
+        ]);
+
+        $buffer = '';
+        try {
+            foreach ($this->httpClient->stream($response, 300.0) as $chunk) {
+                if ($chunk->isTimeout()) { continue; }
+                if ($chunk->isFirst()) {
+                    $this->logDebug('stream.connected');
+                }
+                if ($chunk->isLast()) {
+                    $buffer .= $chunk->getContent();
+                    $this->logDebug('stream.last_chunk', ['bytes' => strlen($buffer)]);
+                    $this->drainSseBuffer($buffer, $onEvent);
+                    break;
+                }
+                $piece = $chunk->getContent();
+                $buffer .= $piece;
+                $this->logDebug('stream.chunk', ['bytes' => strlen($piece)]);
+                $this->drainSseBuffer($buffer, $onEvent);
+            }
+            $this->logDebug('stream.closed');
+        } catch (\Throwable $e) {
+            $this->logError('stream.exception', ['error' => $e->getMessage()]);
+            throw $e;
+        }
+    }
+
+    private function drainSseBuffer(string &$buffer, ?callable $onEvent): void
+    {
+        // Normalize newlines to \n
+        $buffer = str_replace("\r\n", "\n", $buffer);
+        while (true) {
+            $pos = strpos($buffer, "\n\n");
+            if ($pos === false) { break; }
+            $rawEvent = substr($buffer, 0, $pos);
+            $buffer = substr($buffer, $pos + 2);
+
+            $lines = explode("\n", $rawEvent);
+            $eventName = null;
+            $dataParts = [];
+            foreach ($lines as $line) {
+                if ($line === '') { continue; }
+                if (str_starts_with($line, 'event:')) {
+                    $eventName = trim(substr($line, 6));
+                } elseif (str_starts_with($line, 'data:')) {
+                    $part = ltrim(substr($line, 5));
+                    if ($part === '' || $part === 'null') { continue; }
+                    $dataParts[] = $part;
+                }
+            }
+            $dataJson = implode("\n", $dataParts);
+            $this->logDebug('stream.event', [
+                'event' => $eventName ?? 'message',
+                'data_preview' => mb_substr($dataJson, 0, 400),
+            ]);
+            if ($onEvent) {
+                $data = [];
+                if ($dataJson !== '') {
+                    $decoded = json_decode($dataJson, true);
+                    $data = is_array($decoded) ? $decoded : ['raw' => $dataJson];
+                }
+                $onEvent($eventName ?? 'message', $data);
+            }
+        }
+    }
+
+    private function buildPayload(
+        string $userText,
+        ?UploadedFile $image = null,
+        ?string $model = null,
+        ?array $prompt = null,
+        ?string $previousResponseId = null,
+        ?array $extra = null
+    ): array {
+        $model = $model ?: $this->defaultModel;
+        $content = [['type' => 'input_text', 'text' => $userText]];
+        if ($image) {
+            $mime = $image->getMimeType() ?: 'application/octet-stream';
+            if (!in_array($mime, ['image/png','image/jpeg','image/webp'], true)) {
+                throw new \InvalidArgumentException('Unsupported image type.');
+            }
+            $maxBytes = 8 * 1024 * 1024;
+            if ($image->getSize() > $maxBytes) {
+                throw new \InvalidArgumentException('Image too large (max 8 MB).');
+            }
+            $b64 = base64_encode((string) file_get_contents($image->getPathname()));
+            $dataUrl = sprintf('data:%s;base64,%s', $mime, $b64);
+            $content[] = ['type' => 'input_image', 'image_url' => $dataUrl];
+        }
+
+        $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
+        $payload = [
+            'model' => $modelName,
+            'prompt' => [
+                'id'        => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',
+                'variables' => ['customer_name' => 'Kunde'],
+            ],
+            'input' => [[
+                'role'    => 'user',
+                'content' => $content,
+            ]],
+            // Responses API expects tools and tool_resources (file_search) for RAG
+            'tools' => [ [ 'type' => 'file_search' ] ],
+            'tool_resources' => [
+                'file_search' => [
+                    'vector_store_ids' => $this->vectorStoreIds,
+                ],
+            ],
+            'tool_choice' => 'auto',
+        ];
+
+        if (!empty($prompt['id'])) {
+            $payload['prompt'] = ['id' => (string) $prompt['id']];
+            if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
+                $payload['prompt']['variables'] = $prompt['variables'];
+            }
+            if (!empty($prompt['version'])) {
+                $payload['prompt']['version'] = (string) $prompt['version'];
+            }
+        }
+        if (!empty($previousResponseId)) {
+            $payload['previous_response_id'] = $previousResponseId;
+        }
+        if ($extra) {
+            $payload = array_replace_recursive($payload, $extra);
+        }
+        return $payload;
     }
 
 

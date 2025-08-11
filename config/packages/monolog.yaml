@@ -1,5 +1,5 @@
 monolog:
-    channels: ['deprecation', 'rag']
+    channels: ['deprecation', 'rag', 'streaming']
 
 when@dev:
     monolog:
@@ -26,6 +26,11 @@ when@dev:
                 path: "%kernel.logs_dir%/rag.log"
                 level: debug
                 channels: [ "rag" ]
+            streaming:
+                type: stream
+                path: "%kernel.logs_dir%/streaming.log"
+                level: debug
+                channels: [ "streaming" ]
 
 when@test:
     monolog:
@@ -45,6 +50,11 @@ when@test:
                 path: "%kernel.logs_dir%/rag.log"
                 level: debug
                 channels: [ "rag" ]
+            streaming:
+                type: stream
+                path: "%kernel.logs_dir%/streaming.log"
+                level: debug
+                channels: [ "streaming" ]
 
 when@prod:
     monolog:
@@ -74,3 +84,8 @@ when@prod:
                 path: "%kernel.logs_dir%/rag.log"
                 level: info
                 channels: [ "rag" ]
+            streaming:
+                type: stream
+                path: "%kernel.logs_dir%/streaming.log"
+                level: info
+                channels: [ "streaming" ]
