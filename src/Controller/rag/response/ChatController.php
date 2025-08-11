@@ -38,6 +38,9 @@ final class ChatController extends AbstractController
         $prevId  = $session->get('rag_prev_response_id'); // ← zuletzt gemerkte ID
 
         try {
+            // Measure upstream ping to OpenAI (cached per session for 5s)
+            $pingMs = $this->getCachedPing($request, $openai);
+            $t0 = microtime(true);
             $apiResponse = $openai->createResponse(
                 userText: $text,
                 image: $image,
@@ -45,13 +48,24 @@ final class ChatController extends AbstractController
                 extra: null,
                 previousResponseId: $prevId // ← hier rein
             );
+            $durationMs = (int) ((microtime(true) - $t0) * 1000);
 
             // OpenAI‑Fehler sauber durchreichen
             if (isset($apiResponse['error'])) {
+                $err = (array) $apiResponse['error'];
+                $type = (string) ($err['type'] ?? '');
+                $code = (string) ($err['code'] ?? '');
+                $msg  = (string) ($err['message'] ?? '');
+                $insufficient = stripos($type, 'insufficient_quota') !== false
+                    || stripos($code, 'insufficient_quota') !== false
+                    || (stripos($msg, 'insufficient') !== false && stripos($msg, 'quota') !== false)
+                    || (stripos($msg, 'budget') !== false && stripos($msg, 'exceeded') !== false);
+
                 return $this->json([
                     'ok' => false,
                     'error' => $apiResponse['error']['message'] ?? 'OpenAI-Fehler',
                     'response' => $apiResponse,
+                    'insufficient_quota' => $insufficient,
                 ], 502);
             }
 
@@ -62,10 +76,36 @@ final class ChatController extends AbstractController
 
             $answer = OpenAIResponseService::extractText($apiResponse);
 
+            // Token Usage ermitteln (Responses API kann unterschiedliche Felder liefern)
+            $tokensQuery = 0;
+            $tokensAnswer = 0;
+            $usage = $apiResponse['usage'] ?? [];
+            if (is_array($usage)) {
+                if (isset($usage['total_tokens']) && is_numeric($usage['total_tokens'])) {
+                    $tokensQuery = (int) $usage['total_tokens'];
+                } elseif (isset($usage['input_tokens'], $usage['output_tokens'])) {
+                    $tokensQuery = (int) $usage['input_tokens'] + (int) $usage['output_tokens'];
+                    $tokensAnswer = (int) $usage['output_tokens'];
+                } elseif (isset($usage['prompt_tokens'], $usage['completion_tokens'])) {
+                    $tokensQuery = (int) $usage['prompt_tokens'] + (int) $usage['completion_tokens'];
+                    $tokensAnswer = (int) $usage['completion_tokens'];
+                }
+            }
+
+            $tokensSession = (int) $session->get('rag_tokens_total', 0) + $tokensQuery;
+            $session->set('rag_tokens_total', $tokensSession);
+
             return $this->json([
                 'ok'       => true,
                 'response' => $apiResponse,
                 'answer'   => $answer,
+                'stats'    => [
+                    'tokens_query'    => $tokensQuery,
+                    'tokens_answer'   => $tokensAnswer,
+                    'tokens_session'  => $tokensSession,
+                    'duration_ms'     => $durationMs,
+                    'ping_ms'         => $pingMs,
+                ],
             ]);
         } catch (\Throwable $e) {
             return $this->json(['ok' => false, 'error' => 'Interner Fehler: '.$e->getMessage()], 500);
@@ -78,6 +118,7 @@ final class ChatController extends AbstractController
         $s = $request->getSession();
         $s->remove('rag_prev_response_id');   // ← Konversation zurücksetzen
         $s->remove('rag_history');            // falls du zusätzlich Text‑History nutzt
+        $s->remove('rag_tokens_total');       // Token-Zähler für Sitzung zurücksetzen
         return $this->json(['ok' => true]);
     }
 
@@ -113,5 +154,31 @@ final class ChatController extends AbstractController
             return $this->json(['ok' => false, 'error' => 'Interner Fehler: ' . $e->getMessage()], 500);
         }
     }
+
+    #[Route('/ping', name: 'ping', methods: ['GET'])]
+    public function ping(Request $request, OpenAIResponseService $openai): Response
+    {
+        try {
+            $pingMs = $this->getCachedPing($request, $openai);
+            return $this->json(['ok' => true, 'ping_ms' => $pingMs]);
+        } catch (\Throwable $e) {
+            return $this->json(['ok' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getCachedPing(Request $request, OpenAIResponseService $openai): int
+    {
+        $session = $request->getSession();
+        $lastTs = (int) ($session->get('rag_ping_last_ts') ?? 0);
+        $lastMs = (int) ($session->get('rag_ping_last_ms') ?? -1);
+        if ($lastTs > 0 && (time() - $lastTs) < 5 && $lastMs !== 0) {
+            return $lastMs;
+        }
+        $ms = $openai->ping();
+        $session->set('rag_ping_last_ts', time());
+        $session->set('rag_ping_last_ms', $ms);
+        return $ms;
+    }
+
 
 }

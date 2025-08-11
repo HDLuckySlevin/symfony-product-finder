@@ -2,36 +2,70 @@
 {% block title %}RAG Chat (Responses API){% endblock %}
 
 {% block body %}
-    <style>
-        .chat { max-width: 920px; margin: 2rem auto; }
-        .msg { padding: .75rem 1rem; border-radius: 12px; margin: .5rem 0; white-space: pre-wrap; }
-        .user { background: #eef; align-self: flex-end; }
-        .bot  { background: #efe; }
-        .row { display:flex; gap:.5rem; }
-        .hidden { display:none; }
-        #history { display:flex; flex-direction:column; }
-        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.9em; }
-    </style>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="mb-4 text-center">RAG Chat (Responses API)</h1>
 
-    <div class="chat">
-        <h1>RAG Chat (Responses API)</h1>
+                <div class="card shadow">
+                    <div class="card-body p-4">
+                        <div id="history" class="mb-3" style="min-height: 240px; max-height: 420px; overflow-y: auto;"></div>
 
-        <div id="history"></div>
+                        <div id="loadingIndicator" class="d-none text-muted mb-3">
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            OpenAI antwortet…
+                        </div>
 
-        <form id="chatForm" class="row" enctype="multipart/form-data">
-            <input name="message" id="message" class="form-control" placeholder="Frage…" required>
-            <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp">
-            <button class="btn btn-primary" type="submit">Senden</button>
-            <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
-        </form>
+                        <div class="mb-2 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#statsCollapse" aria-expanded="false" aria-controls="statsCollapse" id="toggleStatsBtn">Statistiken anzeigen</button>
+                        </div>
+                        <div class="collapse" id="statsCollapse">
+                            <div id="stats" class="d-flex flex-wrap gap-3 align-items-center small text-muted border rounded px-2 py-1 mb-3">
+                                <div>Tokens (Query): <span id="statTokens">0</span></div>
+                                <div>Tokens (Antwort): <span id="statAnswerTokens">0</span></div>
+                                <div>Tokens (Session): <span id="statSession">0</span></div>
+                                <div>Antwortzeit: <span id="statTime">0</span> ms</div>
+                                <div>Ping zu OpenAI: <span id="statPing">0</span> ms</div>
+                            </div>
+                        </div>
 
-        <div id="error" class="hidden" style="color:red;"></div>
+                        <form id="chatForm" class="row g-2" enctype="multipart/form-data">
+                            <div class="col-12 col-md-8">
+                                <input name="message" id="message" class="form-control" placeholder="Frage…" required>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp">
+                            </div>
+                            <div class="col-12 d-flex gap-2">
+                                <button class="btn btn-primary" type="submit">Senden</button>
+                                <button class="btn btn-outline-secondary" type="button" id="resetBtn">Konversation zurücksetzen</button>
+                            </div>
+                        </form>
+
+                        <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <style>
+        .msg { padding: .75rem 1rem; border-radius: 12px; margin: .5rem 0; white-space: pre-wrap; display: inline-block; max-width: 80%; }
+        .user { background: #007bff; color: #fff; float: right; clear: both; }
+        .bot  { background: #e9ecef; color: #212529; float: left; clear: both; }
+    </style>
 
     <script>
         const historyEl = document.getElementById('history');
         const errorEl   = document.getElementById('error');
         const form      = document.getElementById('chatForm');
+        const statTokens = document.getElementById('statTokens');
+        const statAnswerTokens = document.getElementById('statAnswerTokens');
+        const statSession = document.getElementById('statSession');
+        const statTime = document.getElementById('statTime');
+        const statPing = document.getElementById('statPing');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const toggleStatsBtn = document.getElementById('toggleStatsBtn');
 
         function addMsg(text, who) {
             const div = document.createElement('div');
@@ -39,6 +73,15 @@
             div.textContent = text;
             historyEl.appendChild(div);
             historyEl.scrollTop = historyEl.scrollHeight;
+        }
+
+        function setStats(stats) {
+            if (!stats) return;
+            if (typeof stats.tokens_query === 'number') statTokens.textContent = stats.tokens_query;
+            if (typeof stats.tokens_answer === 'number') statAnswerTokens.textContent = stats.tokens_answer;
+            if (typeof stats.tokens_session === 'number') statSession.textContent = stats.tokens_session;
+            if (typeof stats.duration_ms === 'number') statTime.textContent = stats.duration_ms;
+            if (typeof stats.ping_ms === 'number') statPing.textContent = stats.ping_ms >= 0 ? stats.ping_ms : 'n/a';
         }
 
         async function parseJsonSafe(res) {
@@ -50,26 +93,52 @@
             return JSON.parse(txt);
         }
 
+        async function refreshPing() {
+            try {
+                const res = await fetch('{{ path("rag_response_ping") }}');
+                const j = await res.json();
+                if (j && j.ok && typeof j.ping_ms === 'number') {
+                    statPing.textContent = j.ping_ms >= 0 ? j.ping_ms : 'n/a';
+                }
+            } catch (_) { /* ignore ping errors */ }
+        }
+
         form.addEventListener('submit', async (e) => {
-            e.preventDefault(); // ← verhindert GET mit Query in der URL
-            errorEl.classList.add('hidden');
+            e.preventDefault();
+            errorEl.classList.add('d-none');
 
             const message = document.getElementById('message').value.trim();
             if (message) addMsg(message, 'user');
 
             const fd = new FormData(form);
             try {
+                loadingIndicator.classList.remove('d-none');
                 const res  = await fetch('{{ path("rag_response_chat_send") }}', {
                     method: 'POST',
                     body: fd
                 });
                 const data = await parseJsonSafe(res);
-                if (!res.ok || !data.ok) throw new Error(data.error || 'Unbekannter Fehler');
-                addMsg(data.answer || '[keine Ausgabe]', 'bot');
-                form.reset();
+                if (!data.ok) {
+                    if (data.insufficient_quota) {
+                        errorEl.textContent = 'OpenAI-Budget überschritten (insufficient_quota). Bitte Limits/Abrechnung prüfen.';
+                    } else {
+                        errorEl.textContent = data.error || 'Unbekannter Fehler';
+                    }
+                    errorEl.classList.remove('d-none');
+                } else {
+                    let text = (data.answer || '').trim();
+                    if (!text) {
+                        text = 'Ich habe deine Anfrage nicht richtig verstanden. Bitte stelle deine Anfrage erneut. Entschuldige die Unannehmlichkeiten.';
+                    }
+                    addMsg(text, 'bot');
+                    setStats(data.stats);
+                    form.reset();
+                }
             } catch (err) {
                 errorEl.textContent = err.message;
-                errorEl.classList.remove('hidden');
+                errorEl.classList.remove('d-none');
+            } finally {
+                loadingIndicator.classList.add('d-none');
             }
         });
 
@@ -77,8 +146,23 @@
             try {
                 const res = await fetch('{{ path("rag_response_chat_reset") }}', { method: 'POST' });
                 const j = await res.json();
-                if (j.ok) historyEl.innerHTML = '';
+                if (j.ok) {
+                    historyEl.innerHTML = '';
+                    setStats({ tokens_query: 0, tokens_answer: 0, tokens_session: 0, duration_ms: 0, ping_ms: 0 });
+                }
             } catch (_) {}
         });
+
+        // Optional: Toggle button text
+        document.getElementById('statsCollapse')?.addEventListener('shown.bs.collapse', () => {
+            toggleStatsBtn.textContent = 'Statistiken verbergen';
+        });
+        document.getElementById('statsCollapse')?.addEventListener('hidden.bs.collapse', () => {
+            toggleStatsBtn.textContent = 'Statistiken anzeigen';
+        });
+
+        // Start periodic ping refresh every 5 seconds even without messages
+        refreshPing();
+        setInterval(refreshPing, 5000);
     </script>
 {% endblock %}

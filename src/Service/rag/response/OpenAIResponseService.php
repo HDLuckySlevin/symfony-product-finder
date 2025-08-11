@@ -34,6 +34,29 @@ final class OpenAIResponseService
         $this->logger = $logger;
     }
 
+    /**
+     * Measures a lightweight round-trip time to the OpenAI API in milliseconds.
+     * Uses a small authenticated GET to /models and only reads headers.
+     */
+    public function ping(int $timeoutSeconds = 5): int
+    {
+        $t0 = microtime(true);
+        try {
+            $res = $this->httpClient->request('GET', $this->apiBase . '/models', [
+                'headers' => $this->authHeaders(),
+                'timeout' => $timeoutSeconds,
+            ]);
+            // Trigger request and header receipt without reading full body
+            $res->getHeaders(false);
+            $ms = (int) ((microtime(true) - $t0) * 1000);
+            $this->logDebug('openai.ping', ['ms' => $ms]);
+            return $ms;
+        } catch (\Throwable $e) {
+            $this->logError('openai.ping.fail', ['error' => $e->getMessage()]);
+            return -1; // indicates failure
+        }
+    }
+
     public function createResponse(
         string $userText,
         ?UploadedFile $image = null,
