@@ -165,7 +165,9 @@ final class OpenAIResponseService
             return $this->httpClient->request('POST', $this->apiBase . '/responses', [
                 'headers' => $headers,
                 'json'    => $payload,
-                'timeout' => 0,
+                // allow long-running streams without triggering idle timeouts
+                'timeout' => 600,
+                'max_duration' => 0,
                 'buffer'  => false,
             ]);
         };
@@ -180,7 +182,7 @@ final class OpenAIResponseService
 
         $buffer = '';
         try {
-            foreach ($this->httpClient->stream($response, 300.0) as $chunk) {
+            foreach ($this->httpClient->stream($response, 600.0) as $chunk) {
                 if ($chunk->isTimeout()) { continue; }
                 if ($chunk->isFirst()) {
                     $this->logDebug('stream.connected');
