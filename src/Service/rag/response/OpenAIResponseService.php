@@ -178,6 +178,18 @@ final class OpenAIResponseService
             $payload['model'] = $this->fallbackModel;
             $this->logDebug('stream.request_fallback', ['model' => $this->fallbackModel, 'status' => $status]);
             $response = $makeRequest($payload);
+            $status = $response->getStatusCode();
+        }
+
+        if ($status >= 400) {
+            $raw = $response->getContent(false);
+            $this->logError('stream.request_failed', [
+                'status' => $status,
+                'raw_preview' => mb_substr($raw, 0, 500),
+            ]);
+            $decoded = json_decode($raw, true);
+            $message = $decoded['error']['message'] ?? ('HTTP error ' . $status);
+            throw new \RuntimeException($message, $status);
         }
 
         $buffer = '';
@@ -271,10 +283,6 @@ final class OpenAIResponseService
         $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
         $payload = [
             'model' => $modelName,
-            'prompt' => [
-                'id'        => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',
-                'variables' => ['customer_name' => 'Kunde'],
-            ],
             'input' => [[
                 'role'    => 'user',
                 'content' => $content,
