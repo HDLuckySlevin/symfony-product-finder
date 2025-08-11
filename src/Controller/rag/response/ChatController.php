@@ -120,11 +120,14 @@ final class ChatController extends AbstractController
 
         $session = $request->getSession();
         $prevId  = $session->get('rag_prev_response_id');
+        $pingMs  = $this->getCachedPing($request, $openai);
 
         // Release session lock before starting long-running stream
         $session->save();
 
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $request) {
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $pingMs) {
+            $session->start();
+
             $flush = static function () {
                 while (ob_get_level() > 0) { @ob_end_flush(); }
                 @flush();
@@ -147,7 +150,6 @@ final class ChatController extends AbstractController
             echo ": stream-start\n\n";
             $flush();
 
-            $pingMs = $this->getCachedPing($request, $openai);
             $sendEvent('meta', ['ping_ms' => $pingMs]);
 
             $tokensQuery = 0; $tokensAnswer = 0; $durationMs = 0; $finalId = null; $insufficient = false;
@@ -224,6 +226,7 @@ final class ChatController extends AbstractController
                                         'duration_ms' => $durationMs,
                                     ]
                                 ]);
+                                $session->save();
                                 break;
                             default:
                                 $this->logger?->debug('send_stream.event_ignored', ['event' => $eventName, 'data_preview' => mb_substr(json_encode($data), 0, 200)]);
