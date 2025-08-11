@@ -19,3 +19,8 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+# Local dev volumes (Milvus/MinIO)
+.ddev/milvus/volumes/
+.ddev/minio/
+
