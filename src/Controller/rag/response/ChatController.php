@@ -17,8 +17,9 @@ final class ChatController extends AbstractController
     public function __construct(private readonly ?LoggerInterface $logger = null) {}
 
     #[Route('/chat', name: 'chat', methods: ['GET'])]
-    public function chat(): Response
+    public function chat(Request $request): Response
     {
+        $request->getSession()->invalidate();
         return $this->render('rag/response/chat/index.html.twig');
     }
 
