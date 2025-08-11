@@ -19,3 +19,6 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+# Local dev (Milvus)
+.ddev/milvus/
