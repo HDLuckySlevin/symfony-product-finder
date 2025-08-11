@@ -11,6 +11,7 @@ use App\Service\PromptServiceInterface;
 use App\Service\SearchServiceInterface;
 use App\Service\SpeechToTextServiceInterface;
 use App\Service\VectorStoreInterface;
+use App\Service\SearchHistoryService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -29,6 +30,7 @@ class ApiSearchController extends AbstractController
     private OpenAIEmbeddingService $embeddingService;
     private SpeechToTextServiceInterface $sttService;
     private LoggerInterface $logger;
+    private SearchHistoryService $historyService;
 
     public function __construct(
         EmbeddingGeneratorInterface $embeddingGenerator,
@@ -37,7 +39,8 @@ class ApiSearchController extends AbstractController
         PromptServiceInterface $promptService,
         OpenAIEmbeddingService $embeddingService,
         SpeechToTextServiceInterface $sttService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SearchHistoryService $historyService
     ) {
         $this->embeddingGenerator = $embeddingGenerator;
         $this->vectorStoreService = $vectorStoreService;
@@ -46,6 +49,7 @@ class ApiSearchController extends AbstractController
         $this->embeddingService = $embeddingService;
         $this->sttService = $sttService;
         $this->logger = $logger;
+        $this->historyService = $historyService;
     }
 
     /**
@@ -59,6 +63,8 @@ class ApiSearchController extends AbstractController
             'query' => $query,
             'vector_length' => count($vector),
         ]);
+
+        $this->historyService->addQuery($query);
 
         $results = $this->vectorStoreService->searchSimilarProducts($vector, 3);
 
@@ -149,7 +155,14 @@ class ApiSearchController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Message parameter is required'], 400);
         }
         $this->logger->info('Text search request', ['query' => $query]);
-        $vector = $this->embeddingGenerator->generateQueryEmbedding($query);
+
+        if ($chatRequest->use_history) {
+            $historyString = implode(' ', $this->historyService->getHistory());
+            $combinedQuery = trim($historyString . ' ' . $query);
+            $vector = $this->embeddingGenerator->generateQueryEmbedding($combinedQuery);
+        } else {
+            $vector = $this->embeddingGenerator->generateQueryEmbedding($query);
+        }
         $response = $this->runSearch($vector, $query);
         return $this->json($response);
     }

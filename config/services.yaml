@@ -95,3 +95,5 @@ services:
     App\Command\ProcessAudioCommand:
         arguments:
             $sttService: '@App\Service\OpenAISpeechToTextService'
+
+    App\Service\SearchHistoryService: ~
