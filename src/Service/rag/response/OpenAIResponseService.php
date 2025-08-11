@@ -16,20 +16,23 @@ final class OpenAIResponseService
     private string $apiKey;
     private string $apiBase;
     private string $defaultModel;
+    private string $fallbackModel;
     private ?LoggerInterface $logger;
 
     public function __construct(
         HttpClientInterface $httpClient,
         string $apiKey,
         ?string $apiBase = null,
-        string $defaultModel = 'gpt-4.1',
+        string $defaultModel = 'gpt-5-mini',
         string $vectorStoreIdsCsv = '',
-        ?LoggerInterface $logger = null
+        ?LoggerInterface $logger = null,
+        string $fallbackModel = 'gpt-5'
     ) {
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;
         $this->apiBase = rtrim($apiBase ?: 'https://api.openai.com/v1', '/');
         $this->defaultModel = $defaultModel;
+        $this->fallbackModel = $fallbackModel;
         $this->vectorStoreIds = array_values(array_filter(array_map('trim', explode(',', (string)$vectorStoreIdsCsv))));
         $this->logger = $logger;
     }
@@ -67,26 +70,45 @@ final class OpenAIResponseService
     ): array {
         $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
 
-        // --- Logging & Request ---
         $t0 = microtime(true);
-        $this->logDebug('openai.request', [
-            'endpoint' => '/responses',
-            'model' => $payload['model'] ?? null,
-            'has_prompt' => isset($payload['prompt']),
-            'prev_id' => $payload['previous_response_id'] ?? null,
-            'vector_store_ids' => $this->vectorStoreIds,
-            'has_image' => !empty($payload['input'][0]['content']) && count($payload['input'][0]['content']) > 1,
-            'payload' => $this->redact($payload),
-        ]);
+        $makeRequest = function(array $payload) {
+            return $this->httpClient->request('POST', $this->apiBase . '/responses', [
+                'headers' => $this->authHeaders(),
+                'json'    => $payload,
+                'timeout' => 60,
+            ]);
+        };
 
-        $res = $this->httpClient->request('POST', $this->apiBase . '/responses', [
-            'headers' => $this->authHeaders(),
-            'json'    => $payload,
-            'timeout' => 60,
-        ]);
+        $logRequest = function(array $payload) {
+            $this->logDebug('openai.request', [
+                'endpoint' => '/responses',
+                'model' => $payload['model'] ?? null,
+                'has_prompt' => isset($payload['prompt']),
+                'prev_id' => $payload['previous_response_id'] ?? null,
+                'vector_store_ids' => $this->vectorStoreIds,
+                'has_image' => !empty($payload['input'][0]['content']) && count($payload['input'][0]['content']) > 1,
+                'payload' => $this->redact($payload),
+            ]);
+        };
 
+        $logRequest($payload);
+        $res = $makeRequest($payload);
         $status = $res->getStatusCode();
         $raw    = $res->getContent(false);
+
+        // Retry with fallback model if model was not found
+        if ($status >= 400 && ($payload['model'] ?? '') === $this->defaultModel) {
+            $decoded = json_decode($raw, true);
+            $errType = $decoded['error']['type'] ?? '';
+            if ($status === 404 || $errType === 'model_not_found') {
+                $payload['model'] = $this->fallbackModel;
+                $this->logDebug('openai.request_fallback', ['model' => $this->fallbackModel]);
+                $logRequest($payload);
+                $res = $makeRequest($payload);
+                $status = $res->getStatusCode();
+                $raw    = $res->getContent(false);
+            }
+        }
         $info   = $res->getInfo();
 
         $this->logDebug('openai.response', [
@@ -131,21 +153,30 @@ final class OpenAIResponseService
         $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
         $payload['stream'] = true;
 
-        $this->logDebug('stream.request', [
-            'endpoint' => '/responses',
-            'model' => $payload['model'] ?? null,
-            'payload' => $this->redact($payload),
-        ]);
-
         $headers = $this->authHeaders();
         $headers['Accept'] = 'text/event-stream';
-        $response = $this->httpClient->request('POST', $this->apiBase . '/responses', [
-            'headers' => $headers,
-            'json'    => $payload,
-            // timeout 0 disables idle timeout while streaming
-            'timeout' => 0,
-            'buffer'  => false,
-        ]);
+
+        $makeRequest = function(array $payload) use ($headers) {
+            $this->logDebug('stream.request', [
+                'endpoint' => '/responses',
+                'model' => $payload['model'] ?? null,
+                'payload' => $this->redact($payload),
+            ]);
+            return $this->httpClient->request('POST', $this->apiBase . '/responses', [
+                'headers' => $headers,
+                'json'    => $payload,
+                'timeout' => 0,
+                'buffer'  => false,
+            ]);
+        };
+
+        $response = $makeRequest($payload);
+        $status = $response->getStatusCode();
+        if ($status >= 400 && ($payload['model'] ?? '') === $this->defaultModel) {
+            $payload['model'] = $this->fallbackModel;
+            $this->logDebug('stream.request_fallback', ['model' => $this->fallbackModel, 'status' => $status]);
+            $response = $makeRequest($payload);
+        }
 
         $buffer = '';
         try {

@@ -103,6 +103,7 @@ services:
             $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
             $logger: '@monolog.logger.streaming'
+            $fallbackModel: 'gpt-5'
 
     App\Controller\rag\response\ChatController:
         arguments:
