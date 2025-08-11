@@ -46,8 +46,9 @@ final class OpenAIResponseService
         $t0 = microtime(true);
         try {
             $res = $this->httpClient->request('GET', $this->apiBase . '/models', [
-                'headers' => $this->authHeaders(),
-                'timeout' => $timeoutSeconds,
+                'headers'      => $this->authHeaders(),
+                'timeout'      => $timeoutSeconds,
+                'http_version' => '2.0',
             ]);
             // Trigger request and header receipt without reading full body
             $res->getHeaders(false);
@@ -73,9 +74,10 @@ final class OpenAIResponseService
         $t0 = microtime(true);
         $makeRequest = function(array $payload) {
             return $this->httpClient->request('POST', $this->apiBase . '/responses', [
-                'headers' => $this->authHeaders(),
-                'json'    => $payload,
-                'timeout' => 60,
+                'headers'      => $this->authHeaders(),
+                'json'         => $payload,
+                'timeout'      => 60,
+                'http_version' => '2.0',
             ]);
         };
 
@@ -163,12 +165,12 @@ final class OpenAIResponseService
                 'payload' => $this->redact($payload),
             ]);
             return $this->httpClient->request('POST', $this->apiBase . '/responses', [
-                'headers' => $headers,
-                'json'    => $payload,
-                // allow long-running streams without triggering idle timeouts
-                'timeout' => 600,
+                'headers'      => $headers,
+                'json'         => $payload,
+                'timeout'      => 600,
                 'max_duration' => 0,
-                'buffer'  => false,
+                'buffer'       => false,
+                'http_version' => '2.0',
             ]);
         };
 
@@ -264,8 +266,13 @@ final class OpenAIResponseService
         ?string $previousResponseId = null,
         ?array $extra = null
     ): array {
-        $model = $model ?: $this->defaultModel;
-        $content = [['type' => 'input_text', 'text' => $userText]];
+        $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
+
+        // --- Content aufbauen: Text + optional Bild ---
+        $content = [
+            ['type' => 'input_text', 'text' => $userText],
+        ];
+
         if ($image) {
             $mime = $image->getMimeType() ?: 'application/octet-stream';
             if (!in_array($mime, ['image/png','image/jpeg','image/webp'], true)) {
@@ -277,46 +284,76 @@ final class OpenAIResponseService
             }
             $b64 = base64_encode((string) file_get_contents($image->getPathname()));
             $dataUrl = sprintf('data:%s;base64,%s', $mime, $b64);
+
+            // Direkt als Data-URL (von der API akzeptiert)
             $content[] = ['type' => 'input_image', 'image_url' => $dataUrl];
+            // Alternativ bei Bedarf:
+            // $content[] = ['type' => 'input_image', 'image_url' => ['url' => $dataUrl]];
         }
 
-        $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
+        // --- Basis-Payload ---
         $payload = [
             'model' => $modelName,
             'input' => [[
                 'role'    => 'user',
                 'content' => $content,
             ]],
-            // Responses API expects tools and tool_resources (file_search) for RAG
-            'tools' => [ [ 'type' => 'file_search' ] ],
-            'tool_resources' => [
-                'file_search' => [
-                    'vector_store_ids' => $this->vectorStoreIds,
-                ],
-            ],
             'tool_choice' => 'auto',
         ];
 
-        if (!empty($prompt['id'])) {
-            $payload['prompt'] = ['id' => (string) $prompt['id']];
-            if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
-                $payload['prompt']['variables'] = $prompt['variables'];
-            }
-            if (!empty($prompt['version'])) {
-                $payload['prompt']['version'] = (string) $prompt['version'];
+        // --- Prompt nur anhängen, wenn eine gültige Prompt-ID übergeben wurde ---
+        // Erwartete Form: ['id' => 'pmpt_xxx', 'variables' => [...], 'version' => '1']
+        if (is_array($prompt)) {
+            $promptId = isset($prompt['id']) ? (string) $prompt['id'] : '';
+            if ($promptId !== '') {
+                $payload['prompt'] = ['id' => $promptId];
+
+                if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
+                    $vars = [];
+                    foreach ($prompt['variables'] as $k => $v) {
+                        if (is_scalar($v) || $v === null) {
+                            $vars[(string)$k] = $v === null ? '' : (string)$v;
+                        }
+                    }
+                    if (!empty($vars)) {
+                        $payload['prompt']['variables'] = $vars;
+                    }
+                }
+
+                if (!empty($prompt['version'])) {
+                    $payload['prompt']['version'] = (string) $prompt['version'];
+                }
             }
         }
+
+        // --- File Search nur anhängen, wenn Vector Stores vorhanden ---
+        // Responses-API erwartet vector_store_ids IM Tool-Objekt, NICHT unter tool_resources.
+        $tools = [];
+        if (!empty($this->vectorStoreIds)) {
+            $tools[] = [
+                'type' => 'file_search',
+                'vector_store_ids' => $this->vectorStoreIds,
+                // optional:
+                // 'max_num_results' => 8,
+                // 'filters' => ['metadata' => ['key' => 'value']],
+            ];
+        }
+        if (!empty($tools)) {
+            $payload['tools'] = $tools;
+        }
+
+        // --- Mehr-Turn-Kontext ---
         if (!empty($previousResponseId)) {
-            $payload['previous_response_id'] = $previousResponseId;
+            $payload['previous_response_id'] = (string) $previousResponseId;
         }
-        if ($extra) {
+
+        // --- Optionale Overrides ---
+        if (!empty($extra) && is_array($extra)) {
             $payload = array_replace_recursive($payload, $extra);
         }
+
         return $payload;
     }
-
-
-
 
     public function getResponse(string $responseId): array
     {
@@ -324,8 +361,9 @@ final class OpenAIResponseService
         $this->logDebug('openai.get_request', ['id' => $responseId]);
 
         $res = $this->httpClient->request('GET', $this->apiBase . '/responses/' . urlencode($responseId), [
-            'headers' => $this->authHeaders(),
-            'timeout' => 30,
+            'headers'      => $this->authHeaders(),
+            'timeout'      => 30,
+            'http_version' => '2.0',
         ]);
         $status = $res->getStatusCode();
         $raw = $res->getContent(false);
@@ -347,8 +385,9 @@ final class OpenAIResponseService
         $this->logDebug('openai.delete_request', ['id' => $responseId]);
 
         $res = $this->httpClient->request('DELETE', $this->apiBase . '/responses/' . urlencode($responseId), [
-            'headers' => $this->authHeaders(),
-            'timeout' => 30,
+            'headers'      => $this->authHeaders(),
+            'timeout'      => 30,
+            'http_version' => '2.0',
         ]);
         $status = $res->getStatusCode();
         $raw = $res->getContent(false);

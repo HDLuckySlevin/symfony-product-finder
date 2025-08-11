@@ -30,6 +30,32 @@ final class ChatController extends AbstractController
         $image = $request->files->get('image');
         $model = $request->request->get('model');
 
+        // Prompt-Parameter (optional)
+        $promptId      = trim((string)$request->request->get('prompt_id', ''));
+        $promptVarsRaw = (string)$request->request->get('prompt_variables', '');
+        $promptVersion = trim((string)$request->request->get('prompt_version', ''));
+
+        $prompt = null;
+        if ($promptId !== '') {
+            $prompt = ['id' => $promptId];
+            if ($promptVarsRaw !== '') {
+                try {
+                    $vars = json_decode($promptVarsRaw, true, 512, JSON_THROW_ON_ERROR);
+                    if (is_array($vars) && !empty($vars)) {
+                        $prompt['variables'] = $vars;
+                    }
+                } catch (\Throwable $e) {
+                    $this->logger?->warning('chat.prompt.variables_invalid_json', [
+                        'error' => $e->getMessage(),
+                        'input' => mb_substr($promptVarsRaw, 0, 500),
+                    ]);
+                }
+            }
+            if ($promptVersion !== '') {
+                $prompt['version'] = $promptVersion;
+            }
+        }
+
         if ($text === '' && !$image) {
             return $this->json(['ok' => false, 'error' => 'Leere Anfrage'], 400);
         }
@@ -44,8 +70,9 @@ final class ChatController extends AbstractController
                 userText: $text,
                 image: $image instanceof UploadedFile ? $image : null,
                 model: $model,
-                extra: null,
-                previousResponseId: is_string($prevId) ? $prevId : null
+                prompt: $prompt,
+                previousResponseId: is_string($prevId) ? $prevId : null,
+                extra: null
             );
             $durationMs = (int) ((microtime(true) - $t0) * 1000);
 
@@ -72,6 +99,8 @@ final class ChatController extends AbstractController
             }
 
             $answer = OpenAIResponseService::extractText($apiResponse);
+            // Für den Gesamttext ist "sanftes" Aufräumen ok:
+            $answer = $this->stripInlineCitationsBlock($answer);
 
             $tokensQuery = 0;
             $tokensAnswer = 0;
@@ -115,6 +144,31 @@ final class ChatController extends AbstractController
         $image = $request->files->get('image');
         $model = $request->request->get('model');
 
+        // Prompt-Parameter (optional)
+        $promptId      = trim((string)$request->request->get('prompt_id', ''));
+        $promptVarsRaw = (string)$request->request->get('prompt_variables', '');
+        $promptVersion = trim((string)$request->request->get('prompt_version', ''));
+        $prompt = null;
+        if ($promptId !== '') {
+            $prompt = ['id' => $promptId];
+            if ($promptVarsRaw !== '') {
+                try {
+                    $vars = json_decode($promptVarsRaw, true, 512, JSON_THROW_ON_ERROR);
+                    if (is_array($vars) && !empty($vars)) {
+                        $prompt['variables'] = $vars;
+                    }
+                } catch (\Throwable $e) {
+                    $this->logger?->warning('chat.prompt.variables_invalid_json', [
+                        'error' => $e->getMessage(),
+                        'input' => mb_substr($promptVarsRaw, 0, 500),
+                    ]);
+                }
+            }
+            if ($promptVersion !== '') {
+                $prompt['version'] = $promptVersion;
+            }
+        }
+
         if ($text === '' && !$image) {
             return $this->json(['ok' => false, 'error' => 'Leere Anfrage'], 400);
         }
@@ -126,7 +180,7 @@ final class ChatController extends AbstractController
         // Release session lock before starting long-running stream
         $session->save();
 
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $pingMs) {
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $pingMs, $prompt) {
             $session->start();
 
             $flush = static function () {
@@ -145,6 +199,7 @@ final class ChatController extends AbstractController
                 'has_image' => $image instanceof UploadedFile,
                 'model' => $model,
                 'prev_id' => $prevId,
+                'has_prompt' => is_array($prompt) && !empty($prompt['id']),
             ]);
 
             // Send initial padding to kick off streaming through proxies
@@ -160,36 +215,58 @@ final class ChatController extends AbstractController
                     userText: $text,
                     image: $image instanceof UploadedFile ? $image : null,
                     model: $model,
-                    prompt: null,
+                    prompt: $prompt,
                     previousResponseId: is_string($prevId) ? $prevId : null,
                     extra: null,
                     onEvent: function (?string $eventName, array $data) use (&$tokensQuery, &$tokensAnswer, &$durationMs, &$finalId, $sendEvent, $session, $t0, &$insufficient) {
                         switch ($eventName) {
-                            case 'response.output_text.delta':
+                            case 'response.output_text.delta': {
                                 $delta = (string)($data['delta'] ?? '');
                                 if ($delta !== '') {
-                                    $this->logger?->debug('send_stream.delta', ['len' => mb_strlen($delta), 'preview' => mb_substr($delta, 0, 120)]);
-                                    $sendEvent('delta', ['text' => $delta]);
+                                    // **WICHTIG**: Im Streaming **keine** Trims/Whitespace-Zusammenfassung!
+                                    $delta = $this->stripInlineCitationsDelta($delta);
+                                    if ($delta !== '') {
+                                        $this->logger?->debug('send_stream.delta', ['len' => mb_strlen($delta), 'preview' => mb_substr($delta, 0, 120)]);
+                                        $sendEvent('delta', ['text' => $delta]);
+                                    }
                                 }
                                 break;
+                            }
+
                             case 'response.output_text.done':
                                 $this->logger?->debug('send_stream.output_done');
                                 break;
-                            case 'response.refusal.delta':
+
+                            case 'response.refusal.delta': {
                                 $delta = (string)($data['delta'] ?? '');
                                 if ($delta !== '') {
-                                    $this->logger?->debug('send_stream.refusal_delta', ['len' => mb_strlen($delta), 'preview' => mb_substr($delta, 0, 120)]);
-                                    $sendEvent('delta', ['text' => $delta]);
+                                    $delta = $this->stripInlineCitationsDelta($delta);
+                                    if ($delta !== '') {
+                                        $this->logger?->debug('send_stream.refusal_delta', ['len' => mb_strlen($delta), 'preview' => mb_substr($delta, 0, 120)]);
+                                        $sendEvent('delta', ['text' => $delta]);
+                                    }
                                 }
                                 break;
+                            }
+
                             case 'response.tool_call.delta':
                                 $this->logger?->debug('send_stream.tool_delta', ['data' => $data]);
                                 $sendEvent('tool_delta', $data);
                                 break;
+
                             case 'response.tool_call.done':
                                 $this->logger?->debug('send_stream.tool_done', ['data' => $data]);
                                 $sendEvent('tool_done', $data);
                                 break;
+
+                            // Optional: File-Search-Phasen an den Client weiterreichen
+                            case 'response.file_search_call.in_progress':
+                            case 'response.file_search_call.searching':
+                            case 'response.file_search_call.completed':
+                                $this->logger?->debug('send_stream.file_search', ['event' => $eventName, 'data' => $data]);
+                                $sendEvent('file_search', ['event' => $eventName, 'data' => $data]);
+                                break;
+
                             case 'response.error':
                                 $msg  = (string)($data['error']['message'] ?? 'Fehler');
                                 $type = (string)($data['error']['type'] ?? '');
@@ -201,6 +278,7 @@ final class ChatController extends AbstractController
                                 $this->logger?->error('send_stream.error', ['message' => $msg, 'type' => $type, 'code' => $code, 'insufficient_quota' => $insufficient]);
                                 $sendEvent('error', ['message' => $msg, 'insufficient_quota' => $insufficient]);
                                 break;
+
                             case 'response.completed':
                                 $durationMs = (int)((microtime(true) - $t0) * 1000);
                                 $resp = $data['response'] ?? [];
@@ -229,15 +307,19 @@ final class ChatController extends AbstractController
                                 ]);
                                 $session->save();
                                 break;
+
                             default:
-                                $this->logger?->debug('send_stream.event_ignored', ['event' => $eventName, 'data_preview' => mb_substr(json_encode($data), 0, 200)]);
+                                $this->logger?->debug('send_stream.event_ignored', [
+                                    'event' => $eventName,
+                                    'data_preview' => mb_substr(json_encode($data), 0, 200)
+                                ]);
                                 break;
                         }
                     }
                 );
             } catch (\Throwable $e) {
                 $this->logger?->error('send_stream.exception', ['error' => $e->getMessage()]);
-                $sendEvent('error', ['message' => $e->getMessage(), 'insufficient_quota' => $insufficient]);
+                $sendEvent('error', ['message' => $e->getMessage(), 'insufficient_quota' => $insufficient ?? false]);
             }
         });
 
@@ -256,6 +338,8 @@ final class ChatController extends AbstractController
         try {
             $apiResponse = $openai->getResponse($id);
             $answer      = OpenAIResponseService::extractText($apiResponse);
+            // Für den gesamten Text ok:
+            $answer      = $this->stripInlineCitationsBlock($answer);
             $this->logger?->info('chat.get.ok', ['id' => $id]);
 
             return $this->json([
@@ -318,5 +402,30 @@ final class ChatController extends AbstractController
         $session->set('rag_ping_last_ts', time());
         $session->set('rag_ping_last_ms', $ms);
         return $ms;
+    }
+
+    /**
+     * Entfernt Inline-Citations (Private Use Area) **ohne** Spaces/Zeilen zu verändern.
+     * Für Streaming-Deltas: KEIN trim(), KEINE Space-Kosmetik.
+     */
+    private function stripInlineCitationsDelta(string $text): string
+    {
+        // Matches: U+E200 ""
+        // Beispiel:   oder
+        $text = preg_replace('/\x{E200}(?:cite|filecite)\x{E202}.*?\x{E201}/u', '', $text) ?? $text;
+        return $text; // NICHT trimmen!
+    }
+
+    /**
+     * Entfernt Inline-Citations und räumt den **Gesamttext** sanft auf.
+     * Für Nicht-Streaming/Finaltext geeignet.
+     */
+    private function stripInlineCitationsBlock(string $text): string
+    {
+        $text = preg_replace('/\x{E200}(?:cite|filecite)\x{E202}.*?\x{E201}/u', '', $text) ?? $text;
+        // nur sanftes Aufräumen, keine aggressiven Kürzungen
+        $text = preg_replace('/[ \t]{2,}/', ' ', $text) ?? $text;
+        $text = preg_replace("/\n{3,}/", "\n\n", $text) ?? $text;
+        return trim($text);
     }
 }
