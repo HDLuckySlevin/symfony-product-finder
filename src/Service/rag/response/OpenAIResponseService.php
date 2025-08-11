@@ -61,7 +61,7 @@ final class OpenAIResponseService
         }
 
         $payload = [
-            'model' => 'gpt-5',
+            'model' => 'gpt-5-mini',
             'prompt' => [
                 'id'        => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',
                 'variables' => ['customer_name' => 'Kunde'],
