@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+{% block title %}RAG Chat (Responses API){% endblock %}
+
+{% block body %}
+    <style>
+        .chat { max-width: 920px; margin: 2rem auto; }
+        .msg { padding: .75rem 1rem; border-radius: 12px; margin: .5rem 0; white-space: pre-wrap; }
+        .user { background: #eef; align-self: flex-end; }
+        .bot  { background: #efe; }
+        .row { display:flex; gap:.5rem; }
+        .hidden { display:none; }
+        #history { display:flex; flex-direction:column; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.9em; }
+    </style>
+
+    <div class="chat">
+        <h1>RAG Chat (Responses API)</h1>
+
+        <div id="history"></div>
+
+        <form id="chatForm" class="row" enctype="multipart/form-data">
+            <input name="message" id="message" class="form-control" placeholder="Frage…" required>
+            <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp">
+            <button class="btn btn-primary" type="submit">Senden</button>
+            <button class="btn btn-secondary" type="button" id="resetBtn">Reset</button>
+        </form>
+
+        <div id="error" class="hidden" style="color:red;"></div>
+    </div>
+
+    <script>
+        const historyEl = document.getElementById('history');
+        const errorEl   = document.getElementById('error');
+        const form      = document.getElementById('chatForm');
+
+        function addMsg(text, who) {
+            const div = document.createElement('div');
+            div.className = 'msg ' + (who === 'user' ? 'user' : 'bot');
+            div.textContent = text;
+            historyEl.appendChild(div);
+            historyEl.scrollTop = historyEl.scrollHeight;
+        }
+
+        async function parseJsonSafe(res) {
+            const ct = res.headers.get('content-type') || '';
+            const txt = await res.text();
+            if (!ct.includes('application/json')) {
+                throw new Error('Server lieferte kein JSON (' + ct + '). Erste 160 Zeichen: ' + txt.slice(0,160));
+            }
+            return JSON.parse(txt);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // ← verhindert GET mit Query in der URL
+            errorEl.classList.add('hidden');
+
+            const message = document.getElementById('message').value.trim();
+            if (message) addMsg(message, 'user');
+
+            const fd = new FormData(form);
+            try {
+                const res  = await fetch('{{ path("rag_response_chat_send") }}', {
+                    method: 'POST',
+                    body: fd
+                });
+                const data = await parseJsonSafe(res);
+                if (!res.ok || !data.ok) throw new Error(data.error || 'Unbekannter Fehler');
+                addMsg(data.answer || '[keine Ausgabe]', 'bot');
+                form.reset();
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch('{{ path("rag_response_chat_reset") }}', { method: 'POST' });
+                const j = await res.json();
+                if (j.ok) historyEl.innerHTML = '';
+            } catch (_) {}
+        });
+    </script>
+{% endblock %}

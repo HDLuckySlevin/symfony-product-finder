@@ -12,7 +12,7 @@
                 <div class="card shadow">
                     <div class="card-body p-4">
                         <h2 class="mb-3">Wie kann ich Ihnen helfen?</h2>
-                        <p>Formulieren Sie Ihre Anfrage in natürlicher Sprache:</p>
+                        <p>Formulieren Sie Ihre Anfrage in natürlicher Sprache oder laden Sie ein Bild hoch:</p>
 
                         <div class="chat-container mb-4">
                             <div id="chat-messages" class="chat-messages mb-3"></div>
@@ -20,17 +20,22 @@
                             <div id="loading-indicator" class="text-muted mb-2" style="display: none;">
                                 ⏳ Bitte warten – der Produktassistent denkt nach...
                             </div>
-
-
                         </div>
-                        <div class="">
-                            <div class="input-group">
+
+                        <div class="controlling-wrapper">
+                            <div class="input-group mb-2">
                                 <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein Smartphone mit guter Kamera" autocomplete="off">
                                 <button class="btn btn-primary" id="send-button">Senden</button>
                                 <button class="btn btn-secondary" id="record-button">🎤</button>
                             </div>
-                            <div class="text-muted mt-2" style="font-size: 0.9em;">(Sprachfunktion in Vorbereitung)</div>
-                            <form id="reset-form" method="post" action="{{ path('rag_chat_reset') }}" class="mt-3">
+                            <div class="text-muted mb-3" style="font-size: 0.9em;">(Sprachfunktion in Vorbereitung)</div>
+
+                            <div class="input-group mb-2">
+                                <input type="file" id="image-input" class="form-control" accept="image/*">
+                                <button class="btn btn-outline-secondary" id="upload-button">Bild hochladen</button>
+                            </div>
+
+                            <form id="reset-form" method="post" action="{{ path('rag_chat_reset') }}" class="mt-2">
                                 <button type="submit" class="btn btn-outline-danger">Konversation zurücksetzen</button>
                             </form>
                         </div>
@@ -54,6 +59,8 @@
             const sendButton = document.getElementById('send-button');
             const recordButton = document.getElementById('record-button');
             const loadingIndicator = document.getElementById('loading-indicator');
+            const imageInput = document.getElementById('image-input');
+            const uploadButton = document.getElementById('upload-button');
 
             function appendMessage(content, role) {
                 const msg = document.createElement('div');
@@ -63,9 +70,53 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
+            function appendImagePreview(file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const msg = document.createElement('div');
+                    msg.classList.add('message', 'user-message');
+                    msg.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded w-100" style="max-width: 220px;">`;
+                    chatMessages.appendChild(msg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function appendCollapsibleMessage(content, title = 'VisionAI-Analyse') {
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('message', 'system-message');
+
+                const header = document.createElement('div');
+                header.classList.add('d-flex', 'align-items-center', 'justify-content-between');
+                header.innerHTML = `<strong>${title}</strong>`;
+
+                const toggle = document.createElement('button');
+                toggle.classList.add('btn', 'btn-link', 'btn-sm', 'p-0', 'ms-2');
+                toggle.textContent = '▶ Anzeigen';
+
+                const body = document.createElement('div');
+                body.style.display = 'none';
+                body.innerHTML = `<p class="mb-0 text-start">${content}</p>`;
+
+                toggle.addEventListener('click', () => {
+                    const open = body.style.display === 'block';
+                    body.style.display = open ? 'none' : 'block';
+                    toggle.textContent = open ? '▶ Anzeigen' : '▼ Verbergen';
+                });
+
+                header.appendChild(toggle);
+                wrapper.appendChild(header);
+                wrapper.appendChild(body);
+
+                chatMessages.appendChild(wrapper);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
             function setLoading(state) {
                 sendButton.disabled = state;
                 recordButton.disabled = state;
+                uploadButton.disabled = state;
+                imageInput.disabled = state;
                 loadingIndicator.style.display = state ? 'block' : 'none';
             }
 
@@ -92,6 +143,41 @@
                     .finally(() => setLoading(false));
             }
 
+            function uploadImage(file) {
+                if (!file) return;
+                appendImagePreview(file);
+                appendMessage('Bild wird verarbeitet...', 'assistant');
+                setLoading(true);
+
+                const formData = new FormData();
+                formData.append('image', file, file.name || 'upload.png');
+
+                fetch("{{ path('rag_upload_image') }}", {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.error) {
+                            appendMessage('❌ ' + data.error, 'assistant');
+                            return;
+                        }
+                        if (data.prompt) {
+                            appendCollapsibleMessage(data.prompt, 'VisionAI-Analyse');
+                        }
+                        if (data.answer) {
+                            appendMessage(data.answer, 'assistant');
+                        } else {
+                            appendMessage('ℹ️ Keine Antwort des Assistenten erhalten.', 'assistant');
+                        }
+                    })
+                    .catch(() => {
+                        appendMessage('❌ Fehler beim Bildupload', 'assistant');
+                    })
+                    .finally(() => setLoading(false));
+            }
+
+            // Events
             sendButton.addEventListener('click', () => {
                 const text = userInput.value.trim();
                 if (text) {
@@ -106,12 +192,21 @@
                 }
             });
 
-            // Sprachaufnahme vorbereitet, aber noch nicht aktiv
             recordButton.addEventListener('click', () => {
                 alert('Sprachaufnahme folgt demnächst.');
             });
 
-            // Begrüßungsnachricht beim Laden anzeigen
+            uploadButton.addEventListener('click', () => {
+                const file = imageInput.files[0];
+                if (file) {
+                    uploadImage(file);
+                    imageInput.value = '';
+                } else {
+                    appendMessage('Bitte wählen Sie zuerst ein Bild aus.', 'assistant');
+                }
+            });
+
+            // Begrüßung
             appendMessage(
                 'Hallo! Ich bin Ihr KI-gestützter Produktassistent. Beschreiben Sie einfach, was Sie suchen – z. B. "wasserdichtes Smartphone mit langer Akkulaufzeit" – und ich finde passende Produkte für Sie.',
                 'assistant'
@@ -153,11 +248,8 @@
             color: #212529;
             float: left;
         }
-        p {
-            margin-bottom: 0rem;
-        }
-        .controlling-wrapper {
-            background-color: white;
-        }
+
+        p { margin-bottom: 0; }
+        .controlling-wrapper { background-color: white; }
     </style>
 {% endblock %}

@@ -8,17 +8,17 @@
         <div class="col-md-8 text-center">
             <h1 class="mb-4">Product-Finder</h1>
             <p class="lead mb-5">Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz. Beschreiben Sie einfach, was Sie suchen, und unser System findet die passenden Produkte für Sie.</p>
-            
+
             <div class="card shadow-lg">
                 <div class="card-body p-5">
                     <h2 class="mb-4">Wie kann ich Ihnen helfen?</h2>
                     <p>Beschreiben Sie Ihre Anforderungen in natürlicher Sprache:</p>
-                    
+
                     <div class="chat-container mb-4">
                         <div id="chat-messages" class="chat-messages mb-3">
                             <!-- Chat messages will appear here -->
                         </div>
-                        
+
                         <div class="input-group mb-2">
                             <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein wasserdichtes Smartphone mit guter Kamera...">
                             <button class="btn btn-primary" id="send-button">Suchen</button>
@@ -34,7 +34,7 @@
                             <button class="btn btn-secondary" id="capture-button">Aufnehmen</button>
                         </div>
                     </div>
-                    
+
                     <div id="results-container" class="mt-4" style="display: none;">
                         <h3>Gefundene Produkte</h3>
                         <div id="product-results" class="row">
@@ -43,7 +43,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-5">
                 <h3>Wie funktioniert es?</h3>
                 <p>Der Product-Finder kombiniert künstliche Intelligenz mit einer Vektor-Datenbank, um Ihre Suche komfortabel zu gestalten.</p>
@@ -125,7 +125,7 @@ sequenceDiagram
             controls.forEach(el => { if (el) el.disabled = state; });
         }
         setBusy(false);
-        
+
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = isUser ? 'message user-message' : 'message system-message';
@@ -238,18 +238,18 @@ sequenceDiagram
                 addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
             });
         }
-        
+
         function displayProducts(products) {
             productResults.innerHTML = '';
-            
+
             products.forEach(product => {
                 const productCard = document.createElement('div');
                 productCard.className = 'col-md-6 mb-4';
-                
+
                 const productName = product.title || 'Unbekanntes Produkt';
                 const productId = product.id || 'N/A';
                 const score = product.distance ? (product.distance * 100).toFixed(1) + '%' : 'N/A';
-                
+
                 productCard.innerHTML = `
                     <div class="card h-100">
                         <div class="card-body">
@@ -259,13 +259,13 @@ sequenceDiagram
                         </div>
                     </div>
                 `;
-                
+
                 productResults.appendChild(productCard);
             });
-            
+
             resultsContainer.style.display = 'block';
         }
-        
+
         // Event listeners
         sendButton.addEventListener('click', function() {
             const query = userInput.value.trim();
@@ -347,7 +347,7 @@ sequenceDiagram
             cameraContainer.style.display = 'none';
             openCameraButton.style.display = 'inline-block';
         });
-        
+
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const query = userInput.value.trim();
@@ -358,7 +358,7 @@ sequenceDiagram
                 }
             }
         });
-        
+
         // Initial message
         addMessage('Hallo! Wie kann ich Ihnen bei der Suche nach passenden Produkten helfen?', false);
     });
@@ -369,14 +369,14 @@ sequenceDiagram
         border-radius: 8px;
         overflow: hidden;
     }
-    
+
     .chat-messages {
         height: 300px;
         overflow-y: auto;
         padding: 15px;
         background-color: #f8f9fa;
     }
-    
+
     .message {
         margin-bottom: 15px;
         padding: 10px 15px;
@@ -384,13 +384,13 @@ sequenceDiagram
         max-width: 80%;
         clear: both;
     }
-    
+
     .user-message {
         background-color: #007bff;
         color: white;
         float: right;
     }
-    
+
     .system-message {
         background-color: #e9ecef;
         color: #212529;

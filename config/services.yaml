@@ -95,3 +95,10 @@ services:
     App\Command\ProcessAudioCommand:
         arguments:
             $sttService: '@App\Service\OpenAISpeechToTextService'
+
+    App\Service\rag\response\OpenAIResponseService:
+        arguments:
+            $apiKey: '%env(OPENAI_API_KEY)%'
+            $apiBase: '%env(string:OPENAI_API_BASE)%'
+            $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
+            $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'

@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Controller\rag;
+namespace App\Controller\rag\assistant;
 
-use App\Service\rag\RagOpenAiService;
+use App\Service\rag\assistant\RagOpenAiService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class RagChatController extends AbstractController
 {
@@ -31,7 +31,7 @@ class RagChatController extends AbstractController
      * @param SessionInterface $session
      * @return Response HTML-Response mit der Chat-Oberfläche
      */
-    #[Route('/rag/chat', name: 'rag_chat_index', methods: ['GET'])]
+    #[Route('/rag/assistant/chat', name: 'rag_chat_index', methods: ['GET'])]
     public function index(SessionInterface $session): Response
     {
         $this->logger->info('🧪 Testeintrag für rag.log');
@@ -41,7 +41,7 @@ class RagChatController extends AbstractController
             $this->logger->info('Neuer Thread erstellt', ['thread_id' => $threadId]);
         }
 
-        return $this->render('rag/chat/index.html.twig');
+        return $this->render('rag/assistant/chat/index.html.twig');
     }
 
     /**
@@ -53,7 +53,7 @@ class RagChatController extends AbstractController
      * @param SessionInterface $session
      * @return JsonResponse JSON-Antwort mit dem Text des Assistenten oder Fehlermeldung
      */
-    #[Route('/rag/chat/send', name: 'rag_chat_send', methods: ['POST'])]
+    #[Route('/rag/assistant/chat/send', name: 'rag_chat_send', methods: ['POST'])]
     public function send(Request $request, SessionInterface $session): JsonResponse
     {
         $threadId = $session->get('rag_thread_id');
@@ -150,7 +150,7 @@ class RagChatController extends AbstractController
      * @param SessionInterface $session
      * @return JsonResponse JSON-Antwort mit Bestätigung der Löschung
      */
-    #[Route('/rag/chat/reset', name: 'rag_chat_reset', methods: ['POST'])]
+    #[Route('/rag/assistant/chat/reset', name: 'rag_chat_reset', methods: ['POST'])]
     public function reset(SessionInterface $session): JsonResponse
     {
         $threadId = $session->get('rag_thread_id');

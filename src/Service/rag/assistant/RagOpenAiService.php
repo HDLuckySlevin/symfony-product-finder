@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Service\rag;
+namespace App\Service\rag\assistant;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class RagOpenAiService
 {

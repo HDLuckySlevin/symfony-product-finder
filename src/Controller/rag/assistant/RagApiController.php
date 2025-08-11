@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\rag;
+namespace App\Controller\rag\assistant;
 
-use App\Service\rag\RagOpenAiService;
+use App\Service\rag\assistant\RagOpenAiService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
