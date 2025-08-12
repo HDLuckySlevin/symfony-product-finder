@@ -14,7 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/rag/response', name: 'rag_response_')]
 final class ChatController extends AbstractController
 {
-    public function __construct(private readonly ?LoggerInterface $logger = null) {}
+    public function __construct(
+        private readonly ?LoggerInterface $logger = null,
+        private readonly ?string $defaultPromptId = null,
+        private readonly ?string $defaultPromptVersion = null,
+    ) {}
 
     #[Route('/chat', name: 'chat', methods: ['GET'])]
     public function chat(Request $request): Response
@@ -55,6 +59,13 @@ final class ChatController extends AbstractController
                 $prompt['version'] = $promptVersion;
             }
         }
+        // Apply default prompt from env if none provided
+        if (!$prompt && $this->defaultPromptId) {
+            $prompt = ['id' => $this->defaultPromptId];
+            if ($this->defaultPromptVersion) {
+                $prompt['version'] = $this->defaultPromptVersion;
+            }
+        }
 
         if ($text === '' && !$image) {
             return $this->json(['ok' => false, 'error' => 'Leere Anfrage'], 400);
@@ -66,16 +77,19 @@ final class ChatController extends AbstractController
         try {
             $pingMs = $this->getCachedPing($request, $openai);
             $t0 = microtime(true);
+            // Optional generation controls from request
+            $extra = [];
+            $mot = $request->request->get('max_output_tokens');
+            if (is_numeric($mot)) { $extra['max_output_tokens'] = max(1, (int)$mot); }
+            $temp = $request->request->get('temperature');
+            if (is_numeric($temp)) { $extra['temperature'] = (float)$temp; }
             $apiResponse = $openai->createResponse(
                 userText: $text,
                 image: $image instanceof UploadedFile ? $image : null,
                 model: $model,
-                prompt: [
-                    'id' => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',               // <- HIER
-                    'variables' => ['customer_name' => 'Cooler Kunde!'],                               // optional
-                ],
+                prompt: $prompt,
                 previousResponseId: is_string($prevId) ? $prevId : null,
-                extra: null
+                extra: $extra ?: null
             );
             $durationMs = (int) ((microtime(true) - $t0) * 1000);
 
@@ -171,6 +185,13 @@ final class ChatController extends AbstractController
                 $prompt['version'] = $promptVersion;
             }
         }
+        // Apply default prompt from env if none provided
+        if (!$prompt && $this->defaultPromptId) {
+            $prompt = ['id' => $this->defaultPromptId];
+            if ($this->defaultPromptVersion) {
+                $prompt['version'] = $this->defaultPromptVersion;
+            }
+        }
 
         if ($text === '' && !$image) {
             return $this->json(['ok' => false, 'error' => 'Leere Anfrage'], 400);
@@ -183,7 +204,7 @@ final class ChatController extends AbstractController
         // Release session lock before starting long-running stream
         $session->save();
 
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $pingMs, $prompt) {
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($openai, $text, $image, $model, $prevId, $session, $pingMs, $prompt, $request) {
             $session->start();
 
             $flush = static function () {
@@ -214,13 +235,19 @@ final class ChatController extends AbstractController
             $tokensQuery = 0; $tokensAnswer = 0; $durationMs = 0; $finalId = null; $insufficient = false;
             $t0 = microtime(true);
             try {
+                // Optional generation controls from request (streaming path)
+                $extra = [];
+                $mot = $request->request->get('max_output_tokens');
+                if (is_numeric($mot)) { $extra['max_output_tokens'] = max(1, (int)$mot); }
+                $temp = $request->request->get('temperature');
+                if (is_numeric($temp)) { $extra['temperature'] = (float)$temp; }
                 $openai->createResponseStream(
                     userText: $text,
                     image: $image instanceof UploadedFile ? $image : null,
                     model: $model,
                     prompt: $prompt,
                     previousResponseId: is_string($prevId) ? $prevId : null,
-                    extra: null,
+                    extra: $extra ?: null,
                     onEvent: function (?string $eventName, array $data) use (&$tokensQuery, &$tokensAnswer, &$durationMs, &$finalId, $sendEvent, $session, $t0, &$insufficient) {
                         switch ($eventName) {
                             case 'response.output_text.delta': {
@@ -301,6 +328,38 @@ final class ChatController extends AbstractController
                                     'duration_ms' => $durationMs,
                                 ]);
                                 $sendEvent('done', [
+                                    'stats' => [
+                                        'tokens_query' => $tokensQuery,
+                                        'tokens_answer' => $tokensAnswer,
+                                        'tokens_session' => (int)$session->get('rag_tokens_total', 0),
+                                        'duration_ms' => $durationMs,
+                                    ]
+                                ]);
+                                $session->save();
+                                break;
+
+                            case 'response.incomplete':
+                                $durationMs = (int)((microtime(true) - $t0) * 1000);
+                                $resp = $data['response'] ?? [];
+                                $reason = (string)($resp['incomplete_details']['reason'] ?? 'unknown');
+                                if (isset($resp['id'])) { $finalId = (string)$resp['id']; }
+                                $usage = $resp['usage'] ?? [];
+                                if (isset($usage['total_tokens'])) { $tokensQuery = (int)$usage['total_tokens']; }
+                                if (isset($usage['output_tokens'])) { $tokensAnswer = (int)$usage['output_tokens']; }
+                                if (isset($usage['completion_tokens'])) { $tokensAnswer = (int)$usage['completion_tokens']; }
+                                $tokensSession = (int) $session->get('rag_tokens_total', 0) + (int)$tokensQuery;
+                                $session->set('rag_tokens_total', $tokensSession);
+                                if ($finalId) { $session->set('rag_prev_response_id', $finalId); }
+                                $this->logger?->warning('send_stream.incomplete', [
+                                    'response_id' => $finalId,
+                                    'reason' => $reason,
+                                    'tokens_query' => $tokensQuery,
+                                    'tokens_answer' => $tokensAnswer,
+                                    'duration_ms' => $durationMs,
+                                ]);
+                                $sendEvent('done', [
+                                    'incomplete' => true,
+                                    'reason' => $reason,
                                     'stats' => [
                                         'tokens_query' => $tokensQuery,
                                         'tokens_answer' => $tokensAnswer,

@@ -18,6 +18,8 @@ final class OpenAIResponseService
     private string $defaultModel;
     private string $fallbackModel;
     private ?LoggerInterface $logger;
+    private ?int $defaultMaxOutputTokens = null;
+    private ?float $defaultTemperature = null;
 
     public function __construct(
         HttpClientInterface $httpClient,
@@ -26,7 +28,9 @@ final class OpenAIResponseService
         string $defaultModel = 'gpt-5-mini',
         string $vectorStoreIdsCsv = '',
         ?LoggerInterface $logger = null,
-        string $fallbackModel = 'gpt-5'
+        string $fallbackModel = 'gpt-5',
+        ?int $defaultMaxOutputTokens = null,
+        ?float $defaultTemperature = null
     ) {
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;
@@ -35,6 +39,8 @@ final class OpenAIResponseService
         $this->fallbackModel = $fallbackModel;
         $this->vectorStoreIds = array_values(array_filter(array_map('trim', explode(',', (string)$vectorStoreIdsCsv))));
         $this->logger = $logger;
+        $this->defaultMaxOutputTokens = $defaultMaxOutputTokens;
+        $this->defaultTemperature = $defaultTemperature;
     }
 
     /**
@@ -105,6 +111,19 @@ final class OpenAIResponseService
             if ($status === 404 || $errType === 'model_not_found') {
                 $payload['model'] = $this->fallbackModel;
                 $this->logDebug('openai.request_fallback', ['model' => $this->fallbackModel]);
+                $logRequest($payload);
+                $res = $makeRequest($payload);
+                $status = $res->getStatusCode();
+                $raw    = $res->getContent(false);
+            }
+        }
+
+        // Retry without unsupported parameters (temperature)
+        if ($status >= 400 && isset($payload['temperature'])) {
+            $decoded = json_decode($raw, true);
+            if ($this->isUnsupportedTemperatureError($decoded)) {
+                unset($payload['temperature']);
+                $this->logDebug('openai.request_retry_without_temperature');
                 $logRequest($payload);
                 $res = $makeRequest($payload);
                 $status = $res->getStatusCode();
@@ -185,13 +204,25 @@ final class OpenAIResponseService
 
         if ($status >= 400) {
             $raw = $response->getContent(false);
-            $this->logError('stream.request_failed', [
-                'status' => $status,
-                'raw_preview' => mb_substr($raw, 0, 500),
-            ]);
             $decoded = json_decode($raw, true);
-            $message = $decoded['error']['message'] ?? ('HTTP error ' . $status);
-            throw new \RuntimeException($message, $status);
+            // Retry without unsupported parameters (temperature)
+            if (isset($payload['temperature']) && $this->isUnsupportedTemperatureError($decoded)) {
+                unset($payload['temperature']);
+                $this->logDebug('stream.request_retry_without_temperature', ['status' => $status]);
+                $response = $makeRequest($payload);
+                $status = $response->getStatusCode();
+            }
+
+            if ($status >= 400) {
+                $raw = $response->getContent(false);
+                $this->logError('stream.request_failed', [
+                    'status' => $status,
+                    'raw_preview' => mb_substr($raw, 0, 500),
+                ]);
+                $decoded = json_decode($raw, true);
+                $message = $decoded['error']['message'] ?? ('HTTP error ' . $status);
+                throw new \RuntimeException($message, $status);
+            }
         }
 
         $buffer = '';
@@ -300,6 +331,14 @@ final class OpenAIResponseService
             ]],
             'tool_choice' => 'auto',
         ];
+
+        // Defaults for generation controls
+        if (is_int($this->defaultMaxOutputTokens) && $this->defaultMaxOutputTokens > 0) {
+            $payload['max_output_tokens'] = $this->defaultMaxOutputTokens;
+        }
+        if (is_float($this->defaultTemperature) && $this->defaultTemperature >= 0) {
+            $payload['temperature'] = $this->defaultTemperature;
+        }
 
         // --- Prompt nur anhängen, wenn eine gültige Prompt-ID übergeben wurde ---
         // Erwartete Form: ['id' => 'pmpt_xxx', 'variables' => [...], 'version' => '1']
@@ -438,6 +477,19 @@ final class OpenAIResponseService
             }
         }
         return $copy;
+    }
+
+    /**
+     * Detect if decoded error array indicates unsupported 'temperature' parameter.
+     * @param mixed $decoded
+     */
+    private function isUnsupportedTemperatureError(mixed $decoded): bool
+    {
+        if (!is_array($decoded)) { return false; }
+        $msg = (string)($decoded['error']['message'] ?? '');
+        if ($msg === '') { return false; }
+        $msgLower = mb_strtolower($msg);
+        return str_contains($msgLower, 'unsupported parameter') && str_contains($msgLower, 'temperature');
     }
 
     private function logDebug(string $event, array $context = []): void

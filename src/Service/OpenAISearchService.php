@@ -55,9 +55,13 @@ class OpenAISearchService implements SearchServiceInterface
      */
     public function generateChatCompletion(array $messages, array $options = []): string
     {
-        $this->logger->info('Generating chat completion for search', [
+        $this->logger->info('openai.chat.request', [
             'model' => $this->chatModel,
-            'message_count' => count($messages)
+            'message_count' => count($messages),
+            'payload' => [
+                'model' => $this->chatModel,
+                'messages' => $messages,
+            ],
         ]);
 
         try {
@@ -70,18 +74,19 @@ class OpenAISearchService implements SearchServiceInterface
 
             if (isset($response->choices[0]->message->content)) {
                 $content = $response->choices[0]->message->content;
-                $this->logger->debug('Successfully received chat completion from OpenAI for search', [
-                    'content_length' => strlen($content)
+                $this->logger->info('openai.chat.response', [
+                    'content_length' => strlen($content),
+                    'choices' => count($response->choices ?? []),
                 ]);
                 return $content;
             } else {
-                $this->logger->error('Invalid response format from OpenAI client', [
+                $this->logger->error('openai.chat.invalid_response', [
                     'response' => json_encode($response)
                 ]);
                 throw new \RuntimeException('Failed to generate chat completion for search: Invalid response format from OpenAI client');
             }
         } catch (\Exception $e) {
-            $this->logger->error('Error generating chat completion with OpenAI API for search', [
+            $this->logger->error('openai.chat.error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

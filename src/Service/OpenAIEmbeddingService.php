@@ -58,6 +58,14 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
     public function createTextEmbeddings(array $texts): array
     {
         try {
+            $this->logger->info('openai.embeddings.request', [
+                'model' => $this->embeddingModel,
+                'input_count' => count($texts),
+                'payload' => [
+                    'model' => $this->embeddingModel,
+                    'input' => $texts,
+                ],
+            ]);
             $response = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
                 'input' => $texts
@@ -72,9 +80,14 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 $this->logger->info(json_encode($vectors));
             }
 
+            $this->logger->info('openai.embeddings.response', [
+                'vectors' => count($vectors),
+                'dimension' => isset($vectors[0]) ? count($vectors[0]) : null,
+            ]);
+
             return $vectors;
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to create text embeddings', ['exception' => $e]);
+            $this->logger->error('openai.embeddings.error', ['exception' => $e]);
             throw new \RuntimeException('Failed to create text embeddings');
         }
     }
@@ -99,6 +112,24 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 ],
             ];
 
+            $this->logger->info('openai.vision.request', [
+                'model' => $this->imageModel,
+                'image_bytes' => strlen($data) / 4 * 3, // approx original bytes
+                'payload' => [
+                    'model' => $this->imageModel,
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => [
+                                ['type' => 'text', 'text' => $this->imageDescriptionPrompt],
+                                ['type' => 'image_url', 'image_url' => '[redacted-data-url]'],
+                            ],
+                        ],
+                    ],
+                    'max_tokens' => 300,
+                ],
+            ]);
+
             $response = $this->client->chat()->create([
                 'model' => $this->imageModel,
                 'messages' => $messages,
@@ -109,6 +140,19 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 throw new \RuntimeException('OpenAI returned empty response');
             }
             $description = trim($response->choices[0]->message->content);
+
+            $this->logger->info('openai.vision.response', [
+                'content_length' => strlen($description),
+            ]);
+
+            $this->logger->info('openai.embeddings.request', [
+                'model' => $this->embeddingModel,
+                'input_count' => 1,
+                'payload' => [
+                    'model' => $this->embeddingModel,
+                    'input' => [$description],
+                ],
+            ]);
 
             $embed = $this->client->embeddings()->create([
                 'model' => $this->embeddingModel,
@@ -124,13 +168,18 @@ class OpenAIEmbeddingService implements EmbeddingGeneratorInterface
                 $this->logger->info(json_encode($vector));
             }
 
+            $this->logger->info('openai.embeddings.response', [
+                'vectors' => 1,
+                'dimension' => count($vector),
+            ]);
+
             return [
                 'description' => $description,
                 'vector' => $vector,
                 'provider' => 'openai',
             ];
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to create image embedding', ['exception' => $e]);
+            $this->logger->error('openai.vision.error', ['exception' => $e]);
             throw new \RuntimeException('OpenAI image description failed: ' . $e->getMessage(), 0, $e);
         }
     }

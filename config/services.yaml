@@ -104,7 +104,11 @@ services:
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
             $logger: '@monolog.logger.streaming'
             $fallbackModel: 'gpt-5'
+            $defaultMaxOutputTokens: 1024
+            $defaultTemperature: 0.3
 
     App\Controller\rag\response\ChatController:
         arguments:
             $logger: '@monolog.logger.streaming'
+            $defaultPromptId: '%env(string:RAG_RESPONSES_PROMPT_ID)%'
+            $defaultPromptVersion: '%env(string:RAG_RESPONSES_PROMPT_VERSION)%'
