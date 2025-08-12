@@ -70,7 +70,10 @@ final class ChatController extends AbstractController
                 userText: $text,
                 image: $image instanceof UploadedFile ? $image : null,
                 model: $model,
-                prompt: $prompt,
+                prompt: [
+                    'id' => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',               // <- HIER
+                    'variables' => ['customer_name' => 'Cooler Kunde!'],                               // optional
+                ],
                 previousResponseId: is_string($prevId) ? $prevId : null,
                 extra: null
             );
