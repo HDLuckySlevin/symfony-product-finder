@@ -307,6 +307,7 @@ final class OpenAIResponseService
                 'role'    => 'user',
                 'content' => $content,
             ]],
+            "reasoning" => [ "effort" =>"low" ],
             'tool_choice' => 'auto',
         ];
 
@@ -345,7 +346,7 @@ final class OpenAIResponseService
                 'type' => 'file_search',
                 'vector_store_ids' => $this->vectorStoreIds,
                 // optional:
-                // 'max_num_results' => 8,
+                'max_num_results' => 8,
                 // 'filters' => ['metadata' => ['key' => 'value']],
             ];
         }

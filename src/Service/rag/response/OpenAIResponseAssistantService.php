@@ -16,7 +16,7 @@ final class OpenAIResponseAssistantService
         private readonly ?string $assistantId = null,
         private readonly ?string $promptId = null,
         private readonly ?LoggerInterface $logger = null,
-        private readonly ?int $defaultMaxOutputTokens = 1024,
+        private readonly ?int $defaultMaxOutputTokens = 2000,
     ) {
         $apiBase = rtrim($apiBase ?: 'https://api.openai.com/v1', '/');
         $this->apiBase = $apiBase;
