@@ -104,11 +104,39 @@ services:
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
             $logger: '@monolog.logger.streaming'
             $fallbackModel: 'gpt-5'
-            $defaultMaxOutputTokens: 1024
-            $defaultTemperature: 0.3
+
+    App\Service\rag\response\OpenAIResponseBasicService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%env(OPENAI_API_KEY)%'
+            $apiBase: '%env(string:OPENAI_API_BASE)%'
+            $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
+            $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
+            $logger: '@monolog.logger.response_basic'
+            $fallbackModel: 'gpt-5'
+
+    App\Service\rag\response\OpenAIResponseAssistantService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%env(OPENAI_API_KEY)%'
+            $apiBase: '%env(string:OPENAI_API_BASE)%'
+            $assistantId: '%env(string:RAG_ASSISTANT_ID)%'
+            $promptId: '%env(string:RAG_RESPONSES_PROMPT_ID)%'
+            $logger: '@monolog.logger.response_assistant'
+            
 
     App\Controller\rag\response\ChatController:
+        arguments:
+            $logger: '@monolog.logger.response_basic'
+            $defaultPromptId: '%env(string:RAG_RESPONSES_PROMPT_ID)%'
+            $defaultPromptVersion: '%env(string:RAG_RESPONSES_PROMPT_VERSION)%'
+
+    App\Controller\rag\streaming\ChatController:
         arguments:
             $logger: '@monolog.logger.streaming'
             $defaultPromptId: '%env(string:RAG_RESPONSES_PROMPT_ID)%'
             $defaultPromptVersion: '%env(string:RAG_RESPONSES_PROMPT_VERSION)%'
+
+    App\Controller\rag\response\AssistantChatController:
+        arguments:
+            $logger: '@monolog.logger.response_assistant'

@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+{% block title %}RAG Chat (Streaming){% endblock %}
+{% block body %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-4 text-center">RAG Chat (Streaming)</h1>
+      <div class="card shadow"><div class="card-body p-4">
+        <div id="history" class="mb-3" style="min-height:240px;max-height:420px;overflow-y:auto;"></div>
+        <div id="loadingIndicator" class="d-none text-muted mb-3">
+          <span class="spinner-border spinner-border-sm me-1"></span>OpenAI antwortet…
+        </div>
+        <form id="chatForm" class="row g-2" enctype="multipart/form-data">
+          <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
+          <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Senden</button>
+          </div>
+        </form>
+        <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<style>.msg{padding:.75rem 1rem;border-radius:12px;margin:.5rem 0;white-space:pre-wrap;display:inline-block;max-width:80%}.user{background:#007bff;color:#fff;float:right;clear:both}.bot{background:#e9ecef;color:#212529;float:left;clear:both}.cursor{display:inline-block;width:.6em;opacity:.7;animation:blink 1s step-end infinite}@keyframes blink{50%{opacity:.1}}</style>
+
+<script>
+const historyEl=document.getElementById('history');
+const errorEl=document.getElementById('error');
+const form=document.getElementById('chatForm');
+let autoScroll=true;historyEl.addEventListener('scroll',()=>{autoScroll=historyEl.scrollTop+historyEl.clientHeight>=historyEl.scrollHeight-10});
+function addMsg(text,who){const d=document.createElement('div');d.className='msg '+(who==='user'?'user':'bot');d.textContent=text;historyEl.appendChild(d);if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight}
+form.addEventListener('submit',async e=>{e.preventDefault();errorEl.classList.add('d-none');const message=document.getElementById('message').value.trim();if(message)addMsg(message,'user');const fd=new FormData(form);try{document.getElementById('loadingIndicator').classList.remove('d-none');const res=await fetch('{{ path("rag_streaming_chat_send_stream") }}',{method:'POST',body:fd,headers:{'Accept':'text/event-stream'}});if(!res.ok||!res.body)throw new Error('Streaming nicht verfügbar');const botDiv=document.createElement('div');botDiv.className='msg bot';const textNode=document.createTextNode('');const cursorSpan=document.createElement('span');cursorSpan.className='cursor';cursorSpan.textContent='▌';botDiv.appendChild(textNode);botDiv.appendChild(cursorSpan);historyEl.appendChild(botDiv);if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='';while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true}).replace(/\r\n/g,'\n');let idx;while((idx=buffer.indexOf('\n\n'))!==-1){const rawEvt=buffer.slice(0,idx);buffer=buffer.slice(idx+2);const lines=rawEvt.split('\n');let ev=null;let dataStr='';for(const line of lines){if(!line)continue;if(line.startsWith('event:'))ev=line.slice(6).trim();else if(line.startsWith('data:')){const part=line.slice(5).trim();if(part&&part!=='null')dataStr+=(dataStr?'\n':'')+part}}if(!ev)continue;let payload={};try{payload=dataStr?JSON.parse(dataStr):{}}catch{}if(ev==='delta'){const t=payload.text||'';textNode.data+=t;if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight}else if(ev==='error'){errorEl.textContent=payload.message||'Unbekannter Fehler';errorEl.classList.remove('d-none')}else if(ev==='done'){try{cursorSpan.remove()}catch{}}}}document.getElementById('chatForm').reset()}catch(err){errorEl.textContent=err.message;errorEl.classList.remove('d-none')}finally{document.getElementById('loadingIndicator').classList.add('d-none')}});
+</script>
+{% endblock %}
+

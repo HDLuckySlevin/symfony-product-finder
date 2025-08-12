@@ -43,29 +43,7 @@ final class OpenAIResponseService
         $this->defaultTemperature = $defaultTemperature;
     }
 
-    /**
-     * Measures a lightweight round-trip time to the OpenAI API in milliseconds.
-     * Uses a small authenticated GET to /models and only reads headers.
-     */
-    public function ping(int $timeoutSeconds = 5): int
-    {
-        $t0 = microtime(true);
-        try {
-            $res = $this->httpClient->request('GET', $this->apiBase . '/models', [
-                'headers'      => $this->authHeaders(),
-                'timeout'      => $timeoutSeconds,
-                'http_version' => '2.0',
-            ]);
-            // Trigger request and header receipt without reading full body
-            $res->getHeaders(false);
-            $ms = (int) ((microtime(true) - $t0) * 1000);
-            $this->logDebug('openai.ping', ['ms' => $ms]);
-            return $ms;
-        } catch (\Throwable $e) {
-            $this->logError('openai.ping.fail', ['error' => $e->getMessage()]);
-            return -1; // indicates failure
-        }
-    }
+    // ping removed as requested
 
     public function createResponse(
         string $userText,
@@ -332,13 +310,7 @@ final class OpenAIResponseService
             'tool_choice' => 'auto',
         ];
 
-        // Defaults for generation controls
-        if (is_int($this->defaultMaxOutputTokens) && $this->defaultMaxOutputTokens > 0) {
-            $payload['max_output_tokens'] = $this->defaultMaxOutputTokens;
-        }
-        if (is_float($this->defaultTemperature) && $this->defaultTemperature >= 0) {
-            $payload['temperature'] = $this->defaultTemperature;
-        }
+        // No temperature or max_output_tokens by default
 
         // --- Prompt nur anhängen, wenn eine gültige Prompt-ID übergeben wurde ---
         // Erwartete Form: ['id' => 'pmpt_xxx', 'variables' => [...], 'version' => '1']

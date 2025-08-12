@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\rag\response;
 
-use App\Service\rag\response\OpenAIResponseService;
+use App\Service\rag\response\OpenAIResponseAssistantService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -28,11 +28,11 @@ final class ChatController extends AbstractController
     }
 
     #[Route('/chat/send', name: 'chat_send', methods: ['POST'])]
-    public function send(Request $request, OpenAIResponseService $openai): Response
+    public function send(Request $request, OpenAIResponseAssistantService $openai): Response
     {
         $text  = trim((string)$request->request->get('message', ''));
         $image = $request->files->get('image');
-        $model = $request->request->get('model');
+        // Model selection is controlled by assistant; ignore model field
 
         // Prompt-Parameter (optional)
         $promptId      = trim((string)$request->request->get('prompt_id', ''));
@@ -72,24 +72,14 @@ final class ChatController extends AbstractController
         }
 
         $session = $request->getSession();
-        $prevId  = $session->get('rag_prev_response_id');
 
         try {
-            $pingMs = $this->getCachedPing($request, $openai);
             $t0 = microtime(true);
-            // Optional generation controls from request
-            $extra = [];
-            $mot = $request->request->get('max_output_tokens');
-            if (is_numeric($mot)) { $extra['max_output_tokens'] = max(1, (int)$mot); }
-            $temp = $request->request->get('temperature');
-            if (is_numeric($temp)) { $extra['temperature'] = (float)$temp; }
             $apiResponse = $openai->createResponse(
                 userText: $text,
                 image: $image instanceof UploadedFile ? $image : null,
-                model: $model,
-                prompt: $prompt,
-                previousResponseId: is_string($prevId) ? $prevId : null,
-                extra: $extra ?: null
+                promptVariables: $prompt['variables'] ?? null,
+                extra: null,
             );
             $durationMs = (int) ((microtime(true) - $t0) * 1000);
 
@@ -111,11 +101,9 @@ final class ChatController extends AbstractController
                 ], 502);
             }
 
-            if (!empty($apiResponse['id'])) {
-                $session->set('rag_prev_response_id', $apiResponse['id']);
-            }
+            // no session id tracking for assistant-based non-stream
 
-            $answer = OpenAIResponseService::extractText($apiResponse);
+            $answer = \App\Service\rag\response\OpenAIResponseService::extractText($apiResponse);
             // Für den Gesamttext ist "sanftes" Aufräumen ok:
             $answer = $this->stripInlineCitationsBlock($answer);
 
@@ -146,7 +134,7 @@ final class ChatController extends AbstractController
                     'tokens_answer'   => $tokensAnswer,
                     'tokens_session'  => $tokensSession,
                     'duration_ms'     => $durationMs,
-                    'ping_ms'         => $pingMs,
+                    'ping_ms'         => -1,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -154,7 +142,8 @@ final class ChatController extends AbstractController
         }
     }
 
-    #[Route('/chat/send-stream', name: 'chat_send_stream', methods: ['POST'])]
+    // Streaming moved to /rag/streaming; legacy route disabled
+    #[Route('/__disabled_send_stream', name: 'chat_send_stream_legacy', methods: ['POST'])]
     public function sendStream(Request $request, OpenAIResponseService $openai): Response
     {
         $text  = trim((string)$request->request->get('message', ''));
@@ -395,11 +384,10 @@ final class ChatController extends AbstractController
     }
 
     #[Route('/response/{id}', name: 'get', methods: ['GET'])]
-    public function getOne(string $id, OpenAIResponseService $openai): Response
+    public function getOne(string $id): Response
     {
         try {
-            $apiResponse = $openai->getResponse($id);
-            $answer      = OpenAIResponseService::extractText($apiResponse);
+            return $this->json(['ok' => false, 'error' => 'Not supported'], 400);
             // Für den gesamten Text ok:
             $answer      = $this->stripInlineCitationsBlock($answer);
             $this->logger?->info('chat.get.ok', ['id' => $id]);
@@ -416,28 +404,17 @@ final class ChatController extends AbstractController
     }
 
     #[Route('/response/{id}', name: 'delete', methods: ['DELETE'])]
-    public function deleteOne(string $id, OpenAIResponseService $openai): Response
+    public function deleteOne(string $id): Response
     {
         try {
-            $result = $openai->deleteResponse($id);
-            $this->logger?->info('chat.delete.ok', ['id' => $id, 'result' => $result['deleted'] ?? null]);
-            return $this->json(['ok' => true, 'result' => $result]);
+            return $this->json(['ok' => false, 'error' => 'Not supported in basic version'], 400);
         } catch (\Throwable $e) {
             $this->logger?->error('chat.delete.fail', ['id' => $id, 'error' => $e->getMessage()]);
             return $this->json(['ok' => false, 'error' => 'Interner Fehler: ' . $e->getMessage()], 500);
         }
     }
 
-    #[Route('/ping', name: 'ping', methods: ['GET'])]
-    public function ping(Request $request, OpenAIResponseService $openai): Response
-    {
-        try {
-            $pingMs = $this->getCachedPing($request, $openai);
-            return $this->json(['ok' => true, 'ping_ms' => $pingMs]);
-        } catch (\Throwable $e) {
-            return $this->json(['ok' => false, 'error' => $e->getMessage()], 500);
-        }
-    }
+    // no ping route in non-stream version
 
     #[Route('/chat/reset', name: 'chat_reset', methods: ['POST'])]
     public function reset(Request $request): Response
@@ -452,19 +429,7 @@ final class ChatController extends AbstractController
         return $this->json(['ok' => true]);
     }
 
-    private function getCachedPing(Request $request, OpenAIResponseService $openai): int
-    {
-        $session = $request->getSession();
-        $lastTs = (int) ($session->get('rag_ping_last_ts') ?? 0);
-        $lastMs = (int) ($session->get('rag_ping_last_ms') ?? -1);
-        if ($lastTs > 0 && (time() - $lastTs) < 5 && $lastMs !== 0) {
-            return $lastMs;
-        }
-        $ms = $openai->ping();
-        $session->set('rag_ping_last_ts', time());
-        $session->set('rag_ping_last_ms', $ms);
-        return $ms;
-    }
+    // no cached ping helper in non-stream version
 
     /**
      * Entfernt Inline-Citations (Private Use Area) **ohne** Spaces/Zeilen zu verändern.

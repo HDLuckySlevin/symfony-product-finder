@@ -1,190 +1,35 @@
 {% extends 'base.html.twig' %}
-{% block title %}RAG Chat (Responses API){% endblock %}
-
+{% block title %}RAG Chat (Responses, Non-Streaming){% endblock %}
 {% block body %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <h1 class="mb-4 text-center">RAG Chat (Responses API)</h1>
-
-                <div class="card shadow">
-                    <div class="card-body p-4">
-                        <div id="history" class="mb-3" style="min-height: 240px; max-height: 420px; overflow-y: auto;"></div>
-
-                        <div id="loadingIndicator" class="d-none text-muted mb-3">
-                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            OpenAI antwortet…
-                        </div>
-
-                        <div class="mb-2 d-flex justify-content-end">
-                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#statsCollapse" aria-expanded="false" aria-controls="statsCollapse" id="toggleStatsBtn">Statistiken anzeigen</button>
-                        </div>
-                        <div class="collapse" id="statsCollapse">
-                            <div id="stats" class="d-flex flex-wrap gap-3 align-items-center small text-muted border rounded px-2 py-1 mb-3">
-                                <div>Tokens (Query): <span id="statTokens">0</span></div>
-                                <div>Tokens (Antwort): <span id="statAnswerTokens">0</span></div>
-                                <div>Tokens (Session): <span id="statSession">0</span></div>
-                                <div>Antwortzeit: <span id="statTime">0</span> ms</div>
-                                <div>Ping zu OpenAI: <span id="statPing">0</span> ms</div>
-                            </div>
-                        </div>
-
-                        <form id="chatForm" class="row g-2" enctype="multipart/form-data">
-                            <div class="col-12 col-md-8">
-                                <input name="message" id="message" class="form-control" placeholder="Frage…" required>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp">
-                            </div>
-                            <div class="col-12 d-flex gap-2">
-                                <button class="btn btn-primary" type="submit">Senden</button>
-                                <button class="btn btn-outline-secondary" type="button" id="resetBtn">Konversation zurücksetzen</button>
-                            </div>
-                        </form>
-
-                        <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-4 text-center">RAG Chat (Responses, Non-Streaming)</h1>
+      <div class="card shadow"><div class="card-body p-4">
+        <form id="chatForm" class="row g-2" enctype="multipart/form-data">
+          <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
+          <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Senden</button>
+          </div>
+        </form>
+        <div id="loading" class="text-muted d-none mt-3"><span class="spinner-border spinner-border-sm me-2"></span>Bitte warten…</div>
+        <div id="error" class="alert alert-danger mt-3 d-none"></div>
+        <div id="answer" class="mt-3"></div>
+      </div></div>
     </div>
+  </div>
+</div>
 
-    <style>
-        .msg { padding: .75rem 1rem; border-radius: 12px; margin: .5rem 0; white-space: pre-wrap; display: inline-block; max-width: 80%; }
-        .user { background: #007bff; color: #fff; float: right; clear: both; }
-        .bot  { background: #e9ecef; color: #212529; float: left; clear: both; }
-        .cursor { display: inline-block; width: 0.6em; opacity: 0.7; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0.1; } }
-    </style>
-
-    <script>
-        const historyEl = document.getElementById('history');
-        const errorEl   = document.getElementById('error');
-        const form      = document.getElementById('chatForm');
-        const statTokens = document.getElementById('statTokens');
-        const statAnswerTokens = document.getElementById('statAnswerTokens');
-        const statSession = document.getElementById('statSession');
-        const statTime = document.getElementById('statTime');
-        const statPing = document.getElementById('statPing');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const toggleStatsBtn = document.getElementById('toggleStatsBtn');
-
-        let autoScroll = true;
-        function isAtBottom() {
-            const threshold = 10;
-            return historyEl.scrollTop + historyEl.clientHeight >= historyEl.scrollHeight - threshold;
-        }
-        historyEl.addEventListener('scroll', () => { autoScroll = isAtBottom(); });
-
-        function addMsg(text, who) {
-            const div = document.createElement('div');
-            div.className = 'msg ' + (who === 'user' ? 'user' : 'bot');
-            div.textContent = text;
-            historyEl.appendChild(div);
-            if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
-        }
-        function setStats(stats) {
-            if (!stats) return;
-            if (typeof stats.tokens_query === 'number') statTokens.textContent = stats.tokens_query;
-            if (typeof stats.tokens_answer === 'number') statAnswerTokens.textContent = stats.tokens_answer;
-            if (typeof stats.tokens_session === 'number') statSession.textContent = stats.tokens_session;
-            if (typeof stats.duration_ms === 'number') statTime.textContent = stats.duration_ms;
-            if (typeof stats.ping_ms === 'number') statPing.textContent = stats.ping_ms >= 0 ? stats.ping_ms : 'n/a';
-        }
-        async function refreshPing() {
-            try {
-                const res = await fetch('{{ path("rag_response_ping") }}');
-                const j = await res.json();
-                if (j && j.ok && typeof j.ping_ms === 'number') statPing.textContent = j.ping_ms >= 0 ? j.ping_ms : 'n/a';
-            } catch (_) {}
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            errorEl.classList.add('d-none');
-            const message = document.getElementById('message').value.trim();
-            if (message) addMsg(message, 'user');
-            const fd = new FormData(form);
-            try {
-                loadingIndicator.classList.remove('d-none');
-                const res = await fetch('{{ path("rag_response_chat_send_stream") }}', { method: 'POST', body: fd, headers: { 'Accept': 'text/event-stream' } });
-                if (!res.ok || !res.body) throw new Error('Streaming nicht verfügbar');
-
-                const botDiv = document.createElement('div');
-                botDiv.className = 'msg bot';
-                const textNode = document.createTextNode('');
-                const cursorSpan = document.createElement('span');
-                cursorSpan.className = 'cursor';
-                cursorSpan.textContent = '▌';
-                botDiv.appendChild(textNode);
-                botDiv.appendChild(cursorSpan);
-                historyEl.appendChild(botDiv);
-                if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
-
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                let doneStats = null;
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, '\n');
-                    let idx;
-                    while ((idx = buffer.indexOf('\n\n')) !== -1) {
-                        const rawEvt = buffer.slice(0, idx);
-                        buffer = buffer.slice(idx + 2);
-                        const lines = rawEvt.split('\n');
-                        let ev = null; let dataStr = '';
-                        for (const line of lines) {
-                            if (!line) continue;
-                            if (line.startsWith('event:')) ev = line.slice(6).trim();
-                            else if (line.startsWith('data:')) {
-                                const part = line.slice(5).trim();
-                                if (part && part !== 'null') dataStr += (dataStr ? '\n' : '') + part;
-                            }
-                        }
-                        if (!ev) continue;
-                        let payload = {};
-                        try { payload = dataStr ? JSON.parse(dataStr) : {}; } catch { payload = {}; }
-                        if (ev === 'meta' && typeof payload.ping_ms === 'number') {
-                            statPing.textContent = payload.ping_ms >= 0 ? payload.ping_ms : 'n/a';
-                        } else if (ev === 'delta') {
-                            const t = payload.text || '';
-                            textNode.data += t;
-                            if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
-                        } else if (ev === 'error') {
-                            errorEl.textContent = payload.insufficient_quota ? 'OpenAI-Budget überschritten (insufficient_quota). Bitte Limits/Abrechnung prüfen.' : (payload.message || 'Unbekannter Fehler');
-                            errorEl.classList.remove('d-none');
-                        } else if (ev === 'done') {
-                            doneStats = payload.stats || null;
-                            try { cursorSpan.remove(); } catch {}
-                        }
-                    }
-                }
-                if (!textNode.data.trim()) {
-                    textNode.data = 'Ich habe deine Anfrage nicht richtig verstanden. Bitte stelle deine Anfrage erneut. Entschuldige die Unannehmlichkeiten.';
-                    try { cursorSpan.remove(); } catch {}
-                }
-                if (doneStats) setStats(doneStats);
-                form.reset();
-            } catch (err) {
-                errorEl.textContent = err.message;
-                errorEl.classList.remove('d-none');
-            } finally {
-                loadingIndicator.classList.add('d-none');
-            }
-        });
-
-        refreshPing();
-        setInterval(refreshPing, 5000);
-        document.getElementById('statsCollapse')?.addEventListener('shown.bs.collapse', () => { toggleStatsBtn.textContent = 'Statistiken verbergen'; });
-        document.getElementById('statsCollapse')?.addEventListener('hidden.bs.collapse', () => { toggleStatsBtn.textContent = 'Statistiken anzeigen'; });
-        document.getElementById('resetBtn').addEventListener('click', async () => {
-            try {
-                const res = await fetch('{{ path("rag_response_chat_reset") }}', { method: 'POST' });
-                const j = await res.json();
-                if (j.ok) { historyEl.innerHTML = ''; setStats({ tokens_query: 0, tokens_answer: 0, tokens_session: 0, duration_ms: 0, ping_ms: 0 }); }
-            } catch (_) {}
-        });
-    </script>
+<script>
+const form=document.getElementById('chatForm');
+const errorEl=document.getElementById('error');
+const ans=document.getElementById('answer');
+const loading=document.getElementById('loading');
+form.addEventListener('submit',async e=>{e.preventDefault(); errorEl.classList.add('d-none'); ans.textContent=''; loading.classList.remove('d-none');
+  try{const fd=new FormData(form); const res=await fetch('{{ path("rag_response_chat_send") }}',{method:'POST',body:fd}); const j=await res.json(); if(!j.ok){throw new Error(j.error||'Fehler');} ans.textContent=j.answer||'(keine Antwort)';}
+  catch(err){errorEl.textContent=err.message; errorEl.classList.remove('d-none');}
+  finally{loading.classList.add('d-none');}
+});
+</script>
 {% endblock %}
