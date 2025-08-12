@@ -16,10 +16,10 @@ final class OpenAIResponseBasicService
         private readonly HttpClientInterface $httpClient,
         private readonly string $apiKey,
         private ?string $apiBase = null,
-        private readonly string $defaultModel = 'gpt-5-mini',
+        private readonly string $defaultModel = 'gpt-5-nano',
         string $vectorStoreIdsCsv = '',
         private readonly ?LoggerInterface $logger = null,
-        private readonly string $fallbackModel = 'gpt-5',
+        private readonly string $fallbackModel = 'gpt-5-nano',
         private readonly ?int $defaultMaxOutputTokens = null,
         private readonly ?float $defaultTemperature = null,
     ) {

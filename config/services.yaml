@@ -103,7 +103,7 @@ services:
             $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
             $logger: '@monolog.logger.streaming'
-            $fallbackModel: 'gpt-5'
+            $fallbackModel: 'gpt-5-nano'
 
     App\Service\rag\response\OpenAIResponseBasicService:
         arguments:
@@ -113,7 +113,7 @@ services:
             $defaultModel: '%env(string:RAG_RESPONSES_MODEL)%'
             $vectorStoreIdsCsv: '%env(string:OPENAI_VECTOR_STORE_IDS)%'
             $logger: '@monolog.logger.response_basic'
-            $fallbackModel: 'gpt-5'
+            $fallbackModel: 'gpt-5-nano'
 
     App\Service\rag\response\OpenAIResponseAssistantService:
         arguments:

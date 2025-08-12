@@ -15,7 +15,7 @@
         </form>
         <div id="loading" class="text-muted d-none mt-3"><span class="spinner-border spinner-border-sm me-2"></span>Bitte warten…</div>
         <div id="error" class="alert alert-danger mt-3 d-none"></div>
-        <div id="answer" class="mt-3"></div>
+        <div id="answer" class="mt-3 markdown-body"></div>
       </div></div>
     </div>
   </div>
@@ -26,10 +26,41 @@ const form=document.getElementById('chatForm');
 const errorEl=document.getElementById('error');
 const ans=document.getElementById('answer');
 const loading=document.getElementById('loading');
-form.addEventListener('submit',async e=>{e.preventDefault(); errorEl.classList.add('d-none'); ans.textContent=''; loading.classList.remove('d-none');
-  try{const fd=new FormData(form); const res=await fetch('{{ path("rag_response_chat_send") }}',{method:'POST',body:fd}); const j=await res.json(); if(!j.ok){throw new Error(j.error||'Fehler');} ans.textContent=j.answer||'(keine Antwort)';}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function mdToHtml(src){
+  src = src.replace(/```([\s\S]*?)```/g,(m,code)=>`<pre><code>${escapeHtml(code)}</code></pre>`);
+  src = src.replace(/`([^`]+)`/g,(m,code)=>`<code>${escapeHtml(code)}</code>`);
+  src = src.replace(/^######\s+(.*)$/gm,'<h6>$1</h6>')
+           .replace(/^#####\s+(.*)$/gm,'<h5>$1</h5>')
+           .replace(/^####\s+(.*)$/gm,'<h4>$1</h4>')
+           .replace(/^###\s+(.*)$/gm,'<h3>$1</h3>')
+           .replace(/^##\s+(.*)$/gm,'<h2>$1</h2>')
+           .replace(/^#\s+(.*)$/gm,'<h1>$1</h1>');
+  src = src.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  src = src.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  src = src.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  src = src.replace(/^(?:-\s+.*(?:\n|$))+?/gm, block=>{
+    const items = block.trim().split(/\n/).map(l=>l.replace(/^[-*]\s+/,'').trim()).filter(Boolean);
+    return `<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+  });
+  const parts = src.split(/\n{2,}/).map(p=>p.trim()).filter(Boolean);
+  return parts.map(p=>/^<h\d|^<pre|^<ul|^<p|^<blockquote|^<table|^<code/.test(p)?p:`<p>${p.replace(/\n/g,'<br>')}</p>`).join('\n');
+}
+
+form.addEventListener('submit',async e=>{e.preventDefault(); errorEl.classList.add('d-none'); ans.innerHTML=''; loading.classList.remove('d-none');
+  try{const fd=new FormData(form); const res=await fetch('{{ path("rag_response_chat_send") }}',{method:'POST',body:fd}); const j=await res.json(); if(!j.ok){throw new Error(j.error||'Fehler');}
+      ans.innerHTML = mdToHtml(j.answer||'(keine Antwort)');}
   catch(err){errorEl.textContent=err.message; errorEl.classList.remove('d-none');}
   finally{loading.classList.add('d-none');}
 });
+</script>
+<style>
+.markdown-body h1,.markdown-body h2,.markdown-body h3{margin-top:1rem}
+.markdown-body pre{background:#f6f8fa;padding:.75rem;border-radius:6px;overflow:auto}
+.markdown-body code{background:#f6f8fa;padding:.1rem .25rem;border-radius:4px}
+.markdown-body ul{padding-left:1.25rem}
+.markdown-body p{margin:.5rem 0}
+</style>
 </script>
 {% endblock %}

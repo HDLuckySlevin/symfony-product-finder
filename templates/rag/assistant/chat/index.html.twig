@@ -52,6 +52,13 @@
 
 {% block javascripts %}
     {{ parent() }}
+
+    {# Markdown Parser + Sanitizer + optional Syntax-Highlighting #}
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const chatMessages = document.getElementById('chat-messages');
@@ -62,10 +69,30 @@
             const imageInput = document.getElementById('image-input');
             const uploadButton = document.getElementById('upload-button');
 
+            function escapeHtml(str) {
+                return (str ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
             function appendMessage(content, role) {
                 const msg = document.createElement('div');
                 msg.classList.add('message', role === 'user' ? 'user-message' : 'system-message');
-                msg.innerHTML = `<p class="text-start">${content}</p>`;
+
+                if (role === 'assistant') {
+                    // Markdown → HTML → sanitize
+                    const rawHtml = marked.parse(content ?? '');
+                    const safeHtml = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
+                    msg.innerHTML = `<div class="assistant-markdown text-start">${safeHtml}</div>`;
+                    try { if (window.hljs) hljs.highlightAll(); } catch (e) {}
+                } else {
+                    const safeText = escapeHtml(content ?? '').replaceAll('\n', '<br>');
+                    msg.innerHTML = `<p class="text-start">${safeText}</p>`;
+                }
+
                 chatMessages.appendChild(msg);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
@@ -88,7 +115,7 @@
 
                 const header = document.createElement('div');
                 header.classList.add('d-flex', 'align-items-center', 'justify-content-between');
-                header.innerHTML = `<strong>${title}</strong>`;
+                header.innerHTML = `<strong>${escapeHtml(title)}</strong>`;
 
                 const toggle = document.createElement('button');
                 toggle.classList.add('btn', 'btn-link', 'btn-sm', 'p-0', 'ms-2');
@@ -96,7 +123,9 @@
 
                 const body = document.createElement('div');
                 body.style.display = 'none';
-                body.innerHTML = `<p class="mb-0 text-start">${content}</p>`;
+                const rawHtml = marked.parse(content ?? '');
+                const safeHtml = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
+                body.innerHTML = `<div class="assistant-markdown text-start">${safeHtml}</div>`;
 
                 toggle.addEventListener('click', () => {
                     const open = body.style.display === 'block';
@@ -177,6 +206,12 @@
                     .finally(() => setLoading(false));
             }
 
+            // Links in Assistant-Output in neuem Tab öffnen
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('.assistant-markdown a');
+                if (a) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); }
+            }, true);
+
             // Events
             sendButton.addEventListener('click', () => {
                 const text = userInput.value.trim();
@@ -208,11 +243,12 @@
 
             // Begrüßung
             appendMessage(
-                'Hallo! Ich bin Ihr KI-gestützter Produktassistent. Beschreiben Sie einfach, was Sie suchen – z. B. "wasserdichtes Smartphone mit langer Akkulaufzeit" – und ich finde passende Produkte für Sie.',
+                'Hallo! Ich bin Ihr KI-gestützter Produktassistent. Beschreiben Sie einfach, was Sie suchen – z. B. **"wasserdichtes Smartphone mit langer Akkulaufzeit"** – und ich finde passende Produkte für Sie.',
                 'assistant'
             );
         });
     </script>
+
     <style>
         .chat-container {
             border: 1px solid #ddd;
@@ -251,5 +287,16 @@
 
         p { margin-bottom: 0; }
         .controlling-wrapper { background-color: white; }
+
+        /* Markdown Styling */
+        .assistant-markdown { line-height: 1.5; }
+        .assistant-markdown p { margin: 0 0 .6rem 0; }
+        .assistant-markdown ul, .assistant-markdown ol { padding-left: 1.2rem; margin: .6rem 0; }
+        .assistant-markdown code { padding: .15rem .3rem; border-radius: .25rem; background: #f1f3f5; }
+        .assistant-markdown pre { overflow: auto; padding: .75rem; border-radius: .5rem; background: #f6f8fa; }
+        .assistant-markdown table { width: 100%; border-collapse: collapse; margin: .6rem 0; }
+        .assistant-markdown th, .assistant-markdown td { border: 1px solid #dee2e6; padding: .5rem; }
+        .assistant-markdown blockquote { border-left: 4px solid #ced4da; padding-left: .75rem; color: #555; }
+        .assistant-markdown a { text-decoration: underline; }
     </style>
 {% endblock %}

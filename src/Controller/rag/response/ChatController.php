@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\rag\response;
 
-use App\Service\rag\response\OpenAIResponseAssistantService;
+use App\Service\rag\response\OpenAIResponseBasicService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -28,11 +28,11 @@ final class ChatController extends AbstractController
     }
 
     #[Route('/chat/send', name: 'chat_send', methods: ['POST'])]
-    public function send(Request $request, OpenAIResponseAssistantService $openai): Response
+    public function send(Request $request, OpenAIResponseBasicService $openai): Response
     {
         $text  = trim((string)$request->request->get('message', ''));
         $image = $request->files->get('image');
-        // Model selection is controlled by assistant; ignore model field
+        $model = $request->request->get('model');
 
         // Prompt-Parameter (optional)
         $promptId      = trim((string)$request->request->get('prompt_id', ''));
@@ -78,7 +78,9 @@ final class ChatController extends AbstractController
             $apiResponse = $openai->createResponse(
                 userText: $text,
                 image: $image instanceof UploadedFile ? $image : null,
-                promptVariables: $prompt['variables'] ?? null,
+                model: $model,
+                prompt: $prompt,
+                previousResponseId: null,
                 extra: null,
             );
             $durationMs = (int) ((microtime(true) - $t0) * 1000);
@@ -101,11 +103,11 @@ final class ChatController extends AbstractController
                 ], 502);
             }
 
-            // no session id tracking for assistant-based non-stream
+            // no session id tracking in basic non-stream
 
-            $answer = \App\Service\rag\response\OpenAIResponseService::extractText($apiResponse);
+            $answer = OpenAIResponseBasicService::extractText($apiResponse);
             // Für den Gesamttext ist "sanftes" Aufräumen ok:
-            $answer = $this->stripInlineCitationsBlock($answer);
+            //$answer = $this->stripInlineCitationsBlock($answer);
 
             $tokensQuery = 0;
             $tokensAnswer = 0;

@@ -58,7 +58,7 @@ final class ImageUploadController extends AbstractController
                     'Content-Type'  => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'gpt-4o', // ggf. auf 'gpt-5' anheben, wenn verfügbar
+                    'model' => 'gpt-5', // ggf. auf 'gpt-5' anheben, wenn verfügbar
                     'messages' => [[
                         'role' => 'user',
                         'content' => [
