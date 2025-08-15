@@ -1,37 +1,200 @@
 {% extends 'base.html.twig' %}
 {% block title %}RAG Chat (Streaming){% endblock %}
 {% block body %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <h1 class="mb-4 text-center">RAG Chat (Streaming)</h1>
-      <div class="card shadow"><div class="card-body p-4">
-        <div id="history" class="mb-3" style="min-height:240px;max-height:420px;overflow-y:auto;"></div>
-        <div id="loadingIndicator" class="d-none text-muted mb-3">
-          <span class="spinner-border spinner-border-sm me-1"></span>OpenAI antwortet…
-        </div>
-        <form id="chatForm" class="row g-2" enctype="multipart/form-data">
-          <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
-          <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
-          <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary" type="submit">Senden</button>
-          </div>
-        </form>
-        <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
-      </div></div>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <h1 class="mb-4 text-center">RAG Chat (Streaming)</h1>
+        <div class="card shadow"><div class="card-body p-4">
+            <div id="history" class="mb-3" style="min-height:240px;max-height:420px;overflow-y:auto;"></div>
+            <div id="loadingIndicator" class="d-none text-muted mb-3">
+              <span class="spinner-border spinner-border-sm me-1"></span>OpenAI antwortet…
+            </div>
+            <form id="chatForm" class="row g-2" enctype="multipart/form-data">
+              <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
+              <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
+              <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Senden</button>
+              </div>
+            </form>
+            <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+          </div></div>
+      </div>
     </div>
   </div>
-</div>
 
-<style>.msg{padding:.75rem 1rem;border-radius:12px;margin:.5rem 0;white-space:pre-wrap;display:inline-block;max-width:80%}.user{background:#007bff;color:#fff;float:right;clear:both}.bot{background:#e9ecef;color:#212529;float:left;clear:both}.cursor{display:inline-block;width:.6em;opacity:.7;animation:blink 1s step-end infinite}@keyframes blink{50%{opacity:.1}}</style>
+  <style>
+    .msg{padding:.75rem 1rem;border-radius:12px;margin:.5rem 0;display:inline-block;max-width:80%}
+    .user{background:#007bff;color:#fff;float:right;clear:both;white-space:pre-wrap}
+    .bot{background:#e9ecef;color:#212529;float:left;clear:both}
+    .cursor{display:inline-block;width:.6em;opacity:.7;animation:blink 1s step-end infinite}
+    @keyframes blink{50%{opacity:.1}}
+    /* Markdown styles */
+    .assistant-markdown{line-height:1.5;white-space:normal}
+    .assistant-markdown p{margin:0 0 .6rem 0}
+    .assistant-markdown ul,.assistant-markdown ol{padding-left:1.2rem;margin:.6rem 0}
+    .assistant-markdown code{padding:.15rem .3rem;border-radius:.25rem;background:#f1f3f5}
+    .assistant-markdown pre{overflow:auto;padding:.75rem;border-radius:.5rem;background:#f6f8fa}
+    .assistant-markdown table{width:100%;border-collapse:collapse;margin:.6rem 0}
+    .assistant-markdown th,.assistant-markdown td{border:1px solid #dee2e6;padding:.5rem}
+    .assistant-markdown blockquote{border-left:4px solid #ced4da;padding-left:.75rem;color:#555}
+    .assistant-markdown a{text-decoration:underline;word-break:break-word}
+  </style>
 
-<script>
-const historyEl=document.getElementById('history');
-const errorEl=document.getElementById('error');
-const form=document.getElementById('chatForm');
-let autoScroll=true;historyEl.addEventListener('scroll',()=>{autoScroll=historyEl.scrollTop+historyEl.clientHeight>=historyEl.scrollHeight-10});
-function addMsg(text,who){const d=document.createElement('div');d.className='msg '+(who==='user'?'user':'bot');d.textContent=text;historyEl.appendChild(d);if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight}
-form.addEventListener('submit',async e=>{e.preventDefault();errorEl.classList.add('d-none');const message=document.getElementById('message').value.trim();if(message)addMsg(message,'user');const fd=new FormData(form);try{document.getElementById('loadingIndicator').classList.remove('d-none');const res=await fetch('{{ path("rag_streaming_chat_send_stream") }}',{method:'POST',body:fd,headers:{'Accept':'text/event-stream'}});if(!res.ok||!res.body)throw new Error('Streaming nicht verfügbar');const botDiv=document.createElement('div');botDiv.className='msg bot';const textNode=document.createTextNode('');const cursorSpan=document.createElement('span');cursorSpan.className='cursor';cursorSpan.textContent='▌';botDiv.appendChild(textNode);botDiv.appendChild(cursorSpan);historyEl.appendChild(botDiv);if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='';while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true}).replace(/\r\n/g,'\n');let idx;while((idx=buffer.indexOf('\n\n'))!==-1){const rawEvt=buffer.slice(0,idx);buffer=buffer.slice(idx+2);const lines=rawEvt.split('\n');let ev=null;let dataStr='';for(const line of lines){if(!line)continue;if(line.startsWith('event:'))ev=line.slice(6).trim();else if(line.startsWith('data:')){const part=line.slice(5).trim();if(part&&part!=='null')dataStr+=(dataStr?'\n':'')+part}}if(!ev)continue;let payload={};try{payload=dataStr?JSON.parse(dataStr):{}}catch{}if(ev==='delta'){const t=payload.text||'';textNode.data+=t;if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight}else if(ev==='error'){errorEl.textContent=payload.message||'Unbekannter Fehler';errorEl.classList.remove('d-none')}else if(ev==='done'){try{cursorSpan.remove()}catch{}}}}document.getElementById('chatForm').reset()}catch(err){errorEl.textContent=err.message;errorEl.classList.remove('d-none')}finally{document.getElementById('loadingIndicator').classList.add('d-none')}});
-</script>
+  <!-- Markdown parser + Sanitizer + optional Code-Highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+
+  <script>
+    (function(){
+      const historyEl=document.getElementById('history');
+      const errorEl=document.getElementById('error');
+      const form=document.getElementById('chatForm');
+      const loading=document.getElementById('loadingIndicator');
+      let autoScroll=true;
+
+      // Autoscroll toggling
+      historyEl.addEventListener('scroll',()=>{
+        autoScroll=historyEl.scrollTop+historyEl.clientHeight>=historyEl.scrollHeight-10
+      });
+
+      // Marked defaults
+      if (window.marked){
+        marked.setOptions({ gfm:true, breaks:false, mangle:false, headerIds:false });
+      }
+
+      function escapeHtml(s){
+        return String(s??'')
+                .replaceAll('&','&amp;')
+                .replaceAll('<','&lt;')
+                .replaceAll('>','&gt;')
+                .replaceAll('"','&quot;')
+                .replaceAll("'",'&#039;');
+      }
+
+      // Turn bare URLs/emails into angle-bracketed links so marked turns them into <a>
+      function linkify(md){
+        let s=String(md??'');
+        s=s.replace(/(^|\s)(https?:\/\/[^\s<]+)(?=$|\s)/gi,'$1<$2>');
+        s=s.replace(/(^|\s)(www\.[^\s<]+)(?=$|\s)/gi,(m,p1,p2)=>`${p1}<http://${p2}>`);
+        s=s.replace(/(^|\s)([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?=$|\s)/g,'$1<mailto:$2>');
+        return s;
+      }
+
+      function addUserMsg(text){
+        const d=document.createElement('div');
+        d.className='msg user';
+        d.textContent=text;
+        historyEl.appendChild(d);
+        if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;
+      }
+
+      // Creates a bot bubble prepared for streaming markdown
+      function createBotBubble(){
+        const d=document.createElement('div');
+        d.className='msg bot';
+        const content=document.createElement('div');
+        content.className='assistant-markdown';
+        const cursor=document.createElement('span');
+        cursor.className='cursor';
+        cursor.textContent='▌';
+        d.appendChild(content);
+        d.appendChild(cursor);
+        historyEl.appendChild(d);
+        if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;
+        return {root:d, content, cursor};
+      }
+
+      // Render markdown safely into the given element
+      function renderMarkdown(el, md){
+        const mdPrepared = linkify(md ?? '');
+        const rawHtml = window.marked ? marked.parse(mdPrepared) : escapeHtml(mdPrepared);
+        const safeHtml = DOMPurify.sanitize(rawHtml, { USE_PROFILES:{ html:true }, ADD_ATTR:['target','rel'] });
+        el.innerHTML = safeHtml;
+        // open links safely & optionally highlight code
+        el.querySelectorAll('a[href]').forEach(a=>{
+          const href=a.getAttribute('href')||'';
+          if(/^(https?:|mailto:)/i.test(href)){
+            a.setAttribute('target','_blank');
+            a.setAttribute('rel','noopener');
+          }
+        });
+        try{ if(window.hljs) hljs.highlightAll(); }catch{}
+      }
+
+      form.addEventListener('submit',async e=>{
+        e.preventDefault();
+        errorEl.classList.add('d-none');
+
+        const message=document.getElementById('message').value.trim();
+        if(message) addUserMsg(message);
+
+        const fd=new FormData(form);
+
+        try{
+          loading.classList.remove('d-none');
+          const res=await fetch('{{ path("rag_streaming_chat_send_stream") }}',{
+            method:'POST',
+            body:fd,
+            headers:{'Accept':'text/event-stream'}
+          });
+          if(!res.ok||!res.body) throw new Error('Streaming nicht verfügbar');
+
+          const bot = createBotBubble();
+          let mdBuffer='';
+
+          const reader=res.body.getReader();
+          const decoder=new TextDecoder();
+          let buffer='';
+
+          while(true){
+            const {value,done}=await reader.read();
+            if(done) break;
+            buffer += decoder.decode(value,{stream:true}).replace(/\r\n/g,'\n');
+            let idx;
+            while((idx = buffer.indexOf('\n\n')) !== -1){
+              const rawEvt = buffer.slice(0, idx);
+              buffer = buffer.slice(idx+2);
+
+              const lines = rawEvt.split('\n');
+              let ev=null; let dataStr='';
+              for(const line of lines){
+                if(!line) continue;
+                if(line.startsWith('event:')) ev=line.slice(6).trim();
+                else if(line.startsWith('data:')){
+                  const part=line.slice(5).trim();
+                  if(part && part !== 'null') dataStr += (dataStr?'\n':'') + part;
+                }
+              }
+              if(!ev) continue;
+              let payload={};
+              try{ payload = dataStr ? JSON.parse(dataStr) : {}; }catch{}
+
+              if(ev==='delta'){
+                const t = payload.text || '';
+                if(t){
+                  mdBuffer += t; // accumulate markdown
+                  renderMarkdown(bot.content, mdBuffer);
+                  if(autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
+                }
+              } else if(ev==='error'){
+                errorEl.textContent = payload.message || 'Unbekannter Fehler';
+                errorEl.classList.remove('d-none');
+              } else if(ev==='done'){
+                try{ bot.cursor.remove(); }catch{}
+              }
+            }
+          }
+        } catch(err){
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('d-none');
+        } finally{
+          loading.classList.add('d-none');
+          form.reset();
+        }
+      });
+    })();
+  </script>
 {% endblock %}
-
