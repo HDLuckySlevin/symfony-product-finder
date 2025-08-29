@@ -307,8 +307,9 @@ final class OpenAIResponseService
                 'role'    => 'user',
                 'content' => $content,
             ]],
-            "reasoning" => [ "effort" =>"low" ],
+            "reasoning" => [ "effort" =>"medium" ],
             'tool_choice' => 'auto',
+            'temperature' => 0.2,
         ];
 
         // No temperature or max_output_tokens by default
