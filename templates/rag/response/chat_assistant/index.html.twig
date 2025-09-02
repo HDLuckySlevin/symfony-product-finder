@@ -1,17 +1,17 @@
 {% extends 'base.html.twig' %}
-{% block title %}RAG Chat (Responses, Non-Streaming){% endblock %}
+{% block title %}RAG Chat (Assistant + Prompt){% endblock %}
 {% block body %}
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <h1 class="mb-4 text-center">RAG Chat (Responses, Non-Streaming)</h1>
+      <h1 class="mb-4 text-center">RAG Chat (Assistant + Prompt)</h1>
       <div class="card shadow"><div class="card-body p-4">
+        <p class="text-muted">Verwendet Assistant-ID und Prompt-ID aus der Umgebung.</p>
         <form id="chatForm" class="row g-2" enctype="multipart/form-data">
           <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
           <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
-          <div class="col-12 d-flex gap-2">
-            <button class="btn btn-primary" type="submit">Senden</button>
-          </div>
+          <div class="col-12"><input name="prompt_variables" id="prompt_variables" class="form-control" placeholder='Optionale Prompt-Variablen als JSON, z.B. {"customer_name":"Max"}'></div>
+          <div class="col-12 d-flex gap-2"><button class="btn btn-primary" type="submit">Senden</button></div>
         </form>
         <div id="loading" class="text-muted d-none mt-3"><span class="spinner-border spinner-border-sm me-2"></span>Bitte warten…</div>
         <div id="error" class="alert alert-danger mt-3 d-none"></div>
@@ -27,33 +27,48 @@ const errorEl=document.getElementById('error');
 const ans=document.getElementById('answer');
 const loading=document.getElementById('loading');
 
+// Minimal Markdown renderer (headers, bold/italic, code blocks, lists, links)
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 function mdToHtml(src){
-  src = src.replace(/```([\s\S]*?)```/g,(m,code)=>`<pre><code>${escapeHtml(code)}</code></pre>`);
-  src = src.replace(/`([^`]+)`/g,(m,code)=>`<code>${escapeHtml(code)}</code>`);
+  // Code blocks ```
+  src = src.replace(/```([\s\S]*?)```/g, (m, code)=>`<pre><code>${escapeHtml(code)}</code></pre>`);
+  // Inline code `code`
+  src = src.replace(/`([^`]+)`/g, (m, code)=>`<code>${escapeHtml(code)}</code>`);
+  // Headings
   src = src.replace(/^######\s+(.*)$/gm,'<h6>$1</h6>')
            .replace(/^#####\s+(.*)$/gm,'<h5>$1</h5>')
            .replace(/^####\s+(.*)$/gm,'<h4>$1</h4>')
            .replace(/^###\s+(.*)$/gm,'<h3>$1</h3>')
            .replace(/^##\s+(.*)$/gm,'<h2>$1</h2>')
            .replace(/^#\s+(.*)$/gm,'<h1>$1</h1>');
+  // Bold/italic
   src = src.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   src = src.replace(/\*([^*]+)\*/g,'<em>$1</em>');
+  // Links [text](url)
   src = src.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // Unordered lists
   src = src.replace(/^(?:-\s+.*(?:\n|$))+?/gm, block=>{
     const items = block.trim().split(/\n/).map(l=>l.replace(/^[-*]\s+/,'').trim()).filter(Boolean);
     return `<ul>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
   });
+  // Paragraphs (split by blank lines)
   const parts = src.split(/\n{2,}/).map(p=>p.trim()).filter(Boolean);
   return parts.map(p=>/^<h\d|^<pre|^<ul|^<p|^<blockquote|^<table|^<code/.test(p)?p:`<p>${p.replace(/\n/g,'<br>')}</p>`).join('\n');
 }
 
 form.addEventListener('submit',async e=>{e.preventDefault(); errorEl.classList.add('d-none'); ans.innerHTML=''; loading.classList.remove('d-none');
-  try{const fd=new FormData(form); const res=await fetch('{{ path("rag_response_chat_send") }}',{method:'POST',body:fd}); const j=await res.json(); if(!j.ok){throw new Error(j.error||'Fehler');}
-      ans.innerHTML = mdToHtml(j.answer||'(keine Antwort)');}
-  catch(err){errorEl.textContent=err.message; errorEl.classList.remove('d-none');}
-  finally{loading.classList.add('d-none');}
+  try{
+    const fd=new FormData(form);
+    const res=await fetch('{{ path("rag_response_assistant_chat_send") }}',{method:'POST',body:fd});
+    const j=await res.json();
+    if(!j.ok){throw new Error(j.error||'Fehler');}
+    const html = mdToHtml(j.answer || '(keine Antwort)');
+    ans.innerHTML = html;
+  }catch(err){
+    errorEl.textContent=err.message; errorEl.classList.remove('d-none');
+  }finally{loading.classList.add('d-none');}
 });
+
 </script>
 <style>
 .markdown-body h1,.markdown-body h2,.markdown-body h3{margin-top:1rem}

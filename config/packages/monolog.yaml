@@ -1,5 +1,5 @@
 monolog:
-    channels: ['deprecation', 'rag', 'streaming']
+    channels: ['deprecation', 'rag', 'streaming', 'response_basic', 'response_assistant']
 
 when@dev:
     monolog:
@@ -31,6 +31,16 @@ when@dev:
                 path: "%kernel.logs_dir%/streaming.log"
                 level: debug
                 channels: [ "streaming" ]
+            response_basic:
+                type: stream
+                path: "%kernel.logs_dir%/response_basic.log"
+                level: debug
+                channels: [ "response_basic" ]
+            response_assistant:
+                type: stream
+                path: "%kernel.logs_dir%/response_assistant.log"
+                level: debug
+                channels: [ "response_assistant" ]
 
 when@test:
     monolog:
@@ -55,6 +65,16 @@ when@test:
                 path: "%kernel.logs_dir%/streaming.log"
                 level: debug
                 channels: [ "streaming" ]
+            response_basic:
+                type: stream
+                path: "%kernel.logs_dir%/response_basic.log"
+                level: debug
+                channels: [ "response_basic" ]
+            response_assistant:
+                type: stream
+                path: "%kernel.logs_dir%/response_assistant.log"
+                level: debug
+                channels: [ "response_assistant" ]
 
 when@prod:
     monolog:
@@ -89,3 +109,13 @@ when@prod:
                 path: "%kernel.logs_dir%/streaming.log"
                 level: info
                 channels: [ "streaming" ]
+            response_basic:
+                type: stream
+                path: "%kernel.logs_dir%/response_basic.log"
+                level: info
+                channels: [ "response_basic" ]
+            response_assistant:
+                type: stream
+                path: "%kernel.logs_dir%/response_assistant.log"
+                level: info
+                channels: [ "response_assistant" ]

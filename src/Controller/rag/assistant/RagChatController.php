@@ -27,9 +27,6 @@ class RagChatController extends AbstractController
      * Lädt die Chat-Oberfläche.
      * Falls noch kein Thread existiert, wird ein neuer Thread bei OpenAI erstellt
      * und dessen ID in der Session gespeichert.
-     *
-     * @param SessionInterface $session
-     * @return Response HTML-Response mit der Chat-Oberfläche
      */
     #[Route('/rag/assistant/chat', name: 'rag_chat_index', methods: ['GET'])]
     public function index(SessionInterface $session): Response
@@ -48,10 +45,6 @@ class RagChatController extends AbstractController
      * Verarbeitet eine vom Benutzer gesendete Nachricht.
      * Die Nachricht wird an OpenAI gesendet, ein Run wird gestartet,
      * der Status gepollt und die Antwort anschließend zurückgegeben.
-     *
-     * @param Request $request
-     * @param SessionInterface $session
-     * @return JsonResponse JSON-Antwort mit dem Text des Assistenten oder Fehlermeldung
      */
     #[Route('/rag/assistant/chat/send', name: 'rag_chat_send', methods: ['POST'])]
     public function send(Request $request, SessionInterface $session): JsonResponse
@@ -69,17 +62,17 @@ class RagChatController extends AbstractController
                 'message' => $userMessage,
             ]);
 
-            // 1. Nachricht senden
+            // 1) Nachricht anhängen
             $this->openAiService->sendMessage($threadId, $userMessage);
 
-            // 2. Run starten
+            // 2) Run starten
             $runId = $this->openAiService->startRun($threadId);
             $this->logger->info('Run gestartet', [
                 'thread_id' => $threadId,
                 'run_id' => $runId,
             ]);
 
-            // 3. Run-Status pollen (bis zu 30 Sekunden)
+            // 3) Run-Status pollen (bis zu 30 Sekunden)
             $maxWaitSeconds = 30;
             $waited = 0;
             $status = null;
@@ -105,7 +98,7 @@ class RagChatController extends AbstractController
                 'run_id' => $runId,
             ]);
 
-            // 4. Antwort abrufen
+            // 4) Antwort abrufen
             $messages = $this->openAiService->getMessages($threadId);
 
             // Nachrichten nach Zeitstempel sortieren und letzte assistant-Antwort extrahieren
@@ -113,9 +106,18 @@ class RagChatController extends AbstractController
 
             $assistantMessage = null;
             foreach ($messages as $message) {
-                if ($message['role'] === 'assistant') {
-                    $assistantMessage = $message['content'][0]['text']['value'] ?? null;
-                    break;
+                if (($message['role'] ?? '') === 'assistant') {
+                    // Alle Text-Parts sicher zusammenführen (Markdown bleibt erhalten)
+                    $parts = [];
+                    foreach (($message['content'] ?? []) as $c) {
+                        if (isset($c['text']['value'])) {
+                            $parts[] = $c['text']['value'];
+                        }
+                    }
+                    $assistantMessage = trim(implode("\n\n", array_filter($parts)));
+                    if ($assistantMessage !== '') {
+                        break;
+                    }
                 }
             }
 
@@ -123,8 +125,8 @@ class RagChatController extends AbstractController
                 return new JsonResponse(['error' => 'Keine Antwort vom Assistenten erhalten.'], 500);
             }
 
-            // Annotation-Links bereinigen (z. B.  )
-            $assistantMessage = preg_replace('/【\d+:\d+†[^】]+】/', '', $assistantMessage);
+            // Optional: Annotation-Links bereinigen
+            // $assistantMessage = preg_replace('/【\d+:\d+†[^】]+】/', '', $assistantMessage);
 
             $this->logger->info('Assistentenantwort erhalten', [
                 'thread_id' => $threadId,
@@ -134,7 +136,7 @@ class RagChatController extends AbstractController
             return new JsonResponse([
                 'answer' => $assistantMessage,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error('Fehler im Chatprozess', [
                 'exception' => $e->getMessage(),
                 'thread_id' => $threadId ?? 'N/A'
@@ -145,10 +147,6 @@ class RagChatController extends AbstractController
 
     /**
      * Löscht den aktuell aktiven Thread bei OpenAI und entfernt ihn aus der Session.
-     * Wird z. B. beim Zurücksetzen der Konversation verwendet.
-     *
-     * @param SessionInterface $session
-     * @return JsonResponse JSON-Antwort mit Bestätigung der Löschung
      */
     #[Route('/rag/assistant/chat/reset', name: 'rag_chat_reset', methods: ['POST'])]
     public function reset(SessionInterface $session): JsonResponse

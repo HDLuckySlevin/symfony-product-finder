@@ -90,7 +90,7 @@ class RagApiController extends AbstractController
             }
 
             // Annotationen entfernen
-            $assistantMessage = preg_replace('/【\d+:\d+†[^】]+】/', '', $assistantMessage);
+            //$assistantMessage = preg_replace('/【\d+:\d+†[^】]+】/', '', $assistantMessage);
 
             return new JsonResponse([
                 'thread_id' => $threadId,

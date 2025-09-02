@@ -29,10 +29,15 @@ class OpenAISpeechToTextService implements SpeechToTextServiceInterface
         }
 
         try {
-            $this->logger->info('Sending audio file to OpenAI Whisper', [
+            $this->logger->info('openai.stt.request', [
                 'model' => $this->model,
                 'path' => $audioPath,
                 'size' => filesize($audioPath),
+                'payload' => [
+                    'model' => $this->model,
+                    'file' => basename($audioPath),
+                    'response_format' => 'json',
+                ],
             ]);
 
             $response = $this->client->audio()->transcribe([
@@ -42,16 +47,16 @@ class OpenAISpeechToTextService implements SpeechToTextServiceInterface
             ]);
 
             if (isset($response->text)) {
-                $this->logger->info('Received transcription from OpenAI Whisper', [
+                $this->logger->info('openai.stt.response', [
                     'length' => strlen($response->text),
                 ]);
                 return $response->text;
             }
 
-            $this->logger->error('Invalid response format from OpenAI Whisper', ['response' => $response]);
+            $this->logger->error('openai.stt.invalid_response', ['response' => $response]);
             return null;
         } catch (\Throwable $e) {
-            $this->logger->error('Error during OpenAI Whisper transcription', [
+            $this->logger->error('openai.stt.error', [
                 'exception' => $e,
             ]);
             return null;

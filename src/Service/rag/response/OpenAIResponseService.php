@@ -16,46 +16,34 @@ final class OpenAIResponseService
     private string $apiKey;
     private string $apiBase;
     private string $defaultModel;
+    private string $fallbackModel;
     private ?LoggerInterface $logger;
+    private ?int $defaultMaxOutputTokens = null;
+    private ?float $defaultTemperature = null;
 
     public function __construct(
         HttpClientInterface $httpClient,
         string $apiKey,
         ?string $apiBase = null,
-        string $defaultModel = 'gpt-4.1',
+        string $defaultModel = 'gpt-5-mini',
         string $vectorStoreIdsCsv = '',
-        ?LoggerInterface $logger = null
+        ?LoggerInterface $logger = null,
+        string $fallbackModel = 'gpt-5',
+        ?int $defaultMaxOutputTokens = null,
+        ?float $defaultTemperature = null
     ) {
         $this->httpClient = $httpClient;
         $this->apiKey = $apiKey;
         $this->apiBase = rtrim($apiBase ?: 'https://api.openai.com/v1', '/');
         $this->defaultModel = $defaultModel;
+        $this->fallbackModel = $fallbackModel;
         $this->vectorStoreIds = array_values(array_filter(array_map('trim', explode(',', (string)$vectorStoreIdsCsv))));
         $this->logger = $logger;
+        $this->defaultMaxOutputTokens = $defaultMaxOutputTokens;
+        $this->defaultTemperature = $defaultTemperature;
     }
 
-    /**
-     * Measures a lightweight round-trip time to the OpenAI API in milliseconds.
-     * Uses a small authenticated GET to /models and only reads headers.
-     */
-    public function ping(int $timeoutSeconds = 5): int
-    {
-        $t0 = microtime(true);
-        try {
-            $res = $this->httpClient->request('GET', $this->apiBase . '/models', [
-                'headers' => $this->authHeaders(),
-                'timeout' => $timeoutSeconds,
-            ]);
-            // Trigger request and header receipt without reading full body
-            $res->getHeaders(false);
-            $ms = (int) ((microtime(true) - $t0) * 1000);
-            $this->logDebug('openai.ping', ['ms' => $ms]);
-            return $ms;
-        } catch (\Throwable $e) {
-            $this->logError('openai.ping.fail', ['error' => $e->getMessage()]);
-            return -1; // indicates failure
-        }
-    }
+    // ping removed as requested
 
     public function createResponse(
         string $userText,
@@ -67,26 +55,59 @@ final class OpenAIResponseService
     ): array {
         $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
 
-        // --- Logging & Request ---
         $t0 = microtime(true);
-        $this->logDebug('openai.request', [
-            'endpoint' => '/responses',
-            'model' => $payload['model'] ?? null,
-            'has_prompt' => isset($payload['prompt']),
-            'prev_id' => $payload['previous_response_id'] ?? null,
-            'vector_store_ids' => $this->vectorStoreIds,
-            'has_image' => !empty($payload['input'][0]['content']) && count($payload['input'][0]['content']) > 1,
-            'payload' => $this->redact($payload),
-        ]);
+        $makeRequest = function(array $payload) {
+            return $this->httpClient->request('POST', $this->apiBase . '/responses', [
+                'headers'      => $this->authHeaders(),
+                'json'         => $payload,
+                'timeout'      => 60,
+                'http_version' => '2.0',
+            ]);
+        };
 
-        $res = $this->httpClient->request('POST', $this->apiBase . '/responses', [
-            'headers' => $this->authHeaders(),
-            'json'    => $payload,
-            'timeout' => 60,
-        ]);
+        $logRequest = function(array $payload) {
+            $this->logDebug('openai.request', [
+                'endpoint' => '/responses',
+                'model' => $payload['model'] ?? null,
+                'has_prompt' => isset($payload['prompt']),
+                'prev_id' => $payload['previous_response_id'] ?? null,
+                'vector_store_ids' => $this->vectorStoreIds,
+                'has_image' => !empty($payload['input'][0]['content']) && count($payload['input'][0]['content']) > 1,
+                'payload' => $this->redact($payload),
+            ]);
+        };
 
+        $logRequest($payload);
+        $res = $makeRequest($payload);
         $status = $res->getStatusCode();
         $raw    = $res->getContent(false);
+
+        // Retry with fallback model if model was not found
+        if ($status >= 400 && ($payload['model'] ?? '') === $this->defaultModel) {
+            $decoded = json_decode($raw, true);
+            $errType = $decoded['error']['type'] ?? '';
+            if ($status === 404 || $errType === 'model_not_found') {
+                $payload['model'] = $this->fallbackModel;
+                $this->logDebug('openai.request_fallback', ['model' => $this->fallbackModel]);
+                $logRequest($payload);
+                $res = $makeRequest($payload);
+                $status = $res->getStatusCode();
+                $raw    = $res->getContent(false);
+            }
+        }
+
+        // Retry without unsupported parameters (temperature)
+        if ($status >= 400 && isset($payload['temperature'])) {
+            $decoded = json_decode($raw, true);
+            if ($this->isUnsupportedTemperatureError($decoded)) {
+                unset($payload['temperature']);
+                $this->logDebug('openai.request_retry_without_temperature');
+                $logRequest($payload);
+                $res = $makeRequest($payload);
+                $status = $res->getStatusCode();
+                $raw    = $res->getContent(false);
+            }
+        }
         $info   = $res->getInfo();
 
         $this->logDebug('openai.response', [
@@ -131,25 +152,60 @@ final class OpenAIResponseService
         $payload = $this->buildPayload($userText, $image, $model, $prompt, $previousResponseId, $extra);
         $payload['stream'] = true;
 
-        $this->logDebug('stream.request', [
-            'endpoint' => '/responses',
-            'model' => $payload['model'] ?? null,
-            'payload' => $this->redact($payload),
-        ]);
-
         $headers = $this->authHeaders();
         $headers['Accept'] = 'text/event-stream';
-        $response = $this->httpClient->request('POST', $this->apiBase . '/responses', [
-            'headers' => $headers,
-            'json'    => $payload,
-            // timeout 0 disables idle timeout while streaming
-            'timeout' => 0,
-            'buffer'  => false,
-        ]);
+
+        $makeRequest = function(array $payload) use ($headers) {
+            $this->logDebug('stream.request', [
+                'endpoint' => '/responses',
+                'model' => $payload['model'] ?? null,
+                'payload' => $this->redact($payload),
+            ]);
+            return $this->httpClient->request('POST', $this->apiBase . '/responses', [
+                'headers'      => $headers,
+                'json'         => $payload,
+                'timeout'      => 600,
+                'max_duration' => 0,
+                'buffer'       => false,
+                'http_version' => '2.0',
+            ]);
+        };
+
+        $response = $makeRequest($payload);
+        $status = $response->getStatusCode();
+        if ($status >= 400 && ($payload['model'] ?? '') === $this->defaultModel) {
+            $payload['model'] = $this->fallbackModel;
+            $this->logDebug('stream.request_fallback', ['model' => $this->fallbackModel, 'status' => $status]);
+            $response = $makeRequest($payload);
+            $status = $response->getStatusCode();
+        }
+
+        if ($status >= 400) {
+            $raw = $response->getContent(false);
+            $decoded = json_decode($raw, true);
+            // Retry without unsupported parameters (temperature)
+            if (isset($payload['temperature']) && $this->isUnsupportedTemperatureError($decoded)) {
+                unset($payload['temperature']);
+                $this->logDebug('stream.request_retry_without_temperature', ['status' => $status]);
+                $response = $makeRequest($payload);
+                $status = $response->getStatusCode();
+            }
+
+            if ($status >= 400) {
+                $raw = $response->getContent(false);
+                $this->logError('stream.request_failed', [
+                    'status' => $status,
+                    'raw_preview' => mb_substr($raw, 0, 500),
+                ]);
+                $decoded = json_decode($raw, true);
+                $message = $decoded['error']['message'] ?? ('HTTP error ' . $status);
+                throw new \RuntimeException($message, $status);
+            }
+        }
 
         $buffer = '';
         try {
-            foreach ($this->httpClient->stream($response, 300.0) as $chunk) {
+            foreach ($this->httpClient->stream($response, 600.0) as $chunk) {
                 if ($chunk->isTimeout()) { continue; }
                 if ($chunk->isFirst()) {
                     $this->logDebug('stream.connected');
@@ -219,8 +275,13 @@ final class OpenAIResponseService
         ?string $previousResponseId = null,
         ?array $extra = null
     ): array {
-        $model = $model ?: $this->defaultModel;
-        $content = [['type' => 'input_text', 'text' => $userText]];
+        $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
+
+        // --- Content aufbauen: Text + optional Bild ---
+        $content = [
+            ['type' => 'input_text', 'text' => $userText],
+        ];
+
         if ($image) {
             $mime = $image->getMimeType() ?: 'application/octet-stream';
             if (!in_array($mime, ['image/png','image/jpeg','image/webp'], true)) {
@@ -232,50 +293,80 @@ final class OpenAIResponseService
             }
             $b64 = base64_encode((string) file_get_contents($image->getPathname()));
             $dataUrl = sprintf('data:%s;base64,%s', $mime, $b64);
+
+            // Direkt als Data-URL (von der API akzeptiert)
             $content[] = ['type' => 'input_image', 'image_url' => $dataUrl];
+            // Alternativ bei Bedarf:
+            // $content[] = ['type' => 'input_image', 'image_url' => ['url' => $dataUrl]];
         }
 
-        $modelName = $model ?: ($this->defaultModel ?: 'gpt-5-mini');
+        // --- Basis-Payload ---
         $payload = [
             'model' => $modelName,
-            'prompt' => [
-                'id'        => 'pmpt_6895d4b9f5188195b3c079b27f14d95f099da37685d16022',
-                'variables' => ['customer_name' => 'Kunde'],
-            ],
             'input' => [[
                 'role'    => 'user',
                 'content' => $content,
             ]],
-            // Responses API expects tools and tool_resources (file_search) for RAG
-            'tools' => [ [ 'type' => 'file_search' ] ],
-            'tool_resources' => [
-                'file_search' => [
-                    'vector_store_ids' => $this->vectorStoreIds,
-                ],
-            ],
+            "reasoning" => [ "effort" =>"medium" ],
             'tool_choice' => 'auto',
+            'temperature' => 0.2,
         ];
 
-        if (!empty($prompt['id'])) {
-            $payload['prompt'] = ['id' => (string) $prompt['id']];
-            if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
-                $payload['prompt']['variables'] = $prompt['variables'];
-            }
-            if (!empty($prompt['version'])) {
-                $payload['prompt']['version'] = (string) $prompt['version'];
+        // No temperature or max_output_tokens by default
+
+        // --- Prompt nur anhängen, wenn eine gültige Prompt-ID übergeben wurde ---
+        // Erwartete Form: ['id' => 'pmpt_xxx', 'variables' => [...], 'version' => '1']
+        if (is_array($prompt)) {
+            $promptId = isset($prompt['id']) ? (string) $prompt['id'] : '';
+            if ($promptId !== '') {
+                $payload['prompt'] = ['id' => $promptId];
+
+                if (!empty($prompt['variables']) && is_array($prompt['variables'])) {
+                    $vars = [];
+                    foreach ($prompt['variables'] as $k => $v) {
+                        if (is_scalar($v) || $v === null) {
+                            $vars[(string)$k] = $v === null ? '' : (string)$v;
+                        }
+                    }
+                    if (!empty($vars)) {
+                        $payload['prompt']['variables'] = $vars;
+                    }
+                }
+
+                if (!empty($prompt['version'])) {
+                    $payload['prompt']['version'] = (string) $prompt['version'];
+                }
             }
         }
+
+        // --- File Search nur anhängen, wenn Vector Stores vorhanden ---
+        // Responses-API erwartet vector_store_ids IM Tool-Objekt, NICHT unter tool_resources.
+        $tools = [];
+        if (!empty($this->vectorStoreIds)) {
+            $tools[] = [
+                'type' => 'file_search',
+                'vector_store_ids' => $this->vectorStoreIds,
+                // optional:
+                'max_num_results' => 8,
+                // 'filters' => ['metadata' => ['key' => 'value']],
+            ];
+        }
+        if (!empty($tools)) {
+            $payload['tools'] = $tools;
+        }
+
+        // --- Mehr-Turn-Kontext ---
         if (!empty($previousResponseId)) {
-            $payload['previous_response_id'] = $previousResponseId;
+            $payload['previous_response_id'] = (string) $previousResponseId;
         }
-        if ($extra) {
+
+        // --- Optionale Overrides ---
+        if (!empty($extra) && is_array($extra)) {
             $payload = array_replace_recursive($payload, $extra);
         }
+
         return $payload;
     }
-
-
-
 
     public function getResponse(string $responseId): array
     {
@@ -283,8 +374,9 @@ final class OpenAIResponseService
         $this->logDebug('openai.get_request', ['id' => $responseId]);
 
         $res = $this->httpClient->request('GET', $this->apiBase . '/responses/' . urlencode($responseId), [
-            'headers' => $this->authHeaders(),
-            'timeout' => 30,
+            'headers'      => $this->authHeaders(),
+            'timeout'      => 30,
+            'http_version' => '2.0',
         ]);
         $status = $res->getStatusCode();
         $raw = $res->getContent(false);
@@ -306,8 +398,9 @@ final class OpenAIResponseService
         $this->logDebug('openai.delete_request', ['id' => $responseId]);
 
         $res = $this->httpClient->request('DELETE', $this->apiBase . '/responses/' . urlencode($responseId), [
-            'headers' => $this->authHeaders(),
-            'timeout' => 30,
+            'headers'      => $this->authHeaders(),
+            'timeout'      => 30,
+            'http_version' => '2.0',
         ]);
         $status = $res->getStatusCode();
         $raw = $res->getContent(false);
@@ -358,6 +451,19 @@ final class OpenAIResponseService
             }
         }
         return $copy;
+    }
+
+    /**
+     * Detect if decoded error array indicates unsupported 'temperature' parameter.
+     * @param mixed $decoded
+     */
+    private function isUnsupportedTemperatureError(mixed $decoded): bool
+    {
+        if (!is_array($decoded)) { return false; }
+        $msg = (string)($decoded['error']['message'] ?? '');
+        if ($msg === '') { return false; }
+        $msgLower = mb_strtolower($msg);
+        return str_contains($msgLower, 'unsupported parameter') && str_contains($msgLower, 'temperature');
     }
 
     private function logDebug(string $event, array $context = []): void
