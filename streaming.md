@@ -36,7 +36,8 @@ SSE Event Mapping
   - `response.tool_call.delta` → `tool_delta` (optional UI)
   - `response.tool_call.done` → `tool_done` (optional UI)
   - `response.error` → `error` with `{ message, insufficient_quota }`
-  - `response.completed` → `done` with `{ stats }`
+  - `response.completed` → `done` with `{ id, stats }`
+  - `response.incomplete` → `done` with `{ id, incomplete, reason, stats }`
   - App also sends an initial `meta` with `{ ping_ms }`
 
 Headers and Buffering
@@ -74,6 +75,9 @@ Logging (examples)
   - `send_stream.event_ignored`
 
 Frontend Behavior
+- Conversation persistence:
+  - Page accepts `?prevChat=<id>` to resume a conversation.
+  - Each `done` event includes the next `id`; the frontend stores it in `localStorage` and updates the URL.
 - Streaming response:
   - Shows spinner while awaiting chunks.
   - Appends `delta` tokens into a bot bubble with a blinking cursor ▌.

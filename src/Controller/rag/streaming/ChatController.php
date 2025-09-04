@@ -23,7 +23,14 @@ final class ChatController extends AbstractController
     #[Route('/chat', name: 'chat', methods: ['GET'])]
     public function chat(Request $request): Response
     {
-        $request->getSession()->invalidate();
+        $session = $request->getSession();
+        $session->invalidate();
+
+        $prevChat = trim((string)$request->query->get('prevChat', ''));
+        if ($prevChat !== '') {
+            $session->set('rag_prev_response_id', $prevChat);
+        }
+
         return $this->render('rag/streaming/chat/index.html.twig');
     }
 
@@ -134,7 +141,9 @@ final class ChatController extends AbstractController
                                 $tokensSession = (int) $session->get('rag_tokens_total', 0) + (int)$tokensQuery;
                                 $session->set('rag_tokens_total', $tokensSession);
                                 if ($finalId) { $session->set('rag_prev_response_id', $finalId); }
+                
                                 $sendEvent('done', [
+                                    'id' => $finalId,
                                     'stats' => [
                                         'tokens_query' => $tokensQuery,
                                         'tokens_answer' => $tokensAnswer,
@@ -157,6 +166,7 @@ final class ChatController extends AbstractController
                                 $session->set('rag_tokens_total', $tokensSession);
                                 if ($finalId) { $session->set('rag_prev_response_id', $finalId); }
                                 $sendEvent('done', [
+                                    'id' => $finalId,
                                     'incomplete' => true,
                                     'reason' => $reason,
                                     'stats' => [

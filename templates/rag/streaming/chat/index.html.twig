@@ -49,6 +49,17 @@
 
   <script>
     (function(){
+      const params = new URLSearchParams(window.location.search);
+      const paramPrev = params.get('prevChat');
+      const storedPrev = localStorage.getItem('rag_prev_response_id');
+      if (!paramPrev && storedPrev) {
+        params.set('prevChat', storedPrev);
+        window.location.replace(window.location.pathname + '?' + params.toString());
+        return;
+      } else if (paramPrev) {
+        localStorage.setItem('rag_prev_response_id', paramPrev);
+      }
+
       const historyEl=document.getElementById('history');
       const errorEl=document.getElementById('error');
       const form=document.getElementById('chatForm');
@@ -184,6 +195,12 @@
                 errorEl.classList.remove('d-none');
               } else if(ev==='done'){
                 try{ bot.cursor.remove(); }catch{}
+                if(payload.id){
+                  localStorage.setItem('rag_prev_response_id', payload.id);
+                  const url = new URL(window.location);
+                  url.searchParams.set('prevChat', payload.id);
+                  history.replaceState(null, '', url);
+                }
               }
             }
           }
