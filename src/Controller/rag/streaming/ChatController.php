@@ -21,17 +21,25 @@ final class ChatController extends AbstractController
     ) {}
 
     #[Route('/chat', name: 'chat', methods: ['GET'])]
-    public function chat(Request $request): Response
+    public function chat(Request $request, OpenAIResponseService $openai): Response
     {
         $session = $request->getSession();
         $session->invalidate();
 
+        $history = [];
         $prevChat = trim((string)$request->query->get('prevChat', ''));
         if ($prevChat !== '') {
             $session->set('rag_prev_response_id', $prevChat);
+            try {
+                $history = $this->buildHistory($openai, $prevChat);
+            } catch (\Throwable $e) {
+                $this->logger?->error('chat.history.fail', ['id' => $prevChat, 'error' => $e->getMessage()]);
+            }
         }
 
-        return $this->render('rag/streaming/chat/index.html.twig');
+        return $this->render('rag/streaming/chat/index.html.twig', [
+            'history' => $history,
+        ]);
     }
 
     #[Route('/chat/send-stream', name: 'chat_send_stream', methods: ['POST'])]
@@ -195,6 +203,47 @@ final class ChatController extends AbstractController
         $response->headers->set('X-Proxy-Buffering', 'off');
         $response->headers->set('X-Fastcgi-Buffering', 'off');
         return $response;
+    }
+
+    /**
+     * Build conversation history for a given final response ID.
+     *
+     * @return array<int, array{role:string,text:string}>
+     */
+    private function buildHistory(OpenAIResponseService $openai, string $id): array
+    {
+        $history = [];
+        $visited = [];
+        for ($i = 0; $i < 50 && $id !== ''; $i++) {
+            if (isset($visited[$id])) {
+                break; // avoid loops
+            }
+            $visited[$id] = true;
+            $resp = $openai->getResponse($id);
+
+            // extract user text
+            $userText = '';
+            foreach (($resp['input'][0]['content'] ?? []) as $part) {
+                if (($part['type'] ?? '') === 'input_text' && isset($part['text'])) {
+                    $userText .= (string) $part['text'];
+                }
+            }
+            $assistantText = OpenAIResponseService::extractText($resp);
+
+            if ($assistantText !== '') {
+                array_unshift($history, ['role' => 'assistant', 'text' => $assistantText]);
+            }
+            if ($userText !== '') {
+                array_unshift($history, ['role' => 'user', 'text' => $userText]);
+            }
+
+            $id = (string)($resp['previous_response_id'] ?? '');
+            if ($id === '') {
+                break;
+            }
+        }
+
+        return $history;
     }
 
     // ping removed as requested

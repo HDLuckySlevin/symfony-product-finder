@@ -60,6 +60,8 @@
         localStorage.setItem('rag_prev_response_id', paramPrev);
       }
 
+      const initialHistory = {{ history|json_encode|raw }};
+
       const historyEl=document.getElementById('history');
       const errorEl=document.getElementById('error');
       const form=document.getElementById('chatForm');
@@ -133,6 +135,17 @@
           }
         });
         try{ if(window.hljs) hljs.highlightAll(); }catch{}
+      }
+
+      // Render existing history on load
+      for(const msg of initialHistory){
+        if(msg.role==='user'){
+          addUserMsg(msg.text);
+        }else if(msg.role==='assistant'){
+          const bot=createBotBubble();
+          renderMarkdown(bot.content, msg.text);
+          try{bot.cursor.remove();}catch{}
+        }
       }
 
       form.addEventListener('submit',async e=>{
