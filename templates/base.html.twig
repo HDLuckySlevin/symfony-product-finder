@@ -22,7 +22,7 @@
         {% endblock %}
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
             <div class="container">
                 <a class="navbar-brand" href="{{ path('app_home') }}">Vertriebsassistent</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -37,13 +37,82 @@
                 </div>
             </div>
         </nav>
-        
-        {% block body %}{% endblock %}
-        
-        <footer class="bg-light py-4 mt-5">
+
+        <main id="main-content">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="bg-black py-4">
             <div class="container text-center">
-                <p>&copy; {{ "now"|date("Y") }} Elektronik-Produktfinder mit GenAI und Symfony</p>
+                <p style="color: #dddddd">&copy; {{ "now"|date("Y") }} Elektronik-Produktfinder mit GenAI und Symfony</p>
             </div>
         </footer>
     </body>
 </html>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Main expands to take remaining space between header and footer */
+    main#main-content {
+        flex: 1 1 auto;
+        display: block; /* keep default flow for your content */
+    }
+
+    /* Make .background fill the whole main area (so the gradient reaches footer) */
+    .background {
+        min-height: 100%;
+        /* If you want content vertically centered, you can add:
+           display:flex; flex-direction:column; justify-content:center; */
+    }
+
+    /* Footer should not add extra vertical margin */
+    footer {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    /* Navbar custom styling (global) */
+    .navbar-custom {
+        /*background: linear-gradient(90deg, #2b2fc6 0%, #007bff 100%);*/
+        /*background: rgba(255,255,255,0.95);*/
+        background: rgba(0,0,0,0.95);
+        /*color: #212529;*/
+        color: #ffffff;
+    }
+
+    .navbar-custom .navbar-brand {
+        color: #ffffff;
+        /*color: #212529;*/
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    .navbar-custom .nav-link {
+        /*color: rgba(255,255,255,0.95);*/
+        /*color: #212529;*/
+        color: #ffffff;
+    }
+    .navbar-custom .nav-link:hover,
+    .navbar-custom .nav-link:focus {
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: underline;
+    }
+
+    /* Make the toggler visible on dark background */
+    .navbar-custom .navbar-toggler {
+        border-color: rgba(255,255,255,0.12);
+    }
+    .navbar-custom .navbar-toggler-icon {
+        filter: invert(1) brightness(1.2);
+    }
+</style>

@@ -2,51 +2,53 @@
 {% block title %}Vertriebsassistent{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <h1 class="mb-4 text-center">Vertriebsassistent</h1>
-                <div class="card shadow">
-                    <div class="card-body p-4">
-                        <div id="history" class="mb-3" style="min-height:400px;max-height:700px;overflow-y:auto;"></div>
-                        <div id="loadingIndicator" class="d-none text-muted mb-3">
-                            <span class="spinner-border spinner-border-sm me-1"></span>Vertriebsassistent antwortet…
-                        </div>
-
-                        {# Datei-Name (nur wenn ausgewählt) #}
-                        <div class="col-12">
-                            <div class="file-upload-box d-flex align-items-center justify-content-between px-3 py-2 mb-2 rounded border d-none" id="file-box">
-                                <span id="file-name" class="file-label-text text-truncate"></span>
-                                <button type="button" id="remove-file" class="remove-file-btn" aria-label="Remove file" title="Remove file">&#10005;</button>
+    <div class="background">
+        <div class="container pt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h1 class="mb-4 text-center page-title">Vertriebsassistent</h1>
+                    <div class="card shadow">
+                        <div class="card-body p-4">
+                            <div id="history" class="mb-3" style="min-height:600px;max-height:800px;overflow-y:auto;"></div>
+                            <div id="loadingIndicator" class="d-none text-muted mb-3">
+                                <span class="spinner-border spinner-border-sm me-1"></span>Vertriebsassistent antwortet…
                             </div>
-                        </div>
 
-                        {# Chat-Formular #}
-                        <form id="chatForm" class="chat-box" enctype="multipart/form-data">
-                        <textarea name="message" id="message" class="chat-input"
-                                  placeholder="Was möchten Sie wissen?" required></textarea>
-
-                            <div class="chat-buttons">
-                                {# Upload von Datei #}
-                                <label for="image" class="upload-btn" aria-label="Upload image" title="Upload image" tabindex="0">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                        <path d="M21.44 11.05L12.95 19.5a5 5 0 1 1-7.07-7.07L12 5.27a3.5 3.5 0 1 1 4.95 4.95L9.9 17.27a1.5 1.5 0 0 1-2.12-2.12l7.07-7.07"
-                                              stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </label>
-                                <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp" class="file-input-hidden">
-
-                                {# Senden-Button #}
-                                <button class="send-btn" type="submit" aria-label="Senden" title="Senden">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                         class="bi bi-send-fill" viewBox="0 0 16 16" aria-hidden="true">
-                                        <path d="M15.964.686a.5.5 0 0 0-.655-.656L.136 7.019a.5.5 0 0 0 .058.912l5.987 1.993 1.993 5.987a.5.5 0 0 0 .912.058l7-15z"/>
-                                    </svg>
-                                </button>
+                            {# Datei-Name (nur wenn ausgewählt) #}
+                            <div class="col-12">
+                                <div class="file-upload-box d-flex align-items-center justify-content-between px-3 py-2 mb-2 rounded border d-none" id="file-box">
+                                    <span id="file-name" class="file-label-text text-truncate"></span>
+                                    <button type="button" id="remove-file" class="remove-file-btn" aria-label="Remove file" title="Remove file">&#10005;</button>
+                                </div>
                             </div>
-                        </form>
 
-                        <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                            {# Chat-Formular #}
+                            <form id="chatForm" class="chat-box" enctype="multipart/form-data">
+                            <textarea name="message" id="message" class="chat-input"
+                                      placeholder="Was möchten Sie wissen?" required></textarea>
+
+                                <div class="chat-buttons">
+                                    {# Upload von Datei #}
+                                    <label for="image" class="upload-btn" aria-label="Upload image" title="Upload image" tabindex="0">
+                                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path d="M21.44 11.05L12.95 19.5a5 5 0 1 1-7.07-7.07L12 5.27a3.5 3.5 0 1 1 4.95 4.95L9.9 17.27a1.5 1.5 0 0 1-2.12-2.12l7.07-7.07"
+                                                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </label>
+                                    <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp" class="file-input-hidden">
+
+                                    {# Senden-Button #}
+                                    <button class="send-btn" type="submit" aria-label="Senden" title="Senden">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                             class="bi bi-send-fill" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M15.964.686a.5.5 0 0 0-.655-.656L.136 7.019a.5.5 0 0 0 .058.912l5.987 1.993 1.993 5.987a.5.5 0 0 0 .912.058l7-15z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,6 +57,30 @@
 
     <style>
         /* -------------------- CHAT WINDOW -------------------- */
+        .background {
+            background-image: url('/bg1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay color */
+            background-blend-mode: overlay;
+        }
+
+        /*.background {*/
+        /*    background-image: url('/bg2.webp');*/
+        /*    background-size: cover;*/
+        /*    background-position: center;*/
+        /*    background-repeat: no-repeat;*/
+        /*    background-color: rgba(255, 255, 255, 0.2); !* Semi-transparent overlay color *!*/
+        /*    background-blend-mode: overlay;*/
+        /*}*/
+
+        .page-title {
+            color: rgba(255,255,255,0.95);
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+        }
+
         #history {border-radius: 0; background: #fff; padding: 15px; overflow-y: auto;}
 
         /* -------------------- SHARED BUBBLE BASE -------------------- */
