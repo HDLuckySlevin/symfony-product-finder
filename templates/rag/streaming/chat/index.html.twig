@@ -249,8 +249,11 @@
                 container.appendChild(bubble);
 
                 const lastUserRow = historyEl.querySelector('.user-row:last-of-type');
-                if (lastUserRow && lastUserRow.parentNode) lastUserRow.insertAdjacentElement('afterend', container);
-                else historyEl.appendChild(container);
+                if (lastUserRow && lastUserRow.parentNode) {
+                    lastUserRow.insertAdjacentElement('afterend', container);
+                } else {
+                    historyEl.appendChild(container);
+                }
 
                 container.style.clear = 'both';
                 scrollToBottom();
@@ -258,7 +261,7 @@
                 return { content, cursor };
             }
 
-            // -------------------- INITIAL MESSAGE --------------------
+// -------------------- INITIAL MESSAGE --------------------
             function showInitialMessage(text) {
                 const bot = createBotBubble();
                 let idx = 0;
@@ -266,14 +269,14 @@
 
                 const interval = setInterval(() => {
                     if (idx < text.length) {
-                        const cursor = bot.cursor;
-                        cursor.remove();
+                        // On the first character, remove the cursor permanently
+                        if (idx === 0) {
+                            try { bot.cursor.remove(); } catch {}
+                        }
 
                         // append next character as text node
                         const charNode = document.createTextNode(text[idx++]);
                         bot.content.appendChild(charNode);
-
-                        bot.content.appendChild(cursor);
                         scrollToBottom();
                     } else {
                         clearInterval(interval);
@@ -337,6 +340,7 @@
                         const reader = res.body.getReader();
                         const decoder = new TextDecoder();
                         let buffer = '';
+                        let firstChunk = true; // NEW FLAG
 
                         while(true) {
                             const {value, done} = await reader.read();
@@ -365,27 +369,14 @@
                                 if(ev === 'delta') {
                                     const t = payload.text || '';
                                     if(t) {
-                                        mdBuffer += t;
-
-                                        // preserve cursor
-                                        const cursor = bot.cursor;
-                                        if (!cursor) return;
-
-                                        // remove cursor from DOM
-                                        if(cursor.parentNode) cursor.remove();
-
-                                        // render Markdown
-                                        renderMarkdown(bot.content, mdBuffer);
-
-                                        // find the last child block (p, li, etc.)
-                                        let lastNode = bot.content.lastChild;
-
-                                        // if the last node is a block, append cursor inside it
-                                        if (lastNode && lastNode.nodeType === 1 && getComputedStyle(lastNode).display.startsWith('block')) {
-                                            lastNode.appendChild(cursor);
-                                        } else {
-                                            bot.content.appendChild(cursor);
+                                        // On first chunk: remove cursor permanently
+                                        if(firstChunk) {
+                                            try { bot.cursor.remove(); } catch {}
+                                            firstChunk = false;
                                         }
+
+                                        mdBuffer += t;
+                                        renderMarkdown(bot.content, mdBuffer);
                                         scrollToBottom();
                                     }
                                 } else if(ev === 'error') {
