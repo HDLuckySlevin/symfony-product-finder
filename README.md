@@ -1,24 +1,30 @@
 # Product Finder with GenAI and Symfony
 
-This Symfony application enables natural language product search through AI-powered semantic understanding. It imports product data from XML, vectorizes product attributes using OpenAI embeddings, and stores them in Milvus vector database for efficient similarity search.
+English | [Deutsch](README.de.md)
+
+[![Docs](https://img.shields.io/badge/docs-available-blue.svg)](docs/01-Projekt-Beschreibung.md)
+[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue?logo=githubactions)](.github/workflows/ci.yml)
+[![Postman](https://img.shields.io/badge/Postman-collection-orange?logo=postman)](docs/api/postman_collection.json)
+
+This Symfony application enables natural-language product search via AI-powered semantic understanding. It imports product data (XML/JSON), generates embeddings with OpenAI, and stores them in Milvus for efficient similarity search. Text, image, and audio inputs are supported; a chat model generates concise product recommendations.
 
 ## Features
 
-- Import electronic products from XML files
-- Vectorize product properties with OpenAI Embeddings
-- Store and search products in Milvus vector database
-- Natural language product search via API
-- Web interface with DeepChat for intuitive user interaction
-- Flexible configuration for API keys and endpoints
+- Import products from XML or JSON
+- Generate OpenAI embeddings for products and queries
+- Store and search vectors in Milvus (COSINE)
+- Natural-language search via API (text, image→vision, audio→STT)
+- Prompt-driven recommendation with OpenAI Chat API
+- Web UI with HttpOnly API-key cookie bridge
+- Flexible configuration via environment variables
 
 ## Technical Stack
 
-- **Symfony 6.4**: Core application framework
-- **PHP 8.2+**: Required runtime
-- **OpenAI API**: For embeddings and chat completions
-- **Milvus**: Vector database for similarity search
-- **DDEV**: Local development environment
-- **Gitpod**: Cloud development environment
+- **Symfony 6.4** (PHP 8.2+)
+- **OpenAI API**: Embeddings (text), Chat (recommendation), Vision (image description), Whisper (STT)
+- **Milvus** (via `helgesverre/milvus`) for vector similarity
+- **DDEV** for local dev (Milvus/Attu)
+- **PHPUnit**, optional **PHPStan**
 
 ## Architecture
 
@@ -27,8 +33,11 @@ The application follows a service-oriented architecture with key components orga
 ### Key Components
 
 1. **Controllers**:
-   - `ProductFinderController`: Handles product search API endpoints
-   - `WebInterfaceController`: Manages the web interface
+   - `ApiSearchController`: `/api/search/text|image|audio`
+   - `ProductImportController`: `/api/products` (JSON import), `DELETE /api/products/{id}`
+   - `EmbeddingController`: `/text-embedding`, `/image-embedding`, `/dimension`, `/healthstatus`
+   - `ProductFinderController`: `/api/products/chat`
+   - `WebInterfaceController`: Web UI (`/`, `/search*`)
 
 2. **Services**:
    - `XmlImportService`: Parses XML files and extracts product data
@@ -43,9 +52,9 @@ The application follows a service-oriented architecture with key components orga
 ### Search Flow
 
 1. User submits natural language query
-2. Query is vectorized using OpenAI embeddings
+2. Query is vectorized using OpenAI embeddings (image→vision description; audio→Whisper)
 3. Vector search finds similar products in Milvus
-4. Results are filtered by relevance threshold (distance ≤ 0.5)
+4. Optional threshold filtering (see docs)
 5. OpenAI generates natural language recommendations based on results
 6. User receives product recommendations and matching products
 
@@ -72,19 +81,20 @@ For detailed architecture diagrams, see the [Architecture Documentation](https:/
    ddev composer install
    ```
 
-3. Configure environment variables in `.env.local`:
-   ```
-  OPENAI_API_KEY=your_openai_api_key
-  OPENAI_MODEL=text-embedding-3-small
-  OPENAI_MODEL_IMAGE=gpt-4o
-  OPENAI_CHAT_MODEL=gpt-3.5-turbo
-  DEBUG_VECTORS=false
-  APP_API_KEY=choose_a_secret_key
-  MILVUS_API_KEY=your_milvus_api_key
-   MILVUS_HOST=your_milvus_endpoint
-   MILVUS_PORT=443
-   MILVUS_COLLECTION=products
-   ```
+3. Configure environment variables in `.env.local` (examples, do not commit secrets):
+  ```
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=text-embedding-3-small
+OPENAI_MODEL_IMAGE=gpt-4o
+OPENAI_CHAT_MODEL=gpt-3.5-turbo
+OPENAI_STT_MODEL=whisper-1
+DEBUG_VECTORS=false
+APP_API_KEY=choose_a_secret_key
+MILVUS_HOST=http://milvus
+MILVUS_PORT=19530
+MILVUS_COLLECTION=products
+MILVUS_TOKEN=
+  ```
 
 4. Start the application:
    ```
@@ -155,6 +165,14 @@ automatically used as the query for `app:test-search`:
 ddev php bin/console app:process-image path/to/image.jpg
 ```
 
+### Processing Audio
+
+Transcribe an audio file (Whisper) and use the text for search:
+
+```
+ddev php bin/console app:process-audio path/to/audio.webm
+```
+
 ### Web Interface
 
 Access the chat interface at `https://symfony-product-finder.ddev.site/` to search for products using natural language.
@@ -184,7 +202,11 @@ functionality of the web interface:
   based on its description.
 - `POST /api/search/audio` – upload an audio file (field name `audio`) which is transcribed and used as the search query.
 
-Further examples are available in [docs/API.md](docs/API.md). A sanitized Postman collection can be found in [docs/api/postman_collection.json](docs/api/postman_collection.json).
+Additional:
+
+- `POST /api/products/chat` – chat-style search that returns a recommendation based on similar products.
+
+Further examples are available in [docs/API.md](docs/API.md). A sanitized Postman collection can be found in [docs/api/postman_collection.json](docs/api/postman_collection.json). See also the documentation section below.
 
 
 ## Customization
@@ -204,6 +226,22 @@ Run the test suite:
 ```
 ddev php bin/phpunit
 ```
+
+## Documentation
+
+- Project overview: `docs/01-Projekt-Beschreibung.md`
+- Architecture: `docs/02-Systemarchitektur.md`
+- Build & deployment: `docs/03-Build-&-Deployment.md`
+- Environment & configuration: `docs/04-Umgebung-&-Konfiguration.md`
+- Data model: `docs/05-Datenmodell.md`
+- Controllers & endpoints: `docs/06-Controller-&-REST-Endpoints.md`
+- Domain services & dependencies: `docs/07-Domain-Services-&-Abhängigkeiten.md`
+- Modules & bundles: `docs/08-Module-&-Bundles.md`
+- Error handling & logging: `docs/09-Fehlerbehandlung-&-Logging.md`
+- Security & auth: `docs/10-Security-&-Auth.md`
+- Tests & quality: `docs/11-Tests-&-Qualitätssicherung.md`
+- Operational runbooks: `docs/12-Operative-Runbooks.md`
+- Glossary: `docs/13-Glossar.md`
 
 ### Project Structure
 
