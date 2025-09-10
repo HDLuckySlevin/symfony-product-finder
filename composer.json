@@ -62,6 +62,30 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "docs:init": [
+            "mkdir -p docs/_generated"
+        ],
+        "docs:generate": [
+            "@docs:init",
+
+            "composer show -D > docs/_generated/composer-deps.txt || true",
+            "bash -lc '{ command -v jq >/dev/null 2>&1 && jq . composer.json > docs/_generated/composer.json.pretty; } || cp composer.json docs/_generated/composer.json.pretty'",
+
+            "php bin/console about > docs/_generated/symfony-about.txt",
+            "php bin/console debug:router --format=json > docs/_generated/router.json",
+            "php bin/console debug:container --show-arguments > docs/_generated/container.txt",
+            "php bin/console debug:autowiring > docs/_generated/autowiring.txt",
+
+            "bash -lc 'php bin/console list --raw | grep -qx \"doctrine:mapping:info\" && php bin/console doctrine:mapping:info > docs/_generated/doctrine-mapping.txt || true'",
+            "bash -lc 'php bin/console list --raw | grep -qx \"doctrine:schema:validate\" && php bin/console doctrine:schema:validate --skip-sync > docs/_generated/doctrine-validate.txt || true'",
+
+            "php bin/console messenger:stats > docs/_generated/messenger-stats.txt 2>/dev/null || true",
+            "php bin/console debug:scheduler > docs/_generated/scheduler.txt 2>/dev/null || true",
+
+            "test -f vendor/bin/phpunit && vendor/bin/phpunit --list-tests > docs/_generated/phpunit-tests.txt || true",
+            "test -f vendor/bin/phpstan && vendor/bin/phpstan analyse --error-format=json > docs/_generated/phpstan.json || true",
+            "test -f vendor/bin/rector && vendor/bin/rector process --dry-run > docs/_generated/rector-dry-run.txt || true"
         ]
     },
     "conflict": {

@@ -1,0 +1,15 @@
+vendor/
+node_modules/
+.git/
+var/
+public/build/
+storage/
+*.log
+*.map
+*.min.*
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+*.zip

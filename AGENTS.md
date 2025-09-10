@@ -184,3 +184,7 @@ Milvus
 - Web UI: `https://symfony-product-finder.ddev.site/`
 - Attu UI: `https://symfony-product-finder.ddev.site:8521`
 
+### Agent-Start
+Bitte arbeite nach `docs/_prompt_sequenziell.md` (Schritt für Schritt) und nutze die Spezifikation in `docs/_prompt.md`. 
+Rohdaten liegen in `docs/_generated/`. Lies alles außer den durch `.gitignore` ausgeschlossenen Pfaden. 
+Erzeuge je Schritt genau **eine** Datei unter `docs/` und beende jeden Schritt mit `<!-- STEP DONE: XX/13 -->`.

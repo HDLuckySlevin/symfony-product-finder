@@ -23,4 +23,5 @@ phpstan.neon
 # Local dev volumes (Milvus/MinIO)
 .ddev/milvus/volumes/
 .ddev/minio/
+docs/_generated/
 
