@@ -307,7 +307,7 @@ final class OpenAIResponseService
                 'role'    => 'user',
                 'content' => $content,
             ]],
-            "reasoning" => [ "effort" =>"medium" ],
+            "reasoning" => [ "effort" =>"low" ],
             'tool_choice' => 'auto',
             'temperature' => 0.2,
         ];
