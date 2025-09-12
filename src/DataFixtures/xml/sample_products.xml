@@ -6,39 +6,42 @@
         <id>SMSG-S25U-256-SLV</id>
         <name>Samsung Galaxy S25 Ultra (256 GB) – Silver</name>
         <sku>SMSG-S25U-256-SLV</sku>
-        <price>949.00</price>
-        <description>
-            Das Galaxy S25 Ultra kombiniert ein 6,9" QHD+ Dynamic AMOLED 2X Display (1–120 Hz) mit einer hochflexiblen Quad-Kamera:
-            200 MP Weitwinkel (OIS), 50 MP Ultraweitwinkel, 50 MP Tele (5× optisch, OIS) und 10 MP Tele (3× optisch, OIS). Vorn sitzt eine 12 MP Selfie-Kamera.
-            Angetrieben von Qualcomms Snapdragon 8 Elite (for Galaxy) und 12 GB RAM bietet es starke Performance; der 5.000 mAh Akku unterstützt 45 W
-            Schnellladen (kabelgebunden) sowie Fast Wireless Charging 2.0. Dazu kommen One UI 7 auf Android 15, Wi-Fi 7, Bluetooth 5.4, IP68-Schutz,
-            S Pen-Support und Speicheroptionen bis 1 TB.
-            Visuelle Tags: eckiges Gehäuse, gebürstetes Titan, rechteckiges Kameramodul, S-Pen-Schacht, große Displayfläche, flache Kanten.
-            Passendes Zubehör (SKUs): SMSG-S25U-CLRCASE, SMSG-EBU251-10K-25W, ANKR-737-24K.
-        </description>
+        <price>949</price>
+        <description><![CDATA[
+<p>Das Samsung Galaxy S25 Ultra in Silber kombiniert ein 6,9-Zoll-QHD+ Dynamic AMOLED 2X Display (1–120 Hz) mit einer flexiblen Quad-Kamera (200 MP + 50 MP Ultraweit + 50 MP Tele 5× + 10 MP Tele 3×) und einer 12-MP-Frontkamera. Es wird vom Snapdragon 8 Elite Prozessor angetrieben, unterstützt durch 12 GB RAM und 256 GB Speicher. Der 5000-mAh-Akku bietet 45 W Schnellladen und kabelloses Laden. Das Gerät ist IP68-zertifiziert und unterstützt den S Pen.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Display: 6,9" QHD+ Dynamic AMOLED 2X, 1–120 Hz (LTPO), Vision Booster</li>
+    <li>Prozessor: Qualcomm Snapdragon 8 Elite (for Galaxy)</li>
+    <li>RAM/Speicher: 12 GB / 256 GB (UFS 4.0), Optionen bis 1 TB</li>
+    <li>Kameras: 200 MP + 50 MP UW + 50 MP 5× + 10 MP 3×, Front 12 MP</li>
+    <li>Akku/Laden: 5.000 mAh, 45 W Kabel, Fast Wireless 2.0, PowerShare</li>
+    <li>OS/Netz: Android 15 (One UI 7), Wi-Fi 7, BT 5.4, 5G</li>
+    <li>Maße/Gewicht: 77,6 × 162,8 × 8,2 mm, 218 g, IP68</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>LTPO-Panel mit 1–120 Hz und Vision Booster</li>
+    <li>200 MP Hauptsensor und 5× Periskop-Zoom</li>
+    <li>45 W Fast Charging und Wireless PowerShare</li>
+    <li>S Pen-Support, robuste IP68-Bauweise</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>titan-silber</li>
+    <li>rechteckiges kameramodul</li>
+    <li>flache kanten</li>
+    <li>große displayfläche</li>
+    <li>s-pen-schacht</li>
+    <li>matte rückseite</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> SMSG-S25U-CLRCASE, SMSG-EBU251-10K-25W, ANKR-737-24K</p>
+]]></description>
         <brand>Samsung</brand>
         <category>Smartphone</category>
-        <image_url>https://www.samsungmobilepress.com/file/E2D865121417BED4CCCE3AB6288204C6D10F27F744C5DA9475826F3CB5DC71EF261AC479715828213145AFB12DE9D44B464767C4A30B4E584FA0694EC4CE33A95AF3914FF18C9539AD4BDB058282C9FA128C39363B2D1503347D5496C2410128A8340AD04090BD6582AE881B89F5B2257FA7343BBEC5725513CA21B107939A25B9AF41361FF726E729CE0E44560746EC</image_url>
+        <image_url>https://images.samsung.com/de/smartphones/galaxy-s25-ultra/buy/04_Color-Selection/04_1_Basic-Color/Color-Selection_Titanium-Whitesilver_PC.png</image_url>
         <rating>4.8</rating>
-        <stock>25</stock>
-        <specifications>
-            <specification name="display">6,9" QHD+ Dynamic AMOLED 2X, 1–120 Hz, Vision Booster</specification>
-            <specification name="processor">Qualcomm Snapdragon 8 Elite (for Galaxy)</specification>
-            <specification name="ram">12 GB</specification>
-            <specification name="storage">256 GB (UFS 4.0); Varianten bis 1 TB</specification>
-            <specification name="camera">Rück: 200 MP (OIS, f/1.7, 85°) + 50 MP Ultraweit (f/1.9, 120°) + 50 MP Tele 5× (OIS, f/3.4, 22°) + 10 MP Tele 3× (OIS, f/2.4, 36°); Front: 12 MP (f/2.2, 80°)</specification>
-            <specification name="battery">5.000 mAh; 45 W kabelgebunden (bis ~65% in ~30 Min), Fast Wireless Charging 2.0, Wireless PowerShare</specification>
-            <specification name="os">Android 15 mit One UI 7</specification>
-            <specification name="dimensions">77,6 × 162,8 × 8,2 mm</specification>
-            <specification name="weight">218 g</specification>
-            <specification name="waterproof">IP68</specification>
-        </specifications>
-        <features>
-            <feature>6,9" QHD+ LTPO-Panel mit 1–120 Hz und Vision Booster</feature>
-            <feature>Quad-Kamera inkl. 200 MP Hauptsensor & 5× Periskop-Zoom</feature>
-            <feature>5.000 mAh Akku mit 45 W Fast Charging & Wireless PowerShare</feature>
-            <feature>S Pen-Support, Wi-Fi 7, Bluetooth 5.4, IP68</feature>
-        </features>
+        <stock>28</stock>
     </product>
 
     <!-- #2 Core -->
@@ -46,38 +49,41 @@
         <id>APPL-16P-128-DT</id>
         <name>Apple iPhone 16 Pro (128 GB) – Desert Titanium</name>
         <sku>APPL-16P-128-DT</sku>
-        <price>999.00</price>
-        <description>
-            Das iPhone 16 Pro in Desert Titanium besticht durch sein 6,3" Super Retina XDR OLED Display mit bis zu 120 Hz ProMotion und extrem schmalen Rändern.
-            Ausgestattet mit dem A18 Pro-Chip (6-Core CPU, 6-Core GPU, 16-Core Neural Engine) bietet es herausragende Performance – auch im KI-Bereich (Apple Intelligence).
-            Die Triple-Kamera auf der Rückseite umfasst einen 48 MP Weitwinkel (mit OIS), 48 MP Ultraweitwinkel und ein 12 MP Teleobjektiv (5× optischer Zoom). Zusätzlich ist ein LiDAR-Sensor integriert.
-            8 GB RAM und 128–1.000 GB Speicher (hier 128 GB) runden das Paket ab; Front 12 MP, USB-C, MagSafe & Qi 2 Wireless.
-            Visuelle Tags: Desert-Titan, dreifach-Kameraringe, Titan-Rahmen, Dynamic-Island, flache Kanten, gebürstete Oberfläche.
-            Passendes Zubehör (SKUs): SPGN-MAGFIT-16P, ANKR-MAGGO10K-QI2, ANKR-737-24K.
-        </description>
+        <price>999</price>
+        <description><![CDATA[
+<p>Das Apple iPhone 16 Pro in Desert Titanium kombiniert ein 6,3-Zoll-Super-Retina-XDR-OLED-Display mit ProMotion-Technologie (bis zu 120 Hz) und einem robusten Titanrahmen. Es ist mit dem leistungsstarken A18-Pro-Chip ausgestattet und bietet 8 GB RAM sowie 128 GB NVMe-Speicher. Die Triple-Kamera umfasst einen 48-MP-Hauptsensor, einen 48-MP-Ultraweitwinkel und ein 12-MP-Teleobjektiv mit 5-fachem optischem Zoom. Das Gerät unterstützt USB-C, MagSafe und Qi2-Wireless-Laden.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Display: 6,3" OLED, ProMotion 120 Hz</li>
+    <li>Prozessor: Apple A18 Pro (Neural Engine)</li>
+    <li>RAM/Speicher: 8 GB / 128 GB (NVMe)</li>
+    <li>Kameras: 48 MP WW + 48 MP UW + 12 MP 5×, Front 12 MP, LiDAR</li>
+    <li>Akku/Laden: Schnellladen, MagSafe und Qi 2</li>
+    <li>OS: iOS 18</li>
+    <li>Maße/Gewicht: 149,6 × 71,5 × 8,25 mm, 199 g, IP68</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Pro-Kamera mit 5× optischem Zoom</li>
+    <li>Titan-Rahmen und sehr schmale Ränder</li>
+    <li>USB-C und MagSafe-Ökosystem</li>
+    <li>Apple Intelligence/On-Device KI</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>desert-titan</li>
+    <li>dreifach-kameraringe</li>
+    <li>flat sides</li>
+    <li>dynamic-island</li>
+    <li>gebürstete optik</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> SPGN-MAGFIT-16P, ANKR-MAGGO10K-QI2, ANKR-737-24K</p>
+]]></description>
         <brand>Apple</brand>
         <category>Smartphone</category>
-        <image_url>https://www.apple.com/v/iphone-16-pro/a/images/overview/hero/hero_static__eckz0l2lag2q_medium_2x.jpg</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/204771/9/204771912/s1_produktbild_max/apple-iphone-16-pro-128gb-titan-wuestensand.jpg</image_url>
         <rating>4.7</rating>
-        <stock>20</stock>
-        <specifications>
-            <specification name="display">6,3" Super Retina XDR OLED, ProMotion bis 120 Hz</specification>
-            <specification name="processor">Apple A18 Pro (6-Core CPU, 6-Core GPU, 16-Core Neural Engine)</specification>
-            <specification name="ram">8 GB</specification>
-            <specification name="storage">128 GB (NVMe); Optionen bis 1 TB</specification>
-            <specification name="camera">48 MP Weitwinkel (OIS) + 48 MP Ultraweit + 12 MP Tele 5×; LiDAR; Front 12 MP</specification>
-            <specification name="battery">nicht spezifiziert (iPhone-üblich, ca. 3.600 mAh, schnelles Wireless & MagSafe Charging)</specification>
-            <specification name="os">iOS 18</specification>
-            <specification name="dimensions">149.6 × 71.5 × 8.25 mm</specification>
-            <specification name="weight">199 g</specification>
-            <specification name="waterproof">IP68</specification>
-        </specifications>
-        <features>
-            <feature>Nahezu rahmenloses 6,3" ProMotion-OLED Display</feature>
-            <feature>Leistungsstarker A18 Pro-Chip mit KI-Neural Engine</feature>
-            <feature>Triple-Kamera mit OIS, LiDAR und 5× optischem Zoom</feature>
-            <feature>USB-C, MagSafe, Qi 2-Charging</feature>
-        </features>
+        <stock>24</stock>
     </product>
 
     <!-- #3 Core -->
@@ -85,37 +91,41 @@
         <id>GOOG-P9PR-128-OBS</id>
         <name>Google Pixel 9 Pro (128 GB) – Obsidian</name>
         <sku>GOOG-P9PR-128-OBS</sku>
-        <price>999.00</price>
-        <description>
-            Das Pixel 9 Pro in Obsidian zeigt ein flaches, minimalistisches Design mit markanter Kamera-Insel – ideal für Text-, Bild- und Visionssuche.
-            6,3" Super Actua LTPO OLED (QHD+, 1–120 Hz), Tensor G4 + 16 GB RAM, sowie 50 MP Weit, 48 MP Ultraweit, 48 MP Tele (5×). Front: 42 MP.
-            5.050 mAh, 30 W Kabel, 23 W Wireless; UWB, Wi-Fi 7, BT 5.3, IP68, Gorilla Glass Victus 2, lange Updates.
-            Visuelle Tags: durchgehender Kamera-Balken, matte Rückseite, flache Kanten, abgerundete Ecken, Obsidian-Schwarz.
-            Passendes Zubehör (SKUs): GOOG-P9PR-CASE, ANKR-737-24K.
-        </description>
+        <price>999</price>
+        <description><![CDATA[
+<p>Das Google Pixel 9 Pro in Obsidian-Schwarz bietet ein 6,3-Zoll-LTPO-OLED-Display mit QHD+-Auflösung und adaptiver Bildwiederholrate (1–120 Hz). Es wird vom Tensor-G4-Prozessor angetrieben und verfügt über 16 GB RAM sowie 128 GB Speicher. Die Triple-Kamera umfasst einen 50-MP-Hauptsensor, einen 48-MP-Ultraweitwinkel und ein 48-MP-Teleobjektiv mit 5-fachem optischem Zoom. Das Gerät ist IP68-zertifiziert und bietet eine matte Rückseite sowie einen charakteristischen Kamerabalken.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Display: 6,3" LTPO OLED (QHD+, 1–120 Hz)</li>
+    <li>Prozessor: Google Tensor G4 + Titan M3</li>
+    <li>RAM/Speicher: 16 GB / 128 GB</li>
+    <li>Kameras: 50 MP + 48 MP + 48 MP 5×, Front 42 MP</li>
+    <li>Akku/Laden: 5.050 mAh, 30 W Kabel, 23 W Wireless</li>
+    <li>OS/Netz: Android 15, Wi-Fi 7, BT 5.3, 5G</li>
+    <li>Maße/Gewicht: 152,8 × 72 × 8,5 mm, 199 g, IP68</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Gemini Live und Magic Editor</li>
+    <li>5× optischer Zoom</li>
+    <li>Lange Update-Versorgung</li>
+    <li>Gorilla Glass Victus 2</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>kamera-balken</li>
+    <li>obsidian-schwarz</li>
+    <li>matte rückseite</li>
+    <li>flache kanten</li>
+    <li>runde ecken</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> GOOG-P9PR-CASE, ANKR-737-24K</p>
+]]></description>
         <brand>Google</brand>
         <category>Smartphone</category>
-        <image_url>https://www.bestbuy.com/site/google-pixel-9-pro-xl-256gb-unlocked-hazel/6587909.p/image</image_url>
-        <rating>4.1</rating>
-        <stock>18</stock>
-        <specifications>
-            <specification name="display">6,3" Super Actua LTPO OLED (QHD+, 1–120 Hz)</specification>
-            <specification name="processor">Google Tensor G4 (4 nm) + Titan M3</specification>
-            <specification name="ram">16 GB LPDDR5X</specification>
-            <specification name="storage">128 GB (UFS 3.1); Optionen bis 1 TB</specification>
-            <specification name="camera">Rück: 50 MP Weit, 48 MP Ultraweit, 48 MP Tele 5×; Front: 42 MP (ultrawide)</specification>
-            <specification name="battery">5.050 mAh; 30 W Fast Charge, 23 W Qi Wireless</specification>
-            <specification name="os">Android 15 (mit Langzeit-Updates)</specification>
-            <specification name="dimensions">152.8 × 72 × 8.5 mm</specification>
-            <specification name="weight">199 g</specification>
-            <specification name="waterproof">IP68</specification>
-        </specifications>
-        <features>
-            <feature>Helles 6,3" LTPO-OLED mit 1–120 Hz</feature>
-            <feature>Tensor G4 mit KI-Features (z. B. Magic Editor, Gemini Live)</feature>
-            <feature>Triple-Kamera mit 5× optischem Zoom + 42 MP Frontkamera</feature>
-            <feature>UWB, IP68, Wi-Fi 7, Gorilla Glass Victus 2</feature>
-        </features>
+        <image_url>https://cdn.idealo.com/folder/Product/204618/7/204618737/s1_produktbild_max/google-pixel-9-pro-128gb-obsidian.jpg</image_url>
+        <rating>4.2</rating>
+        <stock>19</stock>
     </product>
 
     <!-- #4 Core -->
@@ -123,36 +133,39 @@
         <id>SONY-WH1000XM5-BLK</id>
         <name>Sony WH-1000XM5 Noise-Cancelling Over-Ear Kopfhörer – Schwarz</name>
         <sku>SONY-WH1000XM5-BLK</sku>
-        <price>398.00</price>
-        <description>
-            Die Sony WH-1000XM5 bieten branchenführende ANC mit zwei Prozessoren und acht Mikrofonen (inkl. Beamforming für klare Calls).
-            Hi-Res-Audio, LDAC und DSEE Extreme, 30 mm Treiber, bis zu 30 h Wiedergabe mit ANC, Fast-Charge (3 min ≈ 3 h).
-            Visuelle Tags: schlanke Kopfband-Silhouette, ovale Ohrmuscheln, matte Oberfläche, kaum sichtbare Scharniere, dezentes Sony-Logo.
-            Passendes Zubehör (SKUs): ANKR-737-24K (als externer Akku unterwegs).
-        </description>
+        <price>398</price>
+        <description><![CDATA[
+<p>Die Sony WH-1000XM5 Over-Ear-Kopfhörer in Schwarz bieten branchenführende Geräuschunterdrückung mit Dual-Prozessoren (QN1 und V1) und acht Mikrofonen. Sie verfügen über 30-mm-Treiber für Hi-Res-Audio und unterstützen LDAC sowie DSEE Extreme. Mit einer Akkulaufzeit von bis zu 30 Stunden und Schnellladefunktion sind sie ideal für unterwegs. Das schlanke, leichte Design mit mattschwarzer Oberfläche sorgt für hohen Tragekomfort.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Treiber: 30 mm Dynamic</li>
+    <li>ANC: Dual-Prozessor (QN1 + V1), 8 Mikrofone</li>
+    <li>Akku: bis 30 h (ANC), 3 min ≈ 3 h</li>
+    <li>Gewicht: ~250 g</li>
+    <li>Bluetooth: Mehrpunkt, Codecs inkl. LDAC</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Erstklassige Geräuschunterdrückung</li>
+    <li>Klarer Klang und Sprachqualität</li>
+    <li>Komfortables, leichtes Design</li>
+    <li>Touch-Bedienung</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>ovale ohrmuscheln</li>
+    <li>mattschwarz</li>
+    <li>dünner kopfbügel</li>
+    <li>dezentes logo</li>
+    <li>kaum sichtbare scharniere</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> ANKR-737-24K</p>
+]]></description>
         <brand>Sony</brand>
         <category>Kopfhörer</category>
-        <image_url>https://www.sony.com/electronics/images/headband-headphones/wh1000xm5-b_sku_wh1000xm5_b_img_1.jpg</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/201952/0/201952086/s1_produktbild_max/sony-wh-1000xm5-black.jpg</image_url>
         <rating>4.6</rating>
-        <stock>30</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">HD Noise Cancelling Prozessor QN1 + Integrated Processor V1</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">bis zu 30 h Wiedergabe mit ANC, 40 h ohne ANC; Fast Charge 3 min ≈ 3 h</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">–</specification>
-            <specification name="weight">250 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>ANC mit 2 Prozessoren & 8 Mikrofonen</feature>
-            <feature>DSEE Extreme, Hi-Res Audio, LDAC</feature>
-            <feature>30 h Akku (ANC) & Schnellladen</feature>
-            <feature>Leichtes, komfortables Over-Ear-Design</feature>
-        </features>
+        <stock>34</stock>
     </product>
 
     <!-- #5 Core -->
@@ -160,36 +173,39 @@
         <id>SMSG-BUDS3PRO-SLV</id>
         <name>Samsung Galaxy Buds3 Pro – Silver</name>
         <sku>SMSG-BUDS3PRO-SLV</sku>
-        <price>249.99</price>
-        <description>
-            In-Ear-Kopfhörer mit 2-Wege-Treiber (10,5 mm Woofer + 6,1 mm Planar Tweeter), 24-bit/96 kHz (Samsung Seamless Codec), adaptive ANC und Galaxy-AI-Features wie Live-Translate.
-            IP57 und kabelloses Laden.
-            Visuelle Tags: silbernes Stiel-Design, kompaktes Case, glänzende Außenseite, ovale In-Ears, schlanke Lade-LED.
-            Passendes Zubehör (SKUs): SMSG-EBU251-10K-25W (Wireless Battery Pack zum Nachladen).
-        </description>
+        <price>249</price>
+        <description><![CDATA[
+<p>Die Samsung Galaxy Buds3 Pro in Silber bieten True-Wireless-Audio mit 2-Wege-Treibern (10,5-mm-Woofer und 6,1-mm-Planar-Tweeter) für kristallklaren Klang. Sie unterstützen 24-Bit-Audio und adaptives ANC. Mit einer Akkulaufzeit von bis zu 30 Stunden (inklusive Ladecase) und IP57-Zertifizierung sind sie ideal für den täglichen Gebrauch. Das kompakte Design mit glänzender Oberfläche und ovalen In-Ears sorgt für einen modernen Look.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Treiber: Woofer + Planar-Tweeter</li>
+    <li>Audio: 24-bit/96 kHz (Samsung Seamless Codec)</li>
+    <li>Akkus: Buds 53 mAh / Case 515 mAh, ~6–7 h (Buds), ~26–30 h (gesamt)</li>
+    <li>Schutz: IP57 (Buds)</li>
+    <li>Maße/Gewicht: Buds 18,1×19,8×33,2 mm / 5,4 g je</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Adaptive ANC und Galaxy AI (z. B. Live-Translate)</li>
+    <li>Wireless Charging und USB-C</li>
+    <li>Mehrpunkt und nahtlose Galaxy-Integration</li>
+    <li>Optimiertes Stiel-Design</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>silber</li>
+    <li>stiel-design</li>
+    <li>kompaktes case</li>
+    <li>glänzende außenfläche</li>
+    <li>ovale in-ears</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> SMSG-EBU251-10K-25W</p>
+]]></description>
         <brand>Samsung</brand>
         <category>In-Ear Kopfhörer</category>
-        <image_url>https://www.samsung.com/us/mobile-audio/galaxy-buds3-pro/buy/galaxy-buds3-pro-silver-sm-r630nzaaxar/</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/204529/1/204529120/s1_produktbild_max_3/samsung-galaxy-buds-3-pro-sm-r630-silber.jpg</image_url>
         <rating>4.5</rating>
-        <stock>25</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">Integrierte AI-Audio-Optimierung (Galaxy AI)</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">Earbuds: 53 mAh; Case: 515 mAh; 6 h (ANC an) / 7 h (ANC aus); Case bis ~26–30 h</specification>
-            <specification name="os">Galaxy AI Funktionen via One UI 8 / Android 16+</specification>
-            <specification name="dimensions">Earbuds: 18.1×19.8×33.2 mm; Case: 48.7×58.9×24.4 mm</specification>
-            <specification name="weight">Earbuds: 5.4 g; Case: 46.5 g</specification>
-            <specification name="waterproof">IP57 (Buds)</specification>
-        </specifications>
-        <features>
-            <feature>Dual-Treiber (Woofer + Planar Tweeter)</feature>
-            <feature>24-bit/96 kHz Audio (Seamless Codec)</feature>
-            <feature>Adaptive ANC & AI-Features</feature>
-            <feature>IP57, Wireless Charging</feature>
-        </features>
+        <stock>27</stock>
     </product>
 
     <!-- #6 Core -->
@@ -197,35 +213,38 @@
         <id>APPL-APRO2-USB</id>
         <name>Apple AirPods Pro (2. Gen) mit USB-C MagSafe Charging Case</name>
         <sku>APPL-APRO2-USB</sku>
-        <price>249.00</price>
-        <description>
-            H2-Chip für verbesserte ANC, Adaptive Audio, Swipe-Gesten; bis zu 6 h (ANC), bis 30 h mit Case; U1 im Case (Find My), MagSafe/USB-C.
-            Visuelle Tags: kompaktes weißes Case, seitliche Lanyard-Öse, Front-LED, kurze AirPods-Stiele, mattschimmerndes Weiß.
-            Passendes Zubehör (SKUs): APPL-APRO2-CASEUSB, ANKR-737-24K.
-        </description>
+        <price>249</price>
+        <description><![CDATA[
+<p>Die Apple AirPods Pro (2. Generation) mit USB-C-Ladecase bieten verbessertes ANC, Adaptive Audio und eine Akkulaufzeit von bis zu 30 Stunden (inklusive Case). Das kompakte, weiße Design mit kurzen Stielen und glänzender Oberfläche passt perfekt in das Apple-Ökosystem. Das Case verfügt über einen integrierten Lautsprecher und U1-Chip für präzise Ortung.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Chips: H2 (Buds), U1 (Case)</li>
+    <li>Akku: bis 6 h (ANC), bis 30 h mit Case</li>
+    <li>Schutz: IP54 (Buds)</li>
+    <li>Abmessungen: Buds 30,9×21,8×24,0 mm, Case 45,2×60,6×21,7 mm</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Adaptive Audio und Conversation Awareness</li>
+    <li>MagSafe-Case mit Lautsprecher und Find My</li>
+    <li>Swipe-Gesten, Hey Siri</li>
+    <li>Nahtloses iOS-Ökosystem</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>weißes case</li>
+    <li>front-led</li>
+    <li>lanyard-öse</li>
+    <li>kurze stiele</li>
+    <li>glänzend</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> APPL-APRO2-CASEUSB, ANKR-737-24K</p>
+]]></description>
         <brand>Apple</brand>
         <category>In-Ear Kopfhörer</category>
-        <image_url>https://www.apple.com/v/airpods-pro-2nd-generation/a/images/overview/hero/hero_static__eckz0l2lag2q_medium_2x.jpg</image_url>
-        <rating>4.7</rating>
+        <image_url>https://cdn.idealo.com/folder/Product/203255/7/203255713/s1_produktbild_max/apple-airpods-pro-2-mit-usb-c-magsafe-case.jpg</image_url>
+        <rating>4.8</rating>
         <stock>22</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">Apple H2-Chip + U1 im Case</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">Bis zu 6 h Wiedergabe (ANC), bis zu 30 h mit Case</specification>
-            <specification name="os">iOS 18 Features (Adaptive Audio, Conversation Awareness)</specification>
-            <specification name="dimensions">AirPods: 30.9×21.8×24.0 mm; Case: 45.2×60.6×21.7 mm</specification>
-            <specification name="weight">AirPods: 5.3 g je; Case: 50.8 g</specification>
-            <specification name="waterproof">AirPods IP54</specification>
-        </specifications>
-        <features>
-            <feature>ANC & Adaptive Audio (H2)</feature>
-            <feature>MagSafe-Case mit U1 & Lautsprecher</feature>
-            <feature>Swipe-Steuerung, „Hey Siri“</feature>
-            <feature>Find My-Integration</feature>
-        </features>
     </product>
 
     <!-- #7 Core -->
@@ -233,35 +252,38 @@
         <id>JBL-FLIP7-BLK</id>
         <name>JBL Flip 7 Portable Bluetooth-Lautsprecher – Schwarz</name>
         <sku>JBL-FLIP7-BLK</sku>
-        <price>149.95</price>
-        <description>
-            Robustes, zylindrisches Gehäuse mit Tragegurt (PushLock), IP68, stoßresistent. Bold JBL Pro Sound mit AI Sound Boost; bis 14 h (bis 16 h mit Boost).
-            Visuelle Tags: Zylinder-Form, seitliche Passivmembranen, Stoffgitter, großer JBL-Schriftzug, Tragegurt-Öse.
-            Passendes Zubehör (SKUs): ANKR-737-24K (Strom unterwegs).
-        </description>
+        <price>149</price>
+        <description><![CDATA[
+<p>Der JBL Flip 7 ist ein robuster, zylindrischer Outdoor-Bluetooth-Lautsprecher in Schwarz. Er bietet bis zu 16 Stunden Akkulaufzeit und ist dank IP68-Zertifizierung wasser- und staubdicht. Mit AI Sound Boost und JBL Pro Sound liefert er kraftvollen Klang für unterwegs. Das stoßresistente Gehäuse und der praktische Tragegurt machen ihn ideal für den Einsatz im Freien.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Akku: ~14 h (bis 16 h mit Boost)</li>
+    <li>Schutz: IP68 (wasser- und staubdicht)</li>
+    <li>Formfaktor: Zylinder, Tragegurt (PushLock)</li>
+    <li>Gewicht: ~560 g, USB-C</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>AI Sound Boost und JBL Pro Sound</li>
+    <li>Auracast/Multi-Pairing</li>
+    <li>USB-C Lossless Audio</li>
+    <li>Stoßresistentes Gehäuse</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>zylinder</li>
+    <li>stoffgitter</li>
+    <li>passivmembranen</li>
+    <li>großes jbl-logo</li>
+    <li>tragegurt</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> ANKR-737-24K</p>
+]]></description>
         <brand>JBL</brand>
         <category>Bluetooth-Lautsprecher</category>
-        <image_url>https://www.jbl.com/bluetooth-speakers/FLIP-7.html</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/206190/7/206190761/s1_produktbild_max/jbl-flip-7-schwarz.jpg</image_url>
         <rating>4.8</rating>
-        <stock>20</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">AI Sound Boost DSP</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">bis zu 14 h (Basis), bis zu 16 h mit PlayTime Boost</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">ca. 183 × 70 × 72 mm</specification>
-            <specification name="weight">≈ 560 g</specification>
-            <specification name="waterproof">IP68</specification>
-        </specifications>
-        <features>
-            <feature>AI Sound Boost</feature>
-            <feature>IP68 & robustes Design</feature>
-            <feature>Lange Akkulaufzeit</feature>
-            <feature>USB-C Lossless Audio / Auracast</feature>
-        </features>
+        <stock>21</stock>
     </product>
 
     <!-- #8 Core -->
@@ -269,35 +291,38 @@
         <id>APPL-AIRTAG-01</id>
         <name>Apple AirTag (Single Pack)</name>
         <sku>APPL-AIRTAG-01</sku>
-        <price>29.00</price>
-        <description>
-            Kleiner, runder Tracker (Ø 31,9 mm, 11 g) mit U1 (UWB), Bluetooth, NFC; IP67. Ideal für „Find My“ & Precision Finding.
-            Visuelle Tags: runde Scheibe, weiß/silber, Apple-Logo, glänzende Rückseite, kompakt.
-            Passendes Zubehör (SKUs): ANKR-737-24K (Strom für unterwegs, Showcase).
-        </description>
+        <price>29</price>
+        <description><![CDATA[
+<p>Der Apple AirTag ist ein kompakter UWB-Tracker, der sich perfekt für das Auffinden von Gegenständen eignet. Er ist mit dem Apple „Wo ist?“-Netzwerk kompatibel und bietet Precision Finding dank U1-Chip. Der AirTag ist IP67-zertifiziert und hat eine Batterielaufzeit von bis zu einem Jahr. Das minimalistische Design in Weiß und Silber passt zu jedem Stil.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Durchmesser/Dicke: 31,9 × 8,0 mm</li>
+    <li>Gewicht: 11 g</li>
+    <li>Schutz: IP67</li>
+    <li>Funk: UWB (U1), Bluetooth LE, NFC</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Precision Finding via UWB</li>
+    <li>Find-My-Netzwerk</li>
+    <li>Integrierter Lautsprecher</li>
+    <li>~1 Jahr Batterie (CR2032)</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>runde scheibe</li>
+    <li>weiß/silber</li>
+    <li>apple-logo</li>
+    <li>glänzend</li>
+    <li>kompakt</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> ANKR-737-24K</p>
+]]></description>
         <brand>Apple</brand>
         <category>Smart Tracker</category>
-        <image_url>https://www.apple.com/airtag/</image_url>
-        <rating>4.8</rating>
-        <stock>50</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">Apple U1-Chip (UWB), Bluetooth LE, NFC</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">CR2032 Knopfzelle (austauschbar)</specification>
-            <specification name="os">Find My kompatibel (iOS 14.5+)</specification>
-            <specification name="dimensions">Ø 31,9 mm × 8,0 mm</specification>
-            <specification name="weight">11 g</specification>
-            <specification name="waterproof">IP67</specification>
-        </specifications>
-        <features>
-            <feature>Präzise Ortung via U1/UWB</feature>
-            <feature>Find-My-Netzwerk</feature>
-            <feature>IP67, integrierter Speaker</feature>
-            <feature>1 Jahr Batterie (CR2032)</feature>
-        </features>
+        <image_url>https://cdn.idealo.com/folder/Product/201225/0/201225081/s1_produktbild_max/apple-airtag-1er-pack.jpg</image_url>
+        <rating>4.9</rating>
+        <stock>60</stock>
     </product>
 
     <!-- #9 Core -->
@@ -305,35 +330,38 @@
         <id>ANKR-737-24K</id>
         <name>Anker 737 Power Bank (PowerCore 24K) – 24 000 mAh, 140W</name>
         <sku>ANKR-737-24K</sku>
-        <price>109.99</price>
-        <description>
-            Schlankes Gehäuse mit Smart-Display (Leistung/Restzeit), 24.000 mAh, 140 W PD 3.1 (bidirektional).
-            Visuelle Tags: rechteckig, Front-Display, dunkles Gehäuse, USB-C-Ports, kompakt-massiv.
-            Passendes Zubehör (SKUs): – (Universal-Strom; kompatibel mit vielen Core-Produkten).
-        </description>
+        <price>109</price>
+        <description><![CDATA[
+<p>Die Anker 737 Power Bank (PowerCore 24K) ist eine leistungsstarke 24.000-mAh-Powerbank mit 140 W Power Delivery 3.1. Sie verfügt über ein Smart-Display, das die verbleibende Leistung und Ladezeit anzeigt. Mit mehreren USB-C- und USB-A-Anschlüssen ist sie ideal für schnelles Laden von Smartphones, Laptops und anderen Geräten.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kapazität: 24.000 mAh (Li-Po)</li>
+    <li>Leistung: bis 140 W PD 3.1, QC/PPS</li>
+    <li>Abmessungen/Gewicht: ~155 × 55 × 48 mm, ~630 g</li>
+    <li>Anschlüsse: USB-C (mehrere), USB-A (modellabhängig)</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>2-Wege-Schnellladen</li>
+    <li>Smart-Display (Power/ETA)</li>
+    <li>Hohe Kompatibilität</li>
+    <li>Robuste Bauweise</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>rechteckig</li>
+    <li>front-display</li>
+    <li>dunkelgrau</li>
+    <li>usb-c ports</li>
+    <li>kompakt-massiv</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> — (universell)</p>
+]]></description>
         <brand>Anker</brand>
         <category>Power Bank</category>
-        <image_url>https://www.anker.com/products/a1289</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/202065/1/202065164/s1_produktbild_max/anker-737-power-bank-powercore-24k.jpg</image_url>
         <rating>4.7</rating>
-        <stock>15</stock>
-        <specifications>
-            <specification name="display">Smart-Display (Power/ETA)</specification>
-            <specification name="processor">PIQ 3.0 (PD+QC+PPS)</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">24.000 mAh Li-Polymer</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">≈ 155 × 55 × 48 mm</specification>
-            <specification name="weight">≈ 630 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>140 W PD 3.1 (2-Wege)</feature>
-            <feature>Smart-Display</feature>
-            <feature>Hohe Kapazität</feature>
-            <feature>QC/PPS-Support</feature>
-        </features>
+        <stock>17</stock>
     </product>
 
     <!-- #10 Core -->
@@ -341,35 +369,37 @@
         <id>SAND-ULFL-128G</id>
         <name>SanDisk Ultra Flair USB 3.0 Flash Drive – 128 GB, Silber</name>
         <sku>SAND-ULFL-128G</sku>
-        <price>33.99</price>
-        <description>
-            Schlanker USB-Stick im Metallgehäuse, bis 150 MB/s Lesen (USB 3.0), Passwortschutz (AES-128).
-            Visuelle Tags: silbernes Metall, kleiner Bügel, kompakte Zunge, SanDisk-Logo.
-            Passendes Zubehör (SKUs): – (Allgemeiner Speicher).
-        </description>
+        <price>33</price>
+        <description><![CDATA[
+<p>Der SanDisk Ultra Flair USB 3.0 Flash Drive mit 128 GB bietet schnelle Datenübertragung mit bis zu 150 MB/s Lesegeschwindigkeit. Das robuste Metallgehäuse schützt den Stick vor Stößen und Kratzern. Mit Passwortschutz und kompaktem Design ist er ideal für den sicheren Transport von Daten.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kapazität: 128 GB</li>
+    <li>Geschwindigkeit: bis 150 MB/s (Lesen)</li>
+    <li>Abmessungen: 42,4 × 13,2 × 6,6 mm</li>
+    <li>Gehäuse: Metall, robuster Bügel</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>USB 3.0 Performance</li>
+    <li>Robustes Metallgehäuse</li>
+    <li>Passwortschutz (Software)</li>
+    <li>5 Jahre Garantie</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>silber-metall</li>
+    <li>kleiner bogen</li>
+    <li>kompakt</li>
+    <li>sandisk-logo</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> — (universell)</p>
+]]></description>
         <brand>SanDisk</brand>
         <category>USB-Stick</category>
-        <image_url>https://www.sandisk.com/products/usb-flash-drives/sandisk-ultra-flair-usb-3-0</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/4880/5/4880521/s1_produktbild_max_3/sandisk-ultra-flair-usb-3-0-128gb.jpg</image_url>
         <rating>4.6</rating>
-        <stock>40</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">–</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">128 GB</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">–</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">42.4 × 13.2 × 6.6 mm</specification>
-            <specification name="weight">≈ 4.5 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>USB 3.0 bis 150 MB/s</feature>
-            <feature>Robustes Metallgehäuse</feature>
-            <feature>Passwortschutz</feature>
-            <feature>5 Jahre Garantie</feature>
-        </features>
+        <stock>46</stock>
     </product>
 
     <!-- #11 Core -->
@@ -377,35 +407,37 @@
         <id>SMSG-T7SHLD-1TB</id>
         <name>Samsung Portable SSD T7 Shield – 1 TB, USB 3.2</name>
         <sku>SMSG-T7SHLD-1TB</sku>
-        <price>109.99</price>
-        <description>
-            Robuste, gummierte Portable SSD (IP65), bis 1.050/1.000 MB/s über USB 3.2 Gen 2 Type-C. Kompakt (88.9 × 58.4 × 12.7 mm, 98 g).
-            Visuelle Tags: gummierte Rillen, Type-C-Port, flaches Rechteck, schwarze Hülle.
-            Passendes Zubehör (SKUs): – (Universal-Speicher).
-        </description>
+        <price>109</price>
+        <description><![CDATA[
+<p>Die Samsung Portable SSD T7 Shield mit 1 TB Speicher ist eine robuste und kompakte externe SSD. Sie bietet schnelle Datenübertragung mit bis zu 1.050 MB/s Lesen und 1.000 MB/s Schreiben über USB 3.2 Gen 2. Das stoßfeste und IP65-zertifizierte Gehäuse schützt die SSD vor Wasser und Staub, während die gummierte Oberfläche für zusätzlichen Halt sorgt.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kapazität/Interface: 1 TB NVMe / USB 3.2 Gen 2 Type-C</li>
+    <li>Performance: bis 1.050 MB/s Lesen, 1.000 MB/s Schreiben</li>
+    <li>Abmessungen/Gewicht: 88,9 × 58,4 × 12,7 mm, 98 g</li>
+    <li>Schutz: IP65, sturzfest</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Rutschfeste, gummierte Hülle</li>
+    <li>AES-256-Hardware-Verschlüsselung</li>
+    <li>Kompakt und portabel</li>
+    <li>Breite OS-Kompatibilität</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>gummierte rillen</li>
+    <li>schwarz</li>
+    <li>type-c port</li>
+    <li>flaches rechteck</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> — (universell)</p>
+]]></description>
         <brand>Samsung</brand>
         <category>Externe SSD</category>
-        <image_url>https://www.samsung.com/us/computing/memory-storage/portable-solid-state-drives/portable-ssd-t7-shield-usb-3-2-1tb-black-mu-pe1t0s-am/</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/201922/8/201922832/s1_produktbild_max_5/samsung-portable-ssd-t7-shield-1tb-schwarz.jpg</image_url>
         <rating>4.9</rating>
-        <stock>20</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">–</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">1 TB NVMe</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">–</specification>
-            <specification name="os">Windows, macOS, Android</specification>
-            <specification name="dimensions">88.9 × 58.4 × 12.7 mm</specification>
-            <specification name="weight">98 g</specification>
-            <specification name="waterproof">IP65</specification>
-        </specifications>
-        <features>
-            <feature>Bis zu 1.050/1.000 MB/s</feature>
-            <feature>IP65 & stoßfest</feature>
-            <feature>Kompakt & leicht</feature>
-            <feature>AES-256-Verschlüsselung</feature>
-        </features>
+        <stock>22</stock>
     </product>
 
     <!-- #12 Core -->
@@ -413,107 +445,77 @@
         <id>CANON-TS5350A-BLK</id>
         <name>Canon PIXMA TS5350a All-in-One Tintenstrahl-Drucker – Schwarz</name>
         <sku>CANON-TS5350A-BLK</sku>
-        <price>99.00</price>
-        <description>
-            Kompaktes 3-in-1-Gerät (Drucken/Scannen/Kopieren) mit Wi-Fi, AirPrint, Cloud-Druck; Duplex & randlose Fotos (10×15 cm ~43 s).
-            Visuelle Tags: flacher Deckel, kleines OLED-Display rechts, Front-Ausgabe, schwarze Box-Form.
-            Passendes Zubehör (SKUs): – (Allgemeines Office-Gerät).
-        </description>
+        <price>99</price>
+        <description><![CDATA[
+<p>Der Canon PIXMA TS5350a ist ein kompakter 3-in-1-Drucker, der Drucken, Scannen und Kopieren in einem Gerät vereint. Mit Wi-Fi, AirPrint und Cloud-Druck ist er ideal für den modernen Arbeitsplatz. Der Drucker unterstützt randlosen Fotodruck und Duplexdruck und bietet eine einfache Bedienung über das 1,44-Zoll-OLED-Display.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Display/Bedienung: 1,44″ OLED und LED-Statusleiste</li>
+    <li>Geschwindigkeit: bis ~13 ipm SW / ~7 ipm Farbe</li>
+    <li>FINE Tinten (PG-560/CL-561), optional XL</li>
+    <li>Maße/Gewicht: 403 × 315 × 148 mm, 6,3 kg</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Duplexdruck und Cloud-Workflows</li>
+    <li>Randloser Fotodruck</li>
+    <li>Mobile-Druck (AirPrint etc.)</li>
+    <li>Platzsparendes Design</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>flacher deckel</li>
+    <li>kleines oled rechts</li>
+    <li>frontausgabe</li>
+    <li>schwarze box-form</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> — (Office-Zubehör allgemein)</p>
+]]></description>
         <brand>Canon</brand>
         <category>Drucker</category>
-        <image_url>https://www.canon.co.uk/support/consumer_products/products/fax__multifunctionals/inkjet/pixma_ts_series/pixma-ts5350a.html?type=firmware</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/202124/0/202124062/s1_produktbild_max/canon-pixma-ts5350i-schwarz.jpg</image_url>
         <rating>4.5</rating>
-        <stock>10</stock>
-        <specifications>
-            <specification name="display">1,44″ OLED-Display</specification>
-            <specification name="processor">–</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">–</specification>
-            <specification name="os">Windows, macOS, iOS, Android</specification>
-            <specification name="dimensions">403 × 315 × 148 mm</specification>
-            <specification name="weight">6,3 kg</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>All-in-One mit Wi-Fi/AirPrint</feature>
-            <feature>Auto-Duplex, randloses Foto</feature>
-            <feature>FINE-Patronen, optional XL</feature>
-            <feature>OLED-Panel & LED-Status</feature>
-        </features>
+        <stock>12</stock>
     </product>
 
-    <!-- #13 Core -->
-    <product>
-        <id>PHLP-HUEA19-WC</id>
-        <name>Philips Hue White & Color Ambiance A19 Smart Bulb (E26)</name>
-        <sku>PHLP-HUEA19-WC</sku>
-        <price>49.99</price>
-        <description>
-            A19-Formfaktor (E26), bis 1.100 lm, 2.000–6.500 K & 16 Mio. Farben; Bluetooth/Zigbee/Matter (Bridge).
-            Visuelle Tags: klassische Glühbirnenform, milchiges Glas, E26-Sockel, kompaktes Leuchtmittel.
-            Passendes Zubehör (SKUs): – (Smart-Home-Ökosystem).
-        </description>
-        <brand>Philips Hue</brand>
-        <category>Smart Home / Smarte Glühbirne</category>
-        <image_url>https://www.philips-hue.com/en-us/p/hue-white-and-color-ambiance-a19-e26-smart-bulb-75-w/046677563257</image_url>
-        <rating>4.8</rating>
-        <stock>35</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">Bluetooth LE & Zigbee (Matter via Bridge)</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">–</specification>
-            <specification name="os">Hue App, Alexa, Google, HomeKit</specification>
-            <specification name="dimensions">ca. 60 × 110 mm</specification>
-            <specification name="weight">≈ 100 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>Bis 1.100 Lumen</feature>
-            <feature>16 Mio. Farben & Dimmen</feature>
-            <feature>Matter/Bridge-fähig</feature>
-            <feature>Flexible Szenen/Automationen</feature>
-        </features>
-    </product>
+
 
     <!-- #14 Core -->
     <product>
         <id>RBMB-SMARTGL-01</id>
         <name>Ray-Ban Meta AI Smart Glasses – Wayfarer</name>
         <sku>RBMB-SMARTGL-01</sku>
-        <price>299.00</price>
-        <description>
-            Wayfarer-Look mit integrierter 12 MP Kamera, offenen Lautsprechern, 5-Mikrofon-Array & Meta-AI („Hey Meta“).
-            Visuelle Tags: klassische Wayfarer-Form, schwarzer Rahmen, dezente Öffnungen an Bügeln, glänzende Front.
-            Passendes Zubehör (SKUs): ANKR-737-24K (Ladung unterwegs).
-        </description>
+        <price>299</price>
+        <description><![CDATA[
+<p>Die Ray-Ban Meta AI Smart Glasses im Wayfarer-Design kombinieren Stil und Technologie. Sie verfügen über eine integrierte 12-MP-Kamera, offene Lautsprecher und ein 5-Mikrofon-Array. Mit der Meta-AI-Funktion können Fotos, Videos und Live-Streams freihändig aufgenommen werden. Die Brille ist IPX4-zertifiziert und bietet eine Akkulaufzeit von bis zu 6 Stunden.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>SoC: Snapdragon AR1 Gen 1</li>
+    <li>Kamera/Video: 12 MP, 1440×1920 @30 fps</li>
+    <li>Speicher/Akku: 32 GB, Brille ~4–6 h, Case ~32 h</li>
+    <li>Schutz: IPX4</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Freisprech-Assistenz (Meta AI)</li>
+    <li>Offenes Audio und Mehrfach-Mics</li>
+    <li>Stylischer Wayfarer-Look</li>
+    <li>Companion-App (iOS/Android)</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>wayfarer</li>
+    <li>schwarzer rahmen</li>
+    <li>dezente öffnungen</li>
+    <li>glänzende front</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> ANKR-737-24K</p>
+]]></description>
         <brand>Ray-Ban | Meta</brand>
         <category>Smart Glasses</category>
-        <image_url>https://www.thevj.com/vjworld/meta-announces-new-ray-ban-meta-smart-glasses/</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/203839/4/203839407/s1_produktbild_max/ray-ban-meta-wayfarer-rw4008-601-71.jpg</image_url>
         <rating>4.4</rating>
-        <stock>12</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">Qualcomm Snapdragon AR1 Gen 1</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">32 GB</specification>
-            <specification name="camera">Ultra-Wide 12 MP, Video bis 1440×1920 @30 fps</specification>
-            <specification name="battery">Gläser: ~4–6 h, Case: bis ~32 h</specification>
-            <specification name="os">Meta AI via iOS/Android App</specification>
-            <specification name="dimensions">Wayfarer ~48,6 g</specification>
-            <specification name="weight">≈ 49 g</specification>
-            <specification name="waterproof">IPX4</specification>
-        </specifications>
-        <features>
-            <feature>Ikonisches Wayfarer-Design</feature>
-            <feature>Foto/Video & Live-Streaming</feature>
-            <feature>Meta-AI-Sprachsteuerung</feature>
-            <feature>Offene Lautsprecher</feature>
-        </features>
+        <stock>13</stock>
     </product>
 
     <!-- #15 Zubehör -->
@@ -521,36 +523,36 @@
         <id>SMSG-S25U-CLRCASE</id>
         <name>Samsung Galaxy S25 Ultra Clear Case</name>
         <sku>SMSG-S25U-CLRCASE</sku>
-        <price>29.99</price>
-        <description>
-            Transparente Schutz-Hülle als Zubehör/Ersatzteil für das Galaxy S25 Ultra – zeigt das Titan-Design und schützt vor Kratzern & Stößen.
-            Kompatibel mit SKU: SMSG-S25U-256-SLV.
-            Visuelle Tags: kristallklar, schlank, Kameraausschnitt viereckig, flexible Kanten.
-        </description>
+        <price>29</price>
+        <description><![CDATA[
+<p>Das Samsung Galaxy S25 Ultra Clear Case ist eine kristallklare, passgenaue Schutzhülle, die das Design des Galaxy S25 Ultra sichtbar macht und gleichzeitig vor Kratzern und leichten Stößen schützt. Die flexible und schlanke Bauweise sorgt für eine einfache Montage und Vergilbungsresistenz.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Passform: exakt für Galaxy S25 Ultra</li>
+    <li>Material: transparent, stoßabsorbierend</li>
+    <li>Gewicht: ~30 g</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Schlankes, leichtes Case</li>
+    <li>Kamera- und Kantenschutz</li>
+    <li>Vergilbungsresistente Transparenz</li>
+    <li>Einfache Montage</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>kristallklar</li>
+    <li>viereckiger kameraausschnitt</li>
+    <li>flexible kanten</li>
+    <li>schlank</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> SMSG-S25U-256-SLV</p>
+]]></description>
         <brand>Samsung</brand>
         <category>Smartphone Zubehör</category>
-        <image_url>https://www.samsung.com/global/galaxy-s25-ultra-clear-case/</image_url>
-        <rating>4.5</rating>
-        <stock>50</stock>
-        <specifications>
-            <specification name="display">–</specification>
-            <specification name="processor">–</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">–</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">Passgenau für Galaxy S25 Ultra</specification>
-            <specification name="weight">≈ 30 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>Kristallklarer Schutz</feature>
-            <feature>Exakte Passform</feature>
-            <feature>Kamera- und Kantenschutz</feature>
-            <feature>Leicht & schlank</feature>
-        </features>
-        <zubehoer-fuer>SMSG-S25U-256-SLV</zubehoer-fuer>
+        <image_url>https://cdn.idealo.com/folder/Product/205757/4/205757410/s1_produktbild_max_3/samsung-clear-case-galaxy-s25-ultra-transparent.jpg</image_url>
+        <rating>4.6</rating>
+        <stock>55</stock>
     </product>
 
     <!-- #16 Zubehör -->
@@ -558,27 +560,36 @@
         <id>SPGN-MAGFIT-16P</id>
         <name>Spigen Ultra Hybrid MagFit Case für iPhone 16 Pro – Klar</name>
         <sku>SPGN-MAGFIT-16P</sku>
-        <price>39.99</price>
-        <description>
-            Transparentes MagFit-Case als Zubehör/Ersatzteil, schützt das iPhone 16 Pro ohne die Titan-Optik zu verdecken.
-            Kompatibel mit SKU: APPL-16P-128-DT.
-            Visuelle Tags: klar, MagSafe-Ring sichtbar, abgeflachte Ecken, Tasten-Abdeckung.
-        </description>
+        <price>39</price>
+        <description><![CDATA[
+<p>Das Spigen Ultra Hybrid MagFit Case für das iPhone 16 Pro ist eine transparente Schutzhülle, die das Titan-Finish des iPhones sichtbar lässt. Es bietet zuverlässigen Schutz und ist MagSafe-kompatibel. Die stoßabsorbierende Bauweise und die griffigen Tastenabdeckungen sorgen für eine komfortable Nutzung.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Passform: iPhone 16 Pro</li>
+    <li>MagSafe-Kompatibilität: ja (MagFit-Ring)</li>
+    <li>Gewicht: ~35 g</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Schlank und stoßabsorbierend</li>
+    <li>Display- und Kameraschutzkanten</li>
+    <li>Griffige Tastenabdeckungen</li>
+    <li>Vergilbungsresistente Klarheit</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>klar</li>
+    <li>magsafe-ring sichtbar</li>
+    <li>abgeflachte ecken</li>
+    <li>tastenabdeckung</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> APPL-16P-128-DT</p>
+]]></description>
         <brand>Spigen</brand>
         <category>Smartphone Zubehör</category>
-        <image_url>https://www.spigen.com/products/ultra-hybrid-magtfit-iphone-16-pro-case-clear</image_url>
-        <rating>4.6</rating>
-        <stock>40</stock>
-        <specifications>
-            <specification name="dimensions">Passgenau für iPhone 16 Pro</specification>
-            <specification name="weight">≈ 35 g</specification>
-        </specifications>
-        <features>
-            <feature>MagSafe-kompatibel</feature>
-            <feature>Schlank & stoßabsorbierend</feature>
-            <feature>Display- und Kameraschutz</feature>
-        </features>
-        <zubehoer-fuer>APPL-16P-128-DT</zubehoer-fuer>
+        <image_url>https://cdn.idealo.com/folder/Product/205282/1/205282101/s1_produktbild_max_5/spigen-ultra-hybrid-magsafe-iphone-16-pro-gold.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>42</stock>
     </product>
 
     <!-- #17 Zubehör -->
@@ -586,26 +597,35 @@
         <id>GOOG-P9PR-CASE</id>
         <name>Google Pixel 9 Pro Case (Original)</name>
         <sku>GOOG-P9PR-CASE</sku>
-        <price>34.99</price>
-        <description>
-            Original-Case als Zubehör/Ersatzteil für das Pixel 9 Pro – schlank, griffig, kamerafreundlich.
-            Kompatibel mit SKU: GOOG-P9PR-128-OBS.
-            Visuelle Tags: matt, Kamera-Balken-Ausschnitt, Pixel-Logo, weiche Kanten.
-        </description>
+        <price>34</price>
+        <description><![CDATA[
+<p>Das Google Pixel 9 Pro Case ist eine schlanke, griffige und passgenaue Original-Schutzhülle für das Pixel 9 Pro. Es schützt das Gerät zuverlässig und bietet eine angenehme Haptik. Der Kamera-Balken wird durch das Design optimal geschützt.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Passform: Pixel 9 Pro</li>
+    <li>Material: griffig, passgenau</li>
+    <li>Gewicht: ~28 g</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Kamera-Balken-Schutz</li>
+    <li>Angenehme Haptik</li>
+    <li>Leicht und slim</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>matt</li>
+    <li>kamera-balken-ausschnitt</li>
+    <li>pixel-logo</li>
+    <li>weiche kanten</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> GOOG-P9PR-128-OBS</p>
+]]></description>
         <brand>Google</brand>
         <category>Smartphone Zubehör</category>
-        <image_url>https://store.google.com/product/pixel-9-pro-case</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/204672/9/204672937/s1_produktbild_max/google-backcover-google-pixel-9-pixel-9-pro-porcelain.jpg</image_url>
         <rating>4.4</rating>
-        <stock>45</stock>
-        <specifications>
-            <specification name="dimensions">Passgenau für Pixel 9 Pro</specification>
-            <specification name="weight">≈ 28 g</specification>
-        </specifications>
-        <features>
-            <feature>Original-Passform</feature>
-            <feature>Schutz & Grip</feature>
-        </features>
-        <zubehoer-fuer>GOOG-P9PR-128-OBS</zubehoer-fuer>
+        <stock>50</stock>
     </product>
 
     <!-- #18 Zubehör -->
@@ -613,100 +633,197 @@
         <id>APPL-APRO2-CASEUSB</id>
         <name>MagSafe Charging Case (USB-C) – Ersatz für AirPods Pro (2. Gen)</name>
         <sku>APPL-APRO2-CASEUSB</sku>
-        <price>89.00</price>
-        <description>
-            Original-Ladecase als Ersatzteil für AirPods Pro (2. Gen) mit USB-C, Lautsprecher & U1 (Find My).
-            Kompatibel mit SKU: APPL-APRO2-USB.
-            Visuelle Tags: kompaktes weißes Case, Front-LED, Lanyard-Öse, USB-C unten.
-        </description>
+        <price>89</price>
+        <description><![CDATA[
+<p>Das MagSafe Charging Case (USB-C) ist das Original-Ersatz-Ladecase für die AirPods Pro (2. Generation). Es unterstützt MagSafe und USB-C-Laden und verfügt über einen integrierten Lautsprecher sowie den U1-Chip für präzise Ortung.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kompatibilität: AirPods Pro (2. Gen)</li>
+    <li>Anschluss: USB-C, MagSafe</li>
+    <li>Gewicht: ~50 g</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>U1-Ortung und Find My</li>
+    <li>Integrierter Lautsprecher</li>
+    <li>Schnelles, sicheres Koppeln</li>
+    <li>Robustes Scharnier</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>weißes case</li>
+    <li>front-led</li>
+    <li>lanyard-öse</li>
+    <li>usb-c unten</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> APPL-APRO2-USB</p>
+]]></description>
         <brand>Apple</brand>
         <category>Audio Zubehör</category>
-        <image_url>https://www.apple.com/airpods-pro-2nd-generation/magsafe-case/</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/203255/7/203255713/s1_produktbild_max/apple-airpods-pro-2-mit-usb-c-magsafe-case.jpg</image_url>
         <rating>4.7</rating>
-        <stock>30</stock>
-        <specifications>
-            <specification name="dimensions">Passgenau für AirPods Pro (2. Gen)</specification>
-            <specification name="weight">≈ 50 g</specification>
-        </specifications>
-        <features>
-            <feature>MagSafe & USB-C</feature>
-            <feature>U1 & „Wo ist?“-Support</feature>
-        </features>
+        <stock>32</stock>
         <zubehoer-fuer>APPL-APRO2-USB</zubehoer-fuer>
     </product>
 
-    <!-- #19 Zubehör/Ersatzakku – Neu -->
+    <!-- #19 Zubehör/Ersatzakku – iPhone -->
     <product>
         <id>ANKR-MAGGO10K-QI2</id>
         <name>Anker MagGo Power Bank (10K) – Qi2, 15W, MagSafe-kompatibel</name>
         <sku>ANKR-MAGGO10K-QI2</sku>
-        <price>79.99</price>
-        <description>
-            Externer Ersatzakku/Zubehör für iPhones mit MagSafe/Qi2: magnetische 10.000 mAh Powerbank mit 15 W Qi2-Wireless und USB-C Fast-Charge.
-            Kompatibel u. a. mit iPhone 12–16/17; im Showcase als Zubehör für **iPhone 16 Pro (SKU: APPL-16P-128-DT)**.
-            Visuelle Tags: flach, magnetischer Ring, kleines Status-Display (modellabhängig), dunkle Vorderseite, USB-C unten.
-        </description>
+        <price>79</price>
+        <description><![CDATA[
+<p>Die Anker MagGo Power Bank (10K) ist ein magnetischer Ersatzakku für iPhones mit MagSafe- und Qi2-Kompatibilität. Sie bietet eine Kapazität von 10.000 mAh, unterstützt 15 W kabelloses Laden und USB-C Fast-Charge. Das kompakte Design und die magnetische Andockfunktion machen sie ideal für unterwegs.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kapazität/Leistung: 10.000 mAh, 15 W Qi2, USB-C Fast-Charge</li>
+    <li>Kompatibilität: iPhone 12–16/17 (MagSafe)</li>
+    <li>Gewicht/Format: ~200–230 g, flach/kompakt</li>
+    <li>Status-Anzeige: kleines Display (modellabhängig)</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Magnetisches Andocken</li>
+    <li>Beidseitiges Laden (In/Out)</li>
+    <li>Unterwegs-tauglich</li>
+    <li>Hohe Effizienz</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>magnet-ring</li>
+    <li>mini-display</li>
+    <li>dunkle front</li>
+    <li>usb-c port</li>
+    <li>flaches rechteck</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> APPL-16P-128-DT</p>
+]]></description>
         <brand>Anker</brand>
         <category>Externer Akku / Powerbank</category>
-        <image_url>https://www.anker.com/products/a1654-maggo-10000mah-qi2-power-bank-magsafe-compatible</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/203968/0/203968087/s1_produktbild_max/anker-maggo-powerbank-10k-schwarz.jpg</image_url>
         <rating>4.6</rating>
-        <stock>35</stock>
-        <specifications>
-            <specification name="display">Status-Anzeige (modellabhängig)</specification>
-            <specification name="processor">Power-Management PD/Qi2</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">10.000 mAh; Qi2 15 W; USB-C Fast-Charge</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">kompakt</specification>
-            <specification name="weight">ca. 200–230 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>Qi2-Wireless (15 W)</feature>
-            <feature>MagSafe-kompatibel</feature>
-            <feature>USB-C Fast-Charge</feature>
-            <feature>Magnetisches Andocken am iPhone</feature>
-        </features>
+        <stock>36</stock>
         <zubehoer-fuer>APPL-16P-128-DT</zubehoer-fuer>
     </product>
 
-    <!-- #20 Zubehör/Ersatzakku – Neu -->
+    <!-- #20 Zubehör/Ersatzakku – Samsung -->
     <product>
         <id>SMSG-EBU251-10K-25W</id>
         <name>Samsung 25W Wireless Battery Pack – 10.000 mAh (EB-U2510)</name>
         <sku>SMSG-EBU251-10K-25W</sku>
-        <price>44.99</price>
-        <description>
-            Externer Ersatzakku/Zubehör für Samsung-Smartphones: 10.000 mAh mit **25 W USB-C Super Fast Charging** & **Qi-Wireless** (Phone/Buds/Watch).
-            Showcase-Kompatibilität: **Galaxy S25 Ultra (SKU: SMSG-S25U-256-SLV)**; lädt auch Buds3 Pro kabellos.
-            Visuelle Tags: flaches beiges Gehäuse, Qi-Symbolfläche, zwei USB-C-Ports (modellabhängig), LED-Leiste.
-        </description>
+        <price>44</price>
+        <description><![CDATA[
+<p>Das Samsung 25W Wireless Battery Pack ist ein Ersatzakku mit 10.000 mAh Kapazität. Es unterstützt 25 W USB-C Super Fast Charging und kabelloses Qi-Laden für Smartphones, Buds und Smartwatches. Das flache, handliche Design und die LED-Statusanzeige machen es ideal für den mobilen Einsatz.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Kapazität/Leistung: 10.000 mAh, 25 W USB-C, Qi-Wireless</li>
+    <li>Ports/Anzeige: 2× USB-C (modellabhängig), LED-Status</li>
+    <li>Gewicht/Format: ~222 g, flach/handlich</li>
+    <li>Farbe: Beige/Sand</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Schnelles Laden für Galaxy</li>
+    <li>Gleichzeitiges Laden mehrerer Geräte</li>
+    <li>Reisetauglich und robust</li>
+    <li>Kompatibel mit Buds/Watch</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>beige</li>
+    <li>qi-symbolfläche</li>
+    <li>dual usb-c</li>
+    <li>led-leiste</li>
+    <li>flach</li>
+</ul>
+<p><strong>Kompatibel mit (SKUs):</strong> SMSG-S25U-256-SLV, SMSG-BUDS3PRO-SLV</p>
+]]></description>
         <brand>Samsung</brand>
         <category>Externer Akku / Powerbank</category>
-        <image_url>https://www.samsung.com/us/mobile/mobile-accessories/phones/25w-10-000-mah-wireless-battery-pack-beige-eb-u2510xuegus/</image_url>
+        <image_url>https://cdn.idealo.com/folder/Product/203870/4/203870417/s1_produktbild_max_2/samsung-eb-u2510-induktive-powerbank-10-000-mah.jpg</image_url>
         <rating>4.6</rating>
-        <stock>40</stock>
-        <specifications>
-            <specification name="display">LED-Status</specification>
-            <specification name="processor">Power-Management mit Super Fast Charging</specification>
-            <specification name="ram">–</specification>
-            <specification name="storage">–</specification>
-            <specification name="camera">–</specification>
-            <specification name="battery">10.000 mAh; USB-C bis 25 W; Qi-Wireless</specification>
-            <specification name="os">–</specification>
-            <specification name="dimensions">kompakt</specification>
-            <specification name="weight">≈ 222 g</specification>
-            <specification name="waterproof">–</specification>
-        </specifications>
-        <features>
-            <feature>25 W USB-C Super Fast Charging</feature>
-            <feature>Qi-Wireless (Phone/Buds/Watch)</feature>
-            <feature>Dual-USB-C (modellabhängig)</feature>
-            <feature>Reisetauglich & robust</feature>
-        </features>
+        <stock>44</stock>
         <zubehoer-fuer>SMSG-S25U-256-SLV,SMSG-BUDS3PRO-SLV</zubehoer-fuer>
     </product>
+
+    <!-- Standalone -->
+    <product>
+        <id>FUJI-INSTAX-MLINK2</id>
+        <name>Fujifilm Instax Mini Link 2 – Mobiler Sofortbild-Fotodrucker</name>
+        <sku>FUJI-INSTAX-MLINK2</sku>
+        <price>119</price>
+        <description><![CDATA[
+<p>Der Fujifilm Instax Mini Link 2 ist ein ultrakompakter Bluetooth-Fotodrucker für Smartphones. Er druckt echte Instax-Sofortbilder direkt aus der App und ist ideal für Familienbesuche oder kreative Projekte. Der Drucker ist leicht, tragbar und benötigt keine Tinte.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Druckformat: Instax Mini Sofortbild (Bildfenster ca. 62 × 46 mm)</li>
+    <li>Konnektivität: Bluetooth (iOS/Android, Instax Mini Link App)</li>
+    <li>Energie: integrierter Akku, USB-C Ladeport</li>
+    <li>Funktionen: Collagen, Rahmen, Reprints, AR-Effekte</li>
+    <li>Abmessungen/Gewicht: Taschenformat, leicht und handlich</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Foto aus Handy auswählen und in Sekunden als Sofortbild teilen</li>
+    <li>Einfacher App-Workflow (Zuschneiden, Filter, Text, Rahmen)</li>
+    <li>Ideal für Erinnerungen zum Mitnehmen</li>
+    <li>Stabiler, zuverlässiger Druck</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>kompakt</li>
+    <li>vertikales gehäuse</li>
+    <li>handschlaufe</li>
+    <li>große status-taste</li>
+    <li>instax film pack</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> APPL-16P-128-DT, GOOG-P9PR-128-OBS, SMSG-S25U-256-SLV, ANKR-737-24K</p>
+]]></description>
+        <brand>Fujifilm</brand>
+        <category>Mobiler Fotodrucker</category>
+        <image_url>https://cdn.idealo.com/folder/Product/202002/4/202002430/s1_produktbild_gross/fujifilm-instax-mini-link-2-space-blue.jpg</image_url>
+        <rating>4.7</rating>
+        <stock>14</stock>
+    </product>
+    <!-- #21 Digitaler Bilderrahmen -->
+    <product>
+        <id>AURA-CARVER-10BLK</id>
+        <name>Aura Carver – Digitaler Bilderrahmen 10,1″ (Wi-Fi)</name>
+        <sku>AURA-CARVER-10BLK</sku>
+        <price>179</price>
+        <description><![CDATA[
+<p>Der Aura Carver ist ein eleganter digitaler Bilderrahmen mit einem 10,1-Zoll-Display, der neue Fotos automatisch über die Familien-App empfängt. Er ist ideal, damit Oma ihre Enkel-Fotos dauerhaft sehen kann, ohne ein Handy bedienen zu müssen.</p>
+<p><strong>Spezifikationen:</strong></p>
+<ul>
+    <li>Display: 10,1″ IPS, hohe Auflösung, automatische Helligkeit</li>
+    <li>Speicher/Cloud: App-Upload (iOS/Android), unbegrenzte Cloud-Speicherung (anbieterabhängig)</li>
+    <li>Konnektivität: 2,4 GHz Wi-Fi, Familien-Freigaben, Alben-Sync</li>
+    <li>Formfaktor: freistehend, Landschaftsformat, schlanker Rahmen</li>
+    <li>Bedienung: App-gesteuert, Auto-Rotate/Auto-Crop, Gesten/Touch (modellabhängig)</li>
+</ul>
+<p><strong>Features:</strong></p>
+<ul>
+    <li>Familien laden neue Bilder aus der Ferne – erscheinen automatisch bei Oma</li>
+    <li>Intelligente Diashow mit Zeitplan und Favoriten</li>
+    <li>Einrichtung in wenigen Minuten, Oma muss nichts tun</li>
+    <li>Hochwertiges, wohnzimmertaugliches Design</li>
+</ul>
+<p><strong>Visuelle Tags:</strong></p>
+<ul>
+    <li>schmaler schwarzer rahmen</li>
+    <li>10-zoll display</li>
+    <li>tischaufsteller</li>
+    <li>randloser look</li>
+    <li>netzadapter</li>
+</ul>
+<p><strong>Passendes Zubehör (SKUs):</strong> APPL-16P-128-DT, GOOG-P9PR-128-OBS, SMSG-S25U-256-SLV, CANON-TS5350A-BLK</p>
+]]></description>
+        <brand>Aura</brand>
+        <category>Digitaler Bilderrahmen</category>
+        <image_url>https://cdn.idealo.com/folder/Product/202119/5/202119570/s1_produktbild_max/aura-carver-gravel.jpg</image_url>
+        <rating>4.8</rating>
+        <stock>9</stock>
+    </product>
+
 
 </products>
