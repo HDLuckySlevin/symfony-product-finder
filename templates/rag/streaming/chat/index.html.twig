@@ -1,200 +1,575 @@
 {% extends 'base.html.twig' %}
-{% block title %}RAG Chat (Streaming){% endblock %}
+{% block title %}Vertriebsassistent{% endblock %}
+
 {% block body %}
-  <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <h1 class="mb-4 text-center">RAG Chat (Streaming)</h1>
-        <div class="card shadow"><div class="card-body p-4">
-            <div id="history" class="mb-3" style="min-height:240px;max-height:420px;overflow-y:auto;"></div>
-            <div id="loadingIndicator" class="d-none text-muted mb-3">
-              <span class="spinner-border spinner-border-sm me-1"></span>OpenAI antwortet…
+    <div class="background">
+        <div class="container pt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 vertriebsassistent">
+                    <h1 class="mb-4 text-center page-title">Vertriebsassistent</h1>
+                    <div class="card shadow">
+                        <div class="card-body p-4">
+                            <div id="history" class="mb-3" style="min-height:500px;max-height:600px;overflow-y:auto;"></div>
+                            <div id="loadingIndicator" class="d-none text-muted mb-3">
+                                <span class="spinner-border spinner-border-sm me-1"></span>Vertriebsassistent antwortet…
+                            </div>
+
+                            {# Datei-Name (nur wenn ausgewählt) #}
+                            <div class="col-12">
+                                <div class="file-upload-box d-flex align-items-center justify-content-between px-3 py-2 mb-2 rounded border d-none" id="file-box">
+                                    <span id="file-name" class="file-label-text text-truncate"></span>
+                                    <button type="button" id="remove-file" class="remove-file-btn" aria-label="Remove file" title="Remove file">&#10005;</button>
+                                </div>
+                            </div>
+
+                            {# Chat-Formular #}
+                            <form id="chatForm" class="chat-box" enctype="multipart/form-data">
+                            <textarea name="message" id="message" class="chat-input"
+                                      placeholder="Was möchten Sie wissen?" required></textarea>
+
+                                <div class="chat-buttons">
+                                    {# Upload von Datei #}
+                                    <label for="image" class="upload-btn" aria-label="Upload image" title="Upload image" tabindex="0">
+                                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path d="M21.44 11.05L12.95 19.5a5 5 0 1 1-7.07-7.07L12 5.27a3.5 3.5 0 1 1 4.95 4.95L9.9 17.27a1.5 1.5 0 0 1-2.12-2.12l7.07-7.07"
+                                                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </label>
+                                    <input type="file" name="image" id="image" accept="image/png,image/jpeg,image/webp" class="file-input-hidden">
+
+                                    {# Senden-Button #}
+                                    <button class="send-btn" type="submit" aria-label="Senden" title="Senden">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                             class="bi bi-send-fill" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M15.964.686a.5.5 0 0 0-.655-.656L.136 7.019a.5.5 0 0 0 .058.912l5.987 1.993 1.993 5.987a.5.5 0 0 0 .912.058l7-15z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <form id="chatForm" class="row g-2" enctype="multipart/form-data">
-              <div class="col-12 col-md-8"><input name="message" id="message" class="form-control" placeholder="Frage…" required></div>
-              <div class="col-12 col-md-4"><input type="file" name="image" id="image" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
-              <div class="col-12 d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Senden</button>
-              </div>
-            </form>
-            <div id="error" class="alert alert-danger mt-3 d-none" role="alert"></div>
-          </div></div>
-      </div>
+        </div>
+        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-transparent border-0">
+                    <div class="modal-body p-0 position-relative">
+                        <button type="button"
+                                class="preview-close-x"
+                                data-bs-dismiss="modal"
+                                aria-label="Schließen"
+                                title="Schließen">
+                            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M2 2L14 14M14 2L2 14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+
+                        <img id="previewModalImage" src="" class="img-fluid rounded" alt="Vorschau">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <style>
-    .msg{padding:.75rem 1rem;border-radius:12px;margin:.5rem 0;display:inline-block;max-width:80%}
-    .user{background:#007bff;color:#fff;float:right;clear:both;white-space:pre-wrap}
-    .bot{background:#e9ecef;color:#212529;float:left;clear:both}
-    .cursor{display:inline-block;width:.6em;opacity:.7;animation:blink 1s step-end infinite}
-    @keyframes blink{50%{opacity:.1}}
-    /* Markdown styles */
-    .assistant-markdown{line-height:1.5;white-space:normal}
-    .assistant-markdown p{margin:0 0 .6rem 0}
-    .assistant-markdown ul,.assistant-markdown ol{padding-left:1.2rem;margin:.6rem 0}
-    .assistant-markdown code{padding:.15rem .3rem;border-radius:.25rem;background:#f1f3f5}
-    .assistant-markdown pre{overflow:auto;padding:.75rem;border-radius:.5rem;background:#f6f8fa}
-    .assistant-markdown table{width:100%;border-collapse:collapse;margin:.6rem 0}
-    .assistant-markdown th,.assistant-markdown td{border:1px solid #dee2e6;padding:.5rem}
-    .assistant-markdown blockquote{border-left:4px solid #ced4da;padding-left:.75rem;color:#555}
-    .assistant-markdown a{text-decoration:underline;word-break:break-word}
-  </style>
+    <style>
+        /* -------------------- CHAT WINDOW -------------------- */
+        /*.background {background-image: url('/bg1.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: rgba(0, 0, 0, 0); background-blend-mode: overlay;}*/
+        .background {background-image: url('/bg2.webp'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: rgba(255, 255, 255, 0.2); background-blend-mode: overlay;}
+        .page-title {color: rgba(255,255,255,0.95); font-weight: 500; margin-bottom: 1.25rem;}
+        #history {border-radius: 0; background: #fff; padding: 15px; overflow-y: auto;}
 
-  <!-- Markdown parser + Sanitizer + optional Code-Highlighting -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+        /* -------------------- SHARED BUBBLE BASE -------------------- */
+        .msg {display: inline-flex; align-items: center; padding: 12px 14px; margin: 0; max-width: 78%; word-break: break-word; font-size: 0.96rem; line-height: 1.4; border-radius: 16px; box-shadow: 0 4px 12px rgba(16,24,40,0.04); vertical-align: middle; box-sizing: border-box;}
+        .bot-bubble, .msg.user {display: inline-flex; flex-direction: column; align-items: flex-start; max-width: 75%; padding: 10px 14px; border-radius: 18px; word-wrap: break-word; line-height: 1.4;}
 
-  <script>
-    (function(){
-      const historyEl=document.getElementById('history');
-      const errorEl=document.getElementById('error');
-      const form=document.getElementById('chatForm');
-      const loading=document.getElementById('loadingIndicator');
-      let autoScroll=true;
+        /* -------------------- WRAPPER ROWS -------------------- */
+        .user-row, .bot-container {display: flex; align-items: flex-end; gap: 10px; margin-bottom: 6px; clear: both;}
+        .user-row { justify-content: flex-end; }
+        .bot-container { justify-content: flex-start; }
+        .message-group {margin: 0 0 4px 0; padding: 0;}
 
-      // Autoscroll toggling
-      historyEl.addEventListener('scroll',()=>{
-        autoScroll=historyEl.scrollTop+historyEl.clientHeight>=historyEl.scrollHeight-10
-      });
+        /* -------------------- USER BUBBLE -------------------- */
+        .user {background: #0d6efd; color: #fff; border-radius: 16px 16px 4px 16px; box-shadow: 0 6px 18px rgba(13,110,253,0.06); display: inline-flex; align-items: center; padding: 10px 14px;}
+        .msg.user {border-bottom-right-radius: 4px; background: #007aff;}
 
-      // Marked defaults
-      if (window.marked){
-        marked.setOptions({ gfm:true, breaks:false, mangle:false, headerIds:false });
-      }
+        /* -------------------- BOT BUBBLE -------------------- */
+        .bot-avatar {width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; align-self: flex-end; object-fit: cover; box-shadow: 0 2px 6px rgba(16,24,40,0.06);}
+        .bot-bubble {background: #e5e5ea; color: #000; border-bottom-left-radius: 4px; position: relative; display: inline-flex; align-items: center;}
 
-      function escapeHtml(s){
-        return String(s??'')
-                .replaceAll('&','&amp;')
-                .replaceAll('<','&lt;')
-                .replaceAll('>','&gt;')
-                .replaceAll('"','&quot;')
-                .replaceAll("'",'&#039;');
-      }
+        /* -------------------- MARKDOWN & CURSOR -------------------- */
+        .assistant-markdown {display: block; width: 100%;}
+        .assistant-markdown ul, .assistant-markdown ol {margin: 0 0 0 1.2em; padding-left: 0;}
+        .assistant-markdown p, .assistant-markdown pre, .assistant-markdown blockquote, .assistant-markdown h1, .assistant-markdown h2, .assistant-markdown h3, .assistant-markdown h4, .assistant-markdown h5, .assistant-markdown h6, .assistant-markdown code {margin: 0; padding: 0;}
+        .cursor {display: inline-block; width: 1ch; opacity: .7; animation: blink 1s step-end infinite; vertical-align: text-bottom;}
+        @keyframes blink { 50% { opacity: .1; } }
 
-      // Turn bare URLs/emails into angle-bracketed links so marked turns them into <a>
-      function linkify(md){
-        let s=String(md??'');
-        s=s.replace(/(^|\s)(https?:\/\/[^\s<]+)(?=$|\s)/gi,'$1<$2>');
-        s=s.replace(/(^|\s)(www\.[^\s<]+)(?=$|\s)/gi,(m,p1,p2)=>`${p1}<http://${p2}>`);
-        s=s.replace(/(^|\s)([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?=$|\s)/g,'$1<mailto:$2>');
-        return s;
-      }
+        /* -------------------- RESPONSIVE -------------------- */
+        @media (max-width: 480px) {  .msg, .bot-bubble, .msg.user { padding: 10px 12px; }  }
 
-      function addUserMsg(text){
-        const d=document.createElement('div');
-        d.className='msg user';
-        d.textContent=text;
-        historyEl.appendChild(d);
-        if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;
-      }
+        /* -------------------- FILE UPLOAD UI -------------------- */
+        .file-upload-box {background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; gap: .5rem; display: flex; align-items: center; justify-content: flex-start; padding: 8px;}
+        .remove-file-btn {background: transparent; border: none; color: #9ca3af; font-size: 1rem; cursor: pointer; padding: 0 4px; line-height: 1; margin-left: auto;}
+        .file-input-hidden { display: none; }
+        #file-preview {width: 56px; height: 56px; object-fit: cover; border-radius: 6px; flex-shrink: 0;}
+        .file-label-text {margin-left: 6px; font-size: 0.95rem; color: #374151; max-width: calc(100% - 120px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 
-      // Creates a bot bubble prepared for streaming markdown
-      function createBotBubble(){
-        const d=document.createElement('div');
-        d.className='msg bot';
-        const content=document.createElement('div');
-        content.className='assistant-markdown';
-        const cursor=document.createElement('span');
-        cursor.className='cursor';
-        cursor.textContent='▌';
-        d.appendChild(content);
-        d.appendChild(cursor);
-        historyEl.appendChild(d);
-        if(autoScroll)historyEl.scrollTop=historyEl.scrollHeight;
-        return {root:d, content, cursor};
-      }
+        /* -------------------- SENT IMAGE -------------------- */
+        .user-image-row {display: flex; justify-content: flex-end; margin-bottom: 6px;}
+        .msg-image {max-width: 220px; max-height: 220px; border-radius: 8px; display: block; object-fit: cover; box-shadow: 0 6px 18px rgba(16,24,40,0.06); margin-bottom: 6px;}
 
-      // Render markdown safely into the given element
-      function renderMarkdown(el, md){
-        const mdPrepared = linkify(md ?? '');
-        const rawHtml = window.marked ? marked.parse(mdPrepared) : escapeHtml(mdPrepared);
-        const safeHtml = DOMPurify.sanitize(rawHtml, { USE_PROFILES:{ html:true }, ADD_ATTR:['target','rel'] });
-        el.innerHTML = safeHtml;
-        // open links safely & optionally highlight code
-        el.querySelectorAll('a[href]').forEach(a=>{
-          const href=a.getAttribute('href')||'';
-          if(/^(https?:|mailto:)/i.test(href)){
-            a.setAttribute('target','_blank');
-            a.setAttribute('rel','noopener');
-          }
-        });
-        try{ if(window.hljs) hljs.highlightAll(); }catch{}
-      }
+        /* -------------------- CHAT INPUT -------------------- */
+        .chat-box {display: grid; grid-template-columns: 1fr auto; align-items: center; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 4px 8px; column-gap: 8px;}
+        .chat-input {height: 40px; line-height: 1.5em; overflow-y: hidden; resize: none; border: none; outline: none; padding: 8px; background: transparent; font-size: 1rem; box-sizing: border-box;}
+        .chat-buttons {display: flex; align-items: center; gap: 6px;}
+        .upload-btn,
+        .send-btn {background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+        .upload-btn .icon, .send-btn svg {width: 20px; height: 20px; color: #212529;}
+        .send-btn:disabled { cursor: not-allowed; opacity: 0.5; }
 
-      form.addEventListener('submit',async e=>{
-        e.preventDefault();
-        errorEl.classList.add('d-none');
+        /* ---------- FILE PREVIEW INSIDE CHAT-BOX ---------- */
+        #chat-inline-preview {display: flex; align-items: center; gap: 12px; width: 100%; background: transparent; color: inherit; padding: 8px 10px; border-radius: 10px; box-sizing: border-box; overflow: hidden; grid-column: 1 / -1; margin-bottom: 6px;}
+        #chat-inline-preview .thumb {position: relative; width: 80px; height: 80px; flex-shrink: 0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(16,24,40,0.08);}
+        #chat-inline-preview .thumb img {width: 100%; height: 100%; object-fit: cover; display: block;}
+        #chat-inline-preview .thumb .thumb-remove {position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.95); color: #111827; border-radius: 50%; border: none; cursor: pointer; font-size: 11px; line-height: 1; box-shadow: 0 2px 6px rgba(2,6,23,0.12); padding: 0;}
+        #chat-inline-preview .meta { display: none; }
 
-        const message=document.getElementById('message').value.trim();
-        if(message) addUserMsg(message);
+        /* ---------- ADDED FILE PREVIEW ---------- */
+        #previewModalImage {max-height: 80vh; width: auto; display: block; margin: 0 auto;}
+        .preview-close-x {position: absolute; top: 0.5rem; right: 0.5rem; z-index: 1060; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; transition: transform 0.12s ease, opacity 0.12s ease; -webkit-tap-highlight-color: transparent;}
+        .preview-close-x svg {filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));}
+        .preview-close-x:hover {transform: scale(1.05); opacity: 0.95;}
+        @media (max-width: 420px) {  .preview-close-x { width: 36px; height: 36px; top: 0.35rem; right: 0.35rem; } }
 
-        const fd=new FormData(form);
+        /* -------------------- RESPONSIVE PREVIEW -------------------- */
+        @media (max-width: 480px) {  #chat-inline-preview .thumb { width: 48px; height: 48px; }  }
 
-        try{
-          loading.classList.remove('d-none');
-          const res=await fetch('{{ path("rag_streaming_chat_send_stream") }}',{
-            method:'POST',
-            body:fd,
-            headers:{'Accept':'text/event-stream'}
-          });
-          if(!res.ok||!res.body) throw new Error('Streaming nicht verfügbar');
+        @media (min-width: 768px) {.vertriebsassistent{ width: 100%; max-width: 900px;}}
+    </style>
 
-          const bot = createBotBubble();
-          let mdBuffer='';
+    <!-- Markdown parser + Sanitizer + optional Code-Highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-          const reader=res.body.getReader();
-          const decoder=new TextDecoder();
-          let buffer='';
+    <script>
+        (function() {
+            // -------------------- ELEMENTS --------------------
+            const historyEl = document.getElementById('history');
+            const errorEl = document.getElementById('error');
+            const form = document.getElementById('chatForm');
+            const loading = document.getElementById('loadingIndicator');
+            const textarea = document.getElementById('message');
+            const fileInput = document.getElementById('image');
+            const fileNameSpan = document.getElementById('file-name');
+            const removeBtn = document.getElementById('remove-file');
+            const fileBox = document.getElementById('file-box');
+            const sendBtn = document.querySelector('.send-btn');
 
-          while(true){
-            const {value,done}=await reader.read();
-            if(done) break;
-            buffer += decoder.decode(value,{stream:true}).replace(/\r\n/g,'\n');
-            let idx;
-            while((idx = buffer.indexOf('\n\n')) !== -1){
-              const rawEvt = buffer.slice(0, idx);
-              buffer = buffer.slice(idx+2);
+            let autoScroll = true;
 
-              const lines = rawEvt.split('\n');
-              let ev=null; let dataStr='';
-              for(const line of lines){
-                if(!line) continue;
-                if(line.startsWith('event:')) ev=line.slice(6).trim();
-                else if(line.startsWith('data:')){
-                  const part=line.slice(5).trim();
-                  if(part && part !== 'null') dataStr += (dataStr?'\n':'') + part;
-                }
-              }
-              if(!ev) continue;
-              let payload={};
-              try{ payload = dataStr ? JSON.parse(dataStr) : {}; }catch{}
-
-              if(ev==='delta'){
-                const t = payload.text || '';
-                if(t){
-                  mdBuffer += t; // accumulate markdown
-                  renderMarkdown(bot.content, mdBuffer);
-                  if(autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
-                }
-              } else if(ev==='error'){
-                errorEl.textContent = payload.message || 'Unbekannter Fehler';
-                errorEl.classList.remove('d-none');
-              } else if(ev==='done'){
-                try{ bot.cursor.remove(); }catch{}
-              }
+            // -------------------- SCROLL --------------------
+            function scrollToBottom() {
+                if (autoScroll) historyEl.scrollTop = historyEl.scrollHeight;
             }
-          }
-        } catch(err){
-          errorEl.textContent = err.message;
-          errorEl.classList.remove('d-none');
-        } finally{
-          loading.classList.add('d-none');
-          form.reset();
-        }
-      });
-    })();
-  </script>
+
+            historyEl.addEventListener('scroll', () => {
+                autoScroll = historyEl.scrollTop + historyEl.clientHeight >= historyEl.scrollHeight - 10;
+            });
+
+            // -------------------- MARKDOWN & SANITIZATION --------------------
+            if (window.marked) {
+                marked.setOptions({ gfm: true, breaks: false, mangle: false, headerIds: false });
+            }
+
+            function escapeHtml(s) {
+                return String(s ?? '')
+                    .replaceAll('&','&amp;')
+                    .replaceAll('<','&lt;')
+                    .replaceAll('>','&gt;')
+                    .replaceAll('"','&quot;')
+                    .replaceAll("'",'&#039;');
+            }
+
+            function linkify(md) {
+                let s = String(md ?? '');
+                s = s.replace(/(^|\s)(https?:\/\/[^\s<]+)(?=$|\s)/gi,'$1<$2>');
+                s = s.replace(/(^|\s)(www\.[^\s<]+)(?=$|\s)/gi,(m,p1,p2)=>`${p1}<http://${p2}>`);
+                s = s.replace(/(^|\s)([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})(?=$|\s)/g,'$1<mailto:$2>');
+                return s;
+            }
+
+            function renderMarkdown(el, md) {
+                const mdPrepared = linkify(md ?? '');
+                const rawHtml = window.marked ? marked.parse(mdPrepared) : escapeHtml(mdPrepared);
+                const safeHtml = DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html:true }, ADD_ATTR:['target','rel'] });
+                el.innerHTML = safeHtml;
+
+                el.querySelectorAll('a[href]').forEach(a=>{
+                    const href = a.getAttribute('href') || '';
+                    if(/^(https?:|mailto:)/i.test(href)){
+                        a.setAttribute('target','_blank');
+                        a.setAttribute('rel','noopener');
+                    }
+                });
+
+                el.querySelectorAll('img').forEach(img => {
+                    img.classList.add('msg-image');
+                });
+
+                try { if(window.hljs) hljs.highlightAll(); } catch {}
+            }
+
+
+            // -------------------- MESSAGE HANDLING --------------------
+            function addUserMsg(text, file) {
+                const group = document.createElement('div');
+                group.className = 'message-group';
+
+                if (file && file.type && file.type.startsWith('image/')) {
+                    const imgRow = document.createElement('div');
+                    imgRow.className = 'user-image-row';
+                    const img = document.createElement('img');
+                    const objectUrl = URL.createObjectURL(file);
+                    img.src = objectUrl;
+                    img.className = 'msg-image';
+                    img.dataset.objectUrl = objectUrl;
+                    imgRow.appendChild(img);
+                    group.appendChild(imgRow);
+                }
+
+                const row = document.createElement('div');
+                row.className = 'user-row d-flex justify-content-end mb-2';
+
+                const d = document.createElement('div');
+                d.className = 'msg user';
+                if (text) d.textContent = text;
+
+                if (file && (!file.type || !file.type.startsWith('image/'))) {
+                    const nameEl = document.createElement('div');
+                    nameEl.textContent = file.name || 'Datei';
+                    nameEl.style.fontSize = '0.9rem';
+                    nameEl.style.opacity = '0.9';
+                    nameEl.style.marginTop = text ? '6px' : '0';
+                    d.appendChild(nameEl);
+                }
+
+                row.appendChild(d);
+                group.appendChild(row);
+                historyEl.appendChild(group);
+                scrollToBottom();
+            }
+
+            function createBotBubble() {
+                const container = document.createElement("div");
+                container.className = "bot-container";
+
+                const avatar = document.createElement("img");
+                avatar.src = "/botpfp.png";
+                avatar.alt = "Bot";
+                avatar.className = "bot-avatar";
+
+                const bubble = document.createElement("div");
+                bubble.className = "bot-bubble";
+
+                const content = document.createElement("div");
+                content.className = "assistant-markdown";
+                bubble.appendChild(content);
+
+                const cursor = document.createElement("span");
+                cursor.className = "cursor";
+                cursor.textContent = "▌";
+                content.appendChild(cursor);
+
+                container.appendChild(avatar);
+                container.appendChild(bubble);
+
+                const lastUserRow = historyEl.querySelector('.user-row:last-of-type');
+                if (lastUserRow && lastUserRow.parentNode) {
+                    lastUserRow.insertAdjacentElement('afterend', container);
+                } else {
+                    historyEl.appendChild(container);
+                }
+
+                container.style.clear = 'both';
+                scrollToBottom();
+
+                return { content, cursor };
+            }
+
+// -------------------- INITIAL MESSAGE --------------------
+            function showInitialMessage(text) {
+                const bot = createBotBubble();
+                let idx = 0;
+                const typingSpeed = 30;
+
+                const interval = setInterval(() => {
+                    if (idx < text.length) {
+                        // On the first character, remove the cursor permanently
+                        if (idx === 0) {
+                            try { bot.cursor.remove(); } catch {}
+                        }
+
+                        // append next character as text node
+                        const charNode = document.createTextNode(text[idx++]);
+                        bot.content.appendChild(charNode);
+                        scrollToBottom();
+                    } else {
+                        clearInterval(interval);
+                        try { bot.cursor.remove(); } catch {}
+                    }
+                }, typingSpeed);
+            }
+
+            // -------------------- STREAMING RESPONSE --------------------
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+                errorEl.classList.add('d-none');
+
+                const message = textarea.value.trim();
+                const file = fileInput?.files?.[0] || null;
+                if (!message && !file) return;
+
+                addUserMsg(message, file);
+
+                // reset input & preview
+                const inlinePreview = document.getElementById('chat-inline-preview');
+                if (inlinePreview) inlinePreview.remove();
+                if (fileInput) fileInput.value = '';
+                if (fileBox) fileBox.classList.add('d-none');
+                if (fileNameSpan) fileNameSpan.textContent = '';
+                textarea.value = '';
+                textarea.style.height = '40px';
+
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = 0.5;
+
+                const url = '{{ path("rag_streaming_chat_send_stream") }}';
+                const fetchOptions = { method: 'POST', headers: {} };
+
+                if (file) {
+                    const fd = new FormData();
+                    fd.append('message', message);
+                    fd.append('image', file, file.name);
+                    fetchOptions.body = fd;
+                    fetchOptions.headers['Accept'] = 'text/event-stream';
+                } else {
+                    const params = new URLSearchParams();
+                    params.append('message', message);
+                    fetchOptions.body = params.toString();
+                    fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+                    fetchOptions.headers['Accept'] = 'text/event-stream';
+                }
+
+                try {
+                    loading.classList.remove('d-none');
+                    const res = await fetch(url, fetchOptions);
+
+                    if (!res.ok) {
+                        const errText = await res.text().catch(()=>res.statusText);
+                        throw new Error(`Server antwortete mit ${res.status}: ${errText}`);
+                    }
+
+                    if (res.body) {
+                        const bot = createBotBubble();
+                        let mdBuffer = '';
+                        const reader = res.body.getReader();
+                        const decoder = new TextDecoder();
+                        let buffer = '';
+                        let firstChunk = true; // NEW FLAG
+
+                        while(true) {
+                            const {value, done} = await reader.read();
+                            if(done) break;
+                            buffer += decoder.decode(value, {stream:true}).replace(/\r\n/g,'\n');
+
+                            let idx;
+                            while((idx = buffer.indexOf('\n\n')) !== -1) {
+                                const rawEvt = buffer.slice(0, idx);
+                                buffer = buffer.slice(idx+2);
+                                const lines = rawEvt.split('\n');
+                                let ev = null, dataStr = '';
+
+                                for(const line of lines) {
+                                    if(!line) continue;
+                                    if(line.startsWith('event:')) ev = line.slice(6).trim();
+                                    else if(line.startsWith('data:')) {
+                                        const part = line.slice(5).trim();
+                                        if(part && part !== 'null') dataStr += (dataStr ? '\n' : '') + part;
+                                    }
+                                }
+                                if(!ev) continue;
+                                let payload = {};
+                                try { payload = dataStr ? JSON.parse(dataStr) : {}; } catch {}
+
+                                if(ev === 'delta') {
+                                    const t = payload.text || '';
+                                    if(t) {
+                                        // On first chunk: remove cursor permanently
+                                        if(firstChunk) {
+                                            try { bot.cursor.remove(); } catch {}
+                                            firstChunk = false;
+                                        }
+
+                                        mdBuffer += t;
+                                        renderMarkdown(bot.content, mdBuffer);
+                                        scrollToBottom();
+                                    }
+                                } else if(ev === 'error') {
+                                    errorEl.textContent = payload.message || 'Unbekannter Fehler';
+                                    errorEl.classList.remove('d-none');
+                                } else if(ev === 'done') {
+                                    try { bot.cursor.remove(); } catch {}
+                                }
+                            }
+                        }
+                    } else {
+                        const text = await res.text().catch(()=> '');
+                        const bot = createBotBubble();
+                        renderMarkdown(bot.content, text || 'Keine Antwort erhalten.');
+                        try { bot.cursor.remove(); } catch {}
+                    }
+
+                } catch(err) {
+                    errorEl.textContent = err.message || 'Fehler beim Senden';
+                    errorEl.classList.remove('d-none');
+                } finally {
+                    loading.classList.add('d-none');
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = 1;
+
+                    const p = document.getElementById('chat-inline-preview');
+                    if (p) p.remove();
+                    if (fileInput) fileInput.value = '';
+                    if (fileBox) fileBox.classList.add('d-none');
+                    if (fileNameSpan) fileNameSpan.textContent = '';
+                    document.querySelector('.chat-box')?.classList.remove('has-inline-preview');
+                    form.reset();
+                }
+            }
+
+            form.addEventListener('submit', handleFormSubmit);
+
+            // -------------------- INITIAL MESSAGE --------------------
+            document.addEventListener('DOMContentLoaded', ()=>{
+                setTimeout(()=> showInitialMessage(
+                    "Hallo! Ich bin dein persönlicher Produktberater im Onlineshop und helfe dir, genau das richtige Produkt zu finden. Wie kann ich dir helfen?"
+                ), 800);
+            });
+
+            // -------------------- FILE PREVIEW --------------------
+            fileInput.addEventListener("change", () => {
+                const old = document.getElementById('chat-inline-preview');
+                if (old) old.remove();
+                if (fileBox) fileBox.classList.add("d-none");
+                if (fileNameSpan) fileNameSpan.textContent = '';
+
+                if (!fileInput.files || fileInput.files.length === 0) return;
+                const file = fileInput.files[0];
+
+                const previewWrap = document.createElement('div');
+                previewWrap.id = 'chat-inline-preview';
+                previewWrap.setAttribute('role','group');
+                previewWrap.setAttribute('aria-label','Dateivorschau');
+
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb';
+
+                if (file.type && file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    const previewUrl = URL.createObjectURL(file);
+                    img.src = previewUrl;
+                    img.alt = file.name || 'Vorschau';
+                    img.dataset.objectUrl = previewUrl;
+                    thumb.appendChild(img);
+                } else {
+                    const box = document.createElement('div');
+                    Object.assign(box.style, {
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: '#f3f4f6',
+                        color: '#374151'
+                    });
+                    box.textContent = 'FILE';
+                    thumb.appendChild(box);
+                }
+
+                const thumbRemove = document.createElement('button');
+                thumbRemove.type = 'button';
+                thumbRemove.className = 'thumb-remove';
+                thumbRemove.setAttribute('aria-label','Datei entfernen');
+                thumbRemove.innerHTML = '&#10005;';
+                thumbRemove.addEventListener('click', () => {
+                    // revoke object URL if present
+                    const img = thumb.querySelector('img');
+                    if (img && img.dataset.objectUrl) {
+                        URL.revokeObjectURL(img.dataset.objectUrl);
+                    }
+                    fileInput.value = '';
+                    const p = document.getElementById('chat-inline-preview');
+                    if (p) p.remove();
+                    if (fileBox) fileBox.classList.add('d-none');
+                    if (fileNameSpan) fileNameSpan.textContent = '';
+                });
+                thumb.appendChild(thumbRemove);
+
+                previewWrap.appendChild(thumb);
+
+                const chatBox = document.querySelector('.chat-box');
+                if (chatBox) chatBox.prepend(previewWrap);
+            });
+
+            removeBtn.addEventListener("click", () => {
+                fileInput.value = "";
+                if (fileBox) fileBox.classList.add("d-none");
+                if (fileNameSpan) fileNameSpan.textContent = "";
+                const p = document.getElementById("chat-inline-preview");
+                if (p) p.remove();
+            });
+
+            // -------------------- TEXTAREA AUTO-RESIZE --------------------
+            const baseHeight = 40, maxHeight = 120;
+            textarea.style.height = baseHeight + 'px';
+
+            textarea.addEventListener('input', () => {
+                textarea.style.height = baseHeight + 'px';
+                if (textarea.scrollHeight > baseHeight) {
+                    textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+                    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+                } else {
+                    textarea.style.overflowY = 'hidden';
+                }
+            });
+
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    form.requestSubmit();
+                }
+            });
+
+            // Bild-Modal öffnen
+            document.addEventListener('click', e => {
+                const chatImg    = e.target.closest('.msg-image');
+                const previewImg = e.target.closest('#chat-inline-preview .thumb img');
+                const img        = chatImg || previewImg;
+                if (!img) return;
+
+                const modalImg = document.getElementById('previewModalImage');
+                modalImg.src = img.src || img.dataset?.objectUrl || img.currentSrc || '';
+                modalImg.alt = img.alt || 'Bildvorschau';
+
+                const modalEl = document.getElementById('previewModal');
+                const bsModal = new bootstrap.Modal(modalEl);
+                bsModal.show();
+            });
+        })();
+    </script>
 {% endblock %}

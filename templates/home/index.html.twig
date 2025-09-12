@@ -1,61 +1,91 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Product Finder - Home{% endblock %}
+{% block title %}Vertriebsassistent{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <h1 class="mb-4">Product-Finder</h1>
-            <p class="lead mb-5">Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz. Beschreiben Sie einfach, was Sie suchen, und unser System findet die passenden Produkte für Sie.</p>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="mb-4">Vertriebsassistent</h1>
+                <p class="lead mb-5">
+                    Finden Sie das perfekte Elektronikprodukt mit Hilfe von künstlicher Intelligenz.
+                    Beschreiben Sie einfach, was Sie suchen, und unser System findet die passenden Produkte für Sie.
+                </p>
 
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="mb-4">Wie kann ich Ihnen helfen?</h2>
-                    <p>Beschreiben Sie Ihre Anforderungen in natürlicher Sprache:</p>
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <h2 class="mb-4">Wie kann ich Ihnen helfen?</h2>
+                        <p>Beschreiben Sie Ihre Anforderungen in natürlicher Sprache:</p>
 
-                    <div class="chat-container mb-4">
-                        <div id="chat-messages" class="chat-messages mb-3">
-                            <!-- Chat messages will appear here -->
+                        <div class="chat-container mb-4">
+                            <div id="chat-messages" class="chat-messages"></div>
+
+                            {# Chat Form #}
+                            <form id="chatForm" class="chat-box" enctype="multipart/form-data">
+                                <div id="chat-inline-preview" style="display: none;"></div>
+                                <textarea name="message" id="user-input" class="chat-input" placeholder="z.B. Ich suche ein wasserdichtes Smartphone..." required></textarea>
+
+                                <div class="chat-buttons">
+                                    {# Upload #}
+                                    <label id="upload-button" for="image-input" class="upload-btn" aria-label="Upload image" title="Upload image" tabindex="0">
+                                        <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                            <path d="M21.44 11.05L12.95 19.5a5 5 0 1 1-7.07-7.07L12 5.27a3.5 3.5 0 1 1 4.95 4.95L9.9 17.27a1.5 1.5 0 0 1-2.12-2.12l7.07-7.07" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </label>
+                                    <input type="file" name="image" id="image-input" accept="image/png,image/jpeg,image/webp" class="file-input-hidden">
+
+                                    {# Record Audio #}
+                                    <button class="record-btn" id="record-button" aria-label="Sprache aufnehmen" title="Sprache aufnehmen">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm4.3-3c0 2.39-1.91 4.3-4.3 4.3S7.7 13.39 7.7 11H6c0 3.04 2.23 5.56 5.1 6.06V20h1.8v-2.94c2.87-.5 5.1-3.02 5.1-6.06h-1.7z"/>
+                                        </svg>
+                                    </button>
+
+                                    {# Camera #}
+                                    <button class="record-btn" id="open-camera-button" aria-label="Foto aufnehmen" title="Foto aufnehmen" style="display: none;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M4 7h3l2-3h6l2 3h3a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1zm8 11a5 5 0 100-10 5 5 0 000 10zm0-8a3 3 0 110 6 3 3 0 010-6z"/>
+                                        </svg>
+                                    </button>
+
+                                    {# Send #}
+                                    <button class="send-btn" type="submit" id="send-button" aria-label="Senden" title="Senden">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16" aria-hidden="true">
+                                            <path d="M15.964.686a.5.5 0 0 0-.655-.656L.136 7.019a.5.5 0 0 0 .058.912l5.987 1.993 1.993 5.987a.5.5 0 0 0 .912.058l7-15z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                {# Camera preview #}
+                                <div id="camera-container" class="mt-2" style="display: none;">
+                                    <video id="video-preview" class="w-100 mb-2" autoplay playsinline></video>
+                                    <button class="send-btn" id="capture-button" aria-label="Aufnehmen" title="Aufnehmen">✔</button>
+                                </div>
+                            </form>
                         </div>
 
-                        <div class="input-group mb-2">
-                            <input type="text" id="user-input" class="form-control" placeholder="z.B. Ich suche ein wasserdichtes Smartphone mit guter Kamera...">
-                            <button class="btn btn-primary" id="send-button">Suchen</button>
-                            <button class="btn btn-secondary" id="record-button">Sprache aufnehmen</button>
-                        </div>
-                        <div class="input-group">
-                            <input type="file" id="image-input" class="form-control" accept="image/*">
-                            <button class="btn btn-secondary" id="upload-button">Bild hochladen</button>
-                        </div>
-                        <button class="btn btn-secondary mt-2" id="open-camera-button" style="display: none;">Foto aufnehmen</button>
-                        <div id="camera-container" class="mt-2" style="display: none;">
-                            <video id="video-preview" class="w-100 mb-2" autoplay playsinline></video>
-                            <button class="btn btn-secondary" id="capture-button">Aufnehmen</button>
-                        </div>
-                    </div>
-
-                    <div id="results-container" class="mt-4" style="display: none;">
-                        <h3>Gefundene Produkte</h3>
-                        <div id="product-results" class="row">
-                            <!-- Product results will appear here -->
+                        {# Results container #}
+                        <div id="results-container" class="mt-4" style="display: none;">
+                            <h3>Gefundene Produkte</h3>
+                            <div id="product-results" class="row"></div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-5">
-                <h3>Wie funktioniert es?</h3>
-                <p>Der Product-Finder kombiniert künstliche Intelligenz mit einer Vektor-Datenbank, um Ihre Suche komfortabel zu gestalten.</p>
-                <ol class="text-start">
-                    <li><strong>Import &amp; Vektorisierung:</strong> Produktdaten werden aus XML-Dateien eingelesen und als Vektoren in Milvus gespeichert.</li>
-                    <li><strong>Anfrage stellen:</strong> Geben Sie Ihre Wünsche per Text, Sprache oder Bild ein.</li>
-                    <li><strong>Semantische Suche:</strong> Die Anfrage wird vektorisiert und mit den Produkten abgeglichen.</li>
-                    <li><strong>Antwort generieren:</strong> OpenAI fasst die Resultate zusammen und erstellt Empfehlungen.</li>
-                    <li><strong>Ergebnisse anzeigen:</strong> Passende Produkte erscheinen im Chat.</li>
-                </ol>
-                <div class="mt-4">
-                <pre class="mermaid">
+                {# How it works section #}
+                <div class="mt-5 text-start">
+                    <h3>Wie funktioniert es?</h3>
+                    <p>Der Product-Finder kombiniert künstliche Intelligenz mit einer Vektor-Datenbank, um Ihre Suche komfortabel zu gestalten.</p>
+                    <ol>
+                        <li><strong>Import & Vektorisierung:</strong> Produktdaten werden aus XML-Dateien eingelesen und als Vektoren in Milvus gespeichert.</li>
+                        <li><strong>Anfrage stellen:</strong> Geben Sie Ihre Wünsche per Text, Sprache oder Bild ein.</li>
+                        <li><strong>Semantische Suche:</strong> Die Anfrage wird vektorisiert und mit den Produkten abgeglichen.</li>
+                        <li><strong>Antwort generieren:</strong> OpenAI fasst die Resultate zusammen und erstellt Empfehlungen.</li>
+                        <li><strong>Ergebnisse anzeigen:</strong> Passende Produkte erscheinen im Chat.</li>
+                    </ol>
+
+                    <div class="mt-4">
+                    <pre class="mermaid">
 sequenceDiagram
     actor Nutzer
     participant UI as Weboberfläche
@@ -77,332 +107,332 @@ sequenceDiagram
     OpenAI-->>API: Antwort
     API-->>UI: Ergebnisse
     UI-->>Nutzer: Produkte anzeigen
-                </pre>
+                    </pre>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
+
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({ startOnLoad: true });</script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        // --- DOM Elements ---
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const recordButton = document.getElementById('record-button');
-        const canRecord = typeof MediaRecorder !== 'undefined';
-        if (!canRecord) {
-            recordButton.style.display = 'none';
-        }
         const imageInput = document.getElementById('image-input');
-        const uploadButton = document.getElementById('upload-button');
-        const openCameraButton = document.getElementById('open-camera-button');
-        const cameraContainer = document.getElementById('camera-container');
-        const videoPreview = document.getElementById('video-preview');
-        const captureButton = document.getElementById('capture-button');
-        let cameraStream = null;
-        let mediaRecorder = null;
-        let recordedChunks = [];
-        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-            navigator.mediaDevices.enumerateDevices().then(devices => {
-                if (devices.some(d => d.kind === 'videoinput')) {
-                    openCameraButton.style.display = 'inline-block';
-                }
-            }).catch(() => {});
-        }
+        const chatInlinePreview = document.getElementById('chat-inline-preview');
         const resultsContainer = document.getElementById('results-container');
         const productResults = document.getElementById('product-results');
-        const controls = [sendButton, recordButton, uploadButton, openCameraButton];
-        let busy = false;
 
-        function setBusy(state) {
-            busy = state;
-            controls.forEach(el => { if (el) el.disabled = state; });
-        }
-        setBusy(false);
+        let fileToSend = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        const canRecord = typeof MediaRecorder !== 'undefined';
+        if (!canRecord) recordButton.style.display = 'none';
 
-        function addMessage(content, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = isUser ? 'message user-message' : 'message system-message';
-            messageDiv.innerHTML = `<p>${content}</p>`;
-            chatMessages.appendChild(messageDiv);
+        // --- Helper: create bot bubble ---
+        function createBotBubble() {
+            const container = document.createElement("div");
+            container.className = "bot-container";
+
+            const avatar = document.createElement("img");
+            avatar.src = "/botpfp.png";
+            avatar.alt = "Bot";
+            avatar.className = "bot-avatar";
+
+            const bubble = document.createElement("div");
+            bubble.className = "bot-bubble";
+
+            const content = document.createElement("div");
+            content.className = "assistant-markdown";
+
+            const cursor = document.createElement("span");
+            cursor.className = "cursor";
+            cursor.textContent = "▌";
+
+            bubble.appendChild(content);
+            content.appendChild(cursor);
+            container.appendChild(avatar);
+            container.appendChild(bubble);
+
+            const lastUserRow = chatMessages.querySelector('.user-row:last-of-type');
+            if (lastUserRow && lastUserRow.parentNode) lastUserRow.insertAdjacentElement('afterend', container);
+            else chatMessages.appendChild(container);
+
+            container.style.clear = 'both';
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            return { content, cursor };
         }
 
-        function addImageMessage(file) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                addMessage(`<img src="${e.target.result}" class="img-fluid w-150p rounded" />`, true);
-            };
-            reader.readAsDataURL(file);
+        // --- Display products ---
+        function displayProducts(products) {
+            productResults.innerHTML = '';
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'col-md-6 mb-4';
+                const name = product.title || 'Unbekanntes Produkt';
+                const id = product.id || 'N/A';
+                const score = product.distance ? (product.distance * 100).toFixed(1) + '%' : 'N/A';
+
+                productCard.innerHTML = `
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">${name}</h5>
+                        <p class="card-text">Produkt-ID: ${id}</p>
+                        <p class="card-text"><small class="text-muted">Relevanz: ${score}</small></p>
+                    </div>
+                </div>
+            `;
+                productResults.appendChild(productCard);
+            });
+            resultsContainer.style.display = 'block';
         }
 
+        // --- API calls ---
         function searchProducts(query) {
-            addMessage('Suche nach passenden Produkten...', false);
+            const bot = createBotBubble();
+            bot.content.textContent = 'Suche nach passenden Produkten...';
+            bot.cursor.remove();
 
             fetch('/api/search/text', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: query })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.response) {
-                        addMessage(data.response, false);
-                    }
-                    if (Array.isArray(data.products)) {
-                        displayProducts(data.products);
-                    }
-                } else {
-                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
-                    addMessage(msg, false);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
-            });
+                .then(res => res.json())
+                .then(data => handleBotResponse(data))
+                .catch(() => handleBotError());
         }
 
         function searchImage(file) {
-            if (!file) {
-                return;
-            }
-            addImageMessage(file);
-            addMessage('Bild wird verarbeitet...', false);
+            if (!file) return;
+            const bot = createBotBubble();
+            bot.content.textContent = 'Bild wird verarbeitet...';
+            bot.cursor.remove();
 
             const formData = new FormData();
             formData.append('image', file, file.name || 'upload.png');
 
-            fetch('/api/search/image', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.response) {
-                        addMessage(data.response, false);
-                    }
-                    if (Array.isArray(data.products)) {
-                        displayProducts(data.products);
-                    }
-                } else {
-                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
-                    addMessage(msg, false);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
-            });
+            fetch('/api/search/image', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => handleBotResponse(data))
+                .catch(() => handleBotError());
         }
 
         function searchAudio(blob) {
-            if (!blob) {
-                return;
-            }
-            addMessage('Audio wird verarbeitet...', false);
+            if (!blob) return;
+            const bot = createBotBubble();
+            bot.content.textContent = 'Audio wird verarbeitet...';
+            bot.cursor.remove();
 
             const formData = new FormData();
             formData.append('audio', blob, 'recording.webm');
 
-            fetch('/api/search/audio', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.response) {
-                        addMessage(data.response, false);
-                    }
-                    if (Array.isArray(data.products)) {
-                        displayProducts(data.products);
-                    }
-                } else {
-                    const msg = data.message || 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
-                    addMessage(msg, false);
+            fetch('/api/search/audio', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => handleBotResponse(data))
+                .catch(() => handleBotError());
+        }
+
+        // --- Bot response handlers ---
+        function handleBotResponse(data) {
+            if (data.success) {
+                if (data.response) {
+                    const bot = createBotBubble();
+                    bot.content.textContent = data.response;
+                    bot.cursor.remove();
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                addMessage('Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', false);
-            });
+                if (Array.isArray(data.products)) displayProducts(data.products);
+            } else handleBotError(data.message);
         }
 
-        function displayProducts(products) {
-            productResults.innerHTML = '';
-
-            products.forEach(product => {
-                const productCard = document.createElement('div');
-                productCard.className = 'col-md-6 mb-4';
-
-                const productName = product.title || 'Unbekanntes Produkt';
-                const productId = product.id || 'N/A';
-                const score = product.distance ? (product.distance * 100).toFixed(1) + '%' : 'N/A';
-
-                productCard.innerHTML = `
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">${productName}</h5>
-                            <p class="card-text">Produkt-ID: ${productId}</p>
-                            <p class="card-text"><small class="text-muted">Relevanz: ${score}</small></p>
-                        </div>
-                    </div>
-                `;
-
-                productResults.appendChild(productCard);
-            });
-
-            resultsContainer.style.display = 'block';
+        function handleBotError(msg = 'Es ist ein Fehler aufgetreten.') {
+            const bot = createBotBubble();
+            bot.content.textContent = msg;
+            bot.cursor.remove();
         }
 
-        // Event listeners
-        sendButton.addEventListener('click', function() {
+        // --- Send message ---
+        function sendMessage() {
             const query = userInput.value.trim();
+            if (!query && !fileToSend) return;
+
+            const group = document.createElement('div');
+            group.className = 'message-group';
+
+            if (fileToSend) {
+                const imgRow = document.createElement('div');
+                imgRow.className = 'user-image-row';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(fileToSend);
+                img.className = 'msg-image';
+                img.onload = () => URL.revokeObjectURL(img.src);
+                imgRow.appendChild(img);
+                group.appendChild(imgRow);
+            }
+
             if (query) {
-                addMessage(query, true);
-                userInput.value = '';
-                searchProducts(query);
+                const row = document.createElement('div');
+                row.className = 'user-row d-flex justify-content-end mb-2';
+                const bubble = document.createElement('div');
+                bubble.className = 'message user-message';
+                const p = document.createElement('p');
+                p.textContent = query;
+                bubble.appendChild(p);
+                row.appendChild(bubble);
+                group.appendChild(row);
             }
-        });
 
-        recordButton.addEventListener('click', function() {
-            if (!canRecord) {
-                alert('Dieser Browser unterstützt keine Audioaufnahme.');
-                return;
-            }
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                mediaRecorder.stop();
-                recordButton.textContent = 'Sprache aufnehmen';
-            } else {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                        recordedChunks = [];
-                        mediaRecorder = new MediaRecorder(stream);
-                        mediaRecorder.ondataavailable = e => {
-                            if (e.data.size > 0) {
-                                recordedChunks.push(e.data);
-                            }
-                        };
-                        mediaRecorder.onstop = () => {
-                            const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-                            searchAudio(blob);
-                            stream.getTracks().forEach(t => t.stop());
-                        };
-                        mediaRecorder.start();
-                        recordButton.textContent = 'Stoppen';
-                    }).catch(err => {
-                        console.error('Audio error', err);
-                    });
-                }
-            }
-        });
+            chatMessages.appendChild(group);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        uploadButton.addEventListener('click', function() {
+            if (query && fileToSend) {
+                const bot = createBotBubble();
+                bot.content.textContent = 'Bild und Text werden verarbeitet...';
+                bot.cursor.remove();
+
+                const fd = new FormData();
+                fd.append('image', fileToSend, fileToSend.name || 'upload.png');
+                fd.append('message', query);
+
+                fetch('/api/search/image', { method: 'POST', body: fd })
+                    .then(res => res.json())
+                    .then(data => handleBotResponse(data))
+                    .catch(() => handleBotError());
+            } else if (query) searchProducts(query);
+            else if (fileToSend) searchImage(fileToSend);
+
+            userInput.value = '';
+            fileToSend = null;
+            chatInlinePreview.style.display = 'none';
+            imageInput.value = '';
+        }
+
+        // --- Image preview ---
+        imageInput.addEventListener('change', () => {
             const file = imageInput.files[0];
-            if (file) {
-                searchImage(file);
+            if (!file) return;
+
+            fileToSend = file;
+            chatInlinePreview.innerHTML = '';
+
+            const thumb = document.createElement('div');
+            thumb.className = 'thumb';
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            thumb.appendChild(img);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'thumb-remove';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', () => {
+                fileToSend = null;
+                chatInlinePreview.style.display = 'none';
                 imageInput.value = '';
-            }
+            });
+            thumb.appendChild(removeBtn);
+
+            chatInlinePreview.appendChild(thumb);
+            chatInlinePreview.style.display = 'flex';
         });
 
-        openCameraButton.addEventListener('click', function() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-                    cameraStream = stream;
-                    videoPreview.srcObject = stream;
-                    cameraContainer.style.display = 'block';
-                    openCameraButton.style.display = 'none';
-                }).catch(err => {
-                    console.error('Camera error', err);
-                });
-            }
-        });
+        // --- Send button ---
+        sendButton.addEventListener('click', e => { e.preventDefault(); sendMessage(); });
 
-        captureButton.addEventListener('click', function() {
-            if (!cameraStream) {
-                return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = videoPreview.videoWidth;
-            canvas.height = videoPreview.videoHeight;
-            canvas.getContext('2d').drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(blob => {
-                if (blob) {
-                    searchImage(blob);
+        // --- Enter key ---
+        userInput.addEventListener('keypress', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+        // --- Audio recording ---
+        if (canRecord) {
+            recordButton.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    recordButton.textContent = 'Sprache aufnehmen';
+                } else {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(stream => {
+                            recordedChunks = [];
+                            mediaRecorder = new MediaRecorder(stream);
+                            mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+                            mediaRecorder.onstop = () => {
+                                const blob = new Blob(recordedChunks, { type:'audio/webm' });
+                                searchAudio(blob);
+                                stream.getTracks().forEach(t => t.stop());
+                            };
+                            mediaRecorder.start();
+                            recordButton.textContent = 'Stoppen';
+                        })
+                        .catch(err => console.error('Audio error', err));
                 }
-            }, 'image/png');
-            cameraStream.getTracks().forEach(t => t.stop());
-            cameraStream = null;
-            cameraContainer.style.display = 'none';
-            openCameraButton.style.display = 'inline-block';
-        });
+            });
+        }
 
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const query = userInput.value.trim();
-                if (query) {
-                    addMessage(query, true);
-                    userInput.value = '';
-                    searchProducts(query);
-                }
-            }
-        });
-
-        // Initial message
-        addMessage('Hallo! Wie kann ich Ihnen bei der Suche nach passenden Produkten helfen?', false);
+        // --- Initial bot message ---
+        const bot = createBotBubble();
+        bot.content.textContent = 'Hallo! Wie kann ich Ihnen bei der Suche nach passenden Produkten helfen?';
+        bot.cursor.remove();
     });
 </script>
+
 <style>
-    .chat-container {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        overflow: hidden;
-    }
+    /* ---- Container + chat history ---- */
+    .chat-container {border: 1px solid #e5e7eb; border-radius: .75rem; overflow: hidden; display: flex; flex-direction: column; background: transparent;}
+    #chat-messages {margin: 0; padding: 15px; height: 400px; overflow-y: auto; background-color: #f8f9fa; border-radius: .75rem .75rem 0 0; box-sizing: border-box;}
 
-    .chat-messages {
-        height: 300px;
-        overflow-y: auto;
-        padding: 15px;
-        background-color: #f8f9fa;
-    }
+    /* ---- Message bubbles ---- */
+    .message {margin-bottom: 12px; padding: 10px 14px; border-radius: 16px; max-width: 70%; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; box-sizing: border-box;}
+    .user-message {background-color: #007bff; color: #fff; border-bottom-right-radius: 4px; float: right;}
+    .system-message {background-color: #e9ecef; color: #212529; border-bottom-left-radius: 4px; float: left;}
 
-    .message {
-        margin-bottom: 15px;
-        padding: 10px 15px;
-        border-radius: 18px;
-        max-width: 80%;
-        clear: both;
-    }
+    /* ---- Message groups ---- */
+    .message-group {display: block; clear: both; margin-bottom: 10px;}
+    .user-row, .bot-row {clear: both; display: flex; align-items: flex-end; gap: 10px; margin-bottom: 6px;}
+    .bot-container {display: flex; align-items: flex-end; gap: 10px; margin-bottom: 6px;}
 
-    .user-message {
-        background-color: #007bff;
-        color: white;
-        float: right;
-    }
+    /* ---- Bot avatar ---- */
+    .bot-avatar {width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; align-self: flex-end; object-fit: cover; box-shadow: 0 2px 6px rgba(16,24,40,0.06);}
 
-    .system-message {
-        background-color: #e9ecef;
-        color: #212529;
-        float: left;
-    }
+    /* ---- Bot bubble ---- */
+    .bot-bubble {background: #e5e5ea; color: #000; border-radius: 18px; border-bottom-left-radius: 4px; padding: 10px 14px; max-width: 75%; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(16,24,40,0.04);}
 
-        .message p {
-        margin: 0;
-    }
+    /* ---- User image messages ---- */
+    .user-image-row {display: flex; justify-content: flex-end; margin-bottom: 6px;}
+    .msg-image {max-width: 220px; max-height: 220px; border-radius: 8px; display: block; object-fit: cover; box-shadow: 0 6px 18px rgba(16,24,40,0.06);}
 
-    .w-150p {
-        width: 150px;
+    /* ---- Chat input ---- */
+    .chat-box {display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 8px; padding: 6px 10px; background: #f3f4f6; border-top: 1px solid rgba(0,0,0,0.04); border-radius: 0 0 .75rem .75rem; box-sizing: border-box;}
+    #chat-inline-preview {grid-column: 1 / -1; display: none; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 6px; box-sizing: border-box;}
+    #chat-inline-preview .thumb {position: relative; width: 80px; height: 80px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(16,24,40,0.08);}
+    #chat-inline-preview .thumb img {width: 100%; height: 100%; object-fit: cover; display: block;}
+    #chat-inline-preview .thumb .thumb-remove {position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.95); color: #111827; border-radius: 50%; border: none; cursor: pointer; font-size: 11px; line-height: 1; box-shadow: 0 2px 6px rgba(2,6,23,0.12); padding: 0;}
+
+    /* ---- Textarea ---- */
+    .chat-input {grid-column: 1 / 2; width: 100%; min-width: 0; height: 40px; padding: 8px; border: none; outline: none; background: transparent; resize: none; font-size: 1rem; line-height: 1.4; box-sizing: border-box; color: inherit;}
+    .chat-input:focus {box-shadow: none;}
+
+    /* ---- Buttons ---- */
+    .chat-buttons {grid-column: 2 / 3; display: flex; align-items: center; gap: 6px; justify-self: end;}
+    .upload-btn, .record-btn, .send-btn {display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 8px; border: none; background: transparent; cursor: pointer; box-sizing: border-box;}
+    .upload-btn .icon, .record-btn svg, .send-btn svg {width: 20px; height: 20px; color: #212529;}
+    .upload-btn:hover, .record-btn:hover, .send-btn:hover {background: rgba(0,0,0,0.03);}
+    .file-input-hidden {display: none !important;}
+
+    /* ---- Responsive ---- */
+    @media (max-width: 480px) {
+        .upload-btn, .record-btn, .send-btn { width: 32px; height: 32px; }
+        .upload-btn .icon, .record-btn svg, .send-btn svg { width: 18px; height: 18px; }
+        #chat-inline-preview .thumb { width: 48px; height: 48px; }
     }
 </style>
 {% endblock %}
